@@ -3,21 +3,29 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "d55e5938c9ff9b8a76122d4624bf5442",
+    "hash": "1d02aa21a378749f995a4460e72a1daf",
     "packages": [
         {
             "name": "ql/mcp-core",
-            "version": "1.0.0-RC1",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "git@git:/MNagi/mcp-core.git",
-                "reference": "1.0.0-RC1"
+                "reference": "1.0.0"
             },
             "dist": {
                 "type": "zip",
-                "url": "http://composer//dist/ql-mcp-core-1.0.0-RC1-7537cc.zip",
-                "reference": "1.0.0-RC1",
-                "shasum": "e92b447a69c07e1969aa150d99b4bf7b28b0ac37"
+                "url": "http://composer//dist/ql-mcp-core-1.0.0-91e95b.zip",
+                "reference": "1.0.0",
+                "shasum": "7b77bd151460405fb9232c3664a8d4d338f85bb4"
+            },
+            "archive": {
+                "exclude": [
+                    "/bin",
+                    "/tests",
+                    "/pakefile",
+                    "/phpunit.xml.dist"
+                ]
             },
             "require": {
                 "ext-date": "*",
@@ -29,8 +37,6 @@
                 "ql/mcp": "*"
             },
             "require-dev": {
-                "pdepend/pdepend": "*",
-                "phpmd/phpmd": "*",
                 "phpunit/php-invoker": "*",
                 "phpunit/phpunit": "*",
                 "squizlabs/php_codesniffer": "*"
@@ -38,7 +44,8 @@
             "type": "library",
             "autoload": {
                 "psr-0": {
-                    "MCP": "src"
+                    "MCP\\DataType\\": "src",
+                    "MCP\\IO\\": "src"
                 }
             },
             "license": [
@@ -52,13 +59,14 @@
                     "homepage": "http://rwprofile/MySite/Public.aspx?accountname=MI%5cMNagi"
                 }
             ],
-            "description": "Core data structures used by all other mcp packages.",
+            "description": "Provides various 'data type' style classes: GUID, HttpUrl, IPv4Address, USAddress, and date/time related functionality.",
+            "homepage": "http://git/mnagi/mcp-core",
             "support": {
                 "email": "mattnagi@quickenloans.com",
                 "issues": "http://git/mnagi/mcp-core/issues",
                 "source": "http://git/mnagi/mcp-core"
             },
-            "time": "2013-04-23 20:05:43"
+            "time": "2013-08-15 13:24:17"
         }
     ],
     "packages-dev": [
@@ -618,9 +626,9 @@
 
     ],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "ql/mcp-core": 5
-    },
+    "stability-flags": [
+
+    ],
     "platform": {
         "php": ">=5.4.0",
         "ext-http": "*",

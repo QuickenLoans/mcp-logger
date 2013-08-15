@@ -45,16 +45,18 @@
         "ext-http": "*",
         "ext-date": "*",
         "ext-xmlwriter": "*",
-        "ql/mcp-core": "1.0.*@RC"
+        "ql/mcp-core": "1.*"
     },
     "require-dev": {
         "mockery/mockery": ">=0.8",
         "phpunit/phpunit": "*",
         "phpunit/php-invoker": "*",
-
         "psr/log": "*"
     },
     "suggest": {
         "psr/log": "Required to use the included PSR-3 logger"
+    },
+    "archive": {
+        "exclude": ["/bin", "/tests", "/fixtures", "/phpunit.xml.dist"]
     }
 }
