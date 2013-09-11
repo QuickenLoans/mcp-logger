@@ -98,7 +98,7 @@ trait MessageLoadingTrait
      * @param array $inputData
      * @param string $type
      * @param boolean $isRequired
-     * @param IPv4Address|null $default
+     * @param mixed|null $default
      * @throws InvalidArgumentException
      * @return mixed
      */
