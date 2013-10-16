@@ -95,7 +95,7 @@ use MCP\Service\Logger\Message\Message;
 
 $message = new Message(
     array(
-        'applicationId' => '1'
+        'applicationId' => '1',
         'createTime' => new TimePoint(2013, 8, 15, 0, 0, 0, 'UTC'),
         'machineIPAddress' => new IPv4Address(0),
         'machineName' => 'ServerName',
