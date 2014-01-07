@@ -1,6 +1,6 @@
 {
     "name": "ql/mcp-logger",
-    "description": "Libraries for handing Core Logger within Quicken Loans.",
+    "description": "Library for handling Core Logger within Quicken Loans.",
     "license": "proprietary",
     "authors": [
         {
@@ -35,9 +35,9 @@
         ]
     },
     "autoload": {
-        "psr-0": {
-            "MCP\\Service\\Logger\\": "src",
-            "MCP\\Testing\\": "src"
+        "psr-4": {
+            "MCP\\Service\\Logger\\": "src/Logger",
+            "MCP\\Testing\\": "src/Testing"
         }
     },
     "conflict": {
