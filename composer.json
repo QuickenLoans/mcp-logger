@@ -25,6 +25,15 @@
         "source": "http://git/mnagi/mcp-logger"
     },
 
+    "archive": {
+        "exclude": [
+            "/bin",
+            "/fixtures",
+            "/phpunit.xml.dist",
+            "src/MCP/Testing",
+            "/tests"
+        ]
+    },
     "autoload": {
         "psr-0": {
             "MCP\\Service\\Logger\\": "src",
@@ -55,8 +64,5 @@
     },
     "suggest": {
         "psr/log": "Required to use the included PSR-3 logger"
-    },
-    "archive": {
-        "exclude": ["/bin", "/tests", "/fixtures", "/phpunit.xml.dist"]
     }
 }
