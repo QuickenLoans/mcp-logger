@@ -51,18 +51,20 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "ext-http": "*",
         "ext-date": "*",
         "ext-xmlwriter": "*",
         "ql/mcp-core": "1.*"
     },
     "require-dev": {
+        "guzzle/http": "*",
         "mockery/mockery": ">=0.8",
         "phpunit/phpunit": "*",
         "phpunit/php-invoker": "*",
         "psr/log": "*"
     },
     "suggest": {
+        "ext-http": "Required for HttpRequest-based service",
+        "guzzle/http": "Required for Guzzle-based service",
         "psr/log": "Required to use the included PSR-3 logger"
     }
 }
