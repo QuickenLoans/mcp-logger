@@ -69,18 +69,17 @@ A Message Factory
 #### Setup
 
 **Note:**  
-The target url **MUST** be set on the `HttpRequest` that is passed to the service.
+The target url **MUST** be set on the `Client` or `Request` that is passed to the service.
 
 ```php
-use HttpRequest;
-use MCP\Service\Logger\HttpService;
+use Guzzle\Http\Client;
 use MCP\Service\Logger\Renderer\XmlRenderer;
-use MCP\Service\Logger\Service\HttpService;
+use MCP\Service\Logger\Service\GuzzleService;
 use XMLWriter;
 
 $renderer = new XmlRenderer(new XMLWriter);
-$request = new HttpRequest('http://sonic');
-$service = new HttpService($request, $renderer);
+$client = new Client('http://sonic');
+$service = new GuzzleService($client, $renderer);
 ```
 
 #### Sending a message
@@ -163,17 +162,16 @@ specifically converts a PSR-3 log level to a core log level.
 ### In use
 
 ```php
-use HttpRequest;
+use Guzzle\Http\Client;
 use MCP\Service\Logger\Adapter\Psr\MessageFactory;
-use MCP\Service\Logger\HttpService;
 use MCP\Service\Logger\Logger;
 use MCP\Service\Logger\Renderer\XmlRenderer;
-use MCP\Service\Logger\Service\HttpService;
+use MCP\Service\Logger\Service\GuzzleService;
 use XMLWriter;
 
 $renderer = new XmlRenderer(new XMLWriter);
-$request = new HttpRequest('http://sonic');
-$service = new HttpService($request, $renderer);
+$client = new Client('http://sonic');
+$service = new GuzzleService($client, $renderer);
 
 $clock = new Clock('now', 'UTC');
 $factory = new MessageFactory($clock);
@@ -239,8 +237,8 @@ The following properties are required but will populate with defaults if missing
 
 See also:
 
-* [MessageInterface.php](src/MCP/Service/Logger/MessageInterface.php)
-* [Message.php](src/MCP/Service/Logger/Message/Message.php)
+* [MessageInterface.php](src/Logger/MessageInterface.php)
+* [Message.php](src/Logger/Message/Message.php)
 * [Core Logger Specifications](https://itiki/index.php/Core_Logger)
 
 #### MCP\Service\Logger\RendererInterface
@@ -259,8 +257,8 @@ $output = $renderer($message);
 
 See also:
 
-* [RendererInterface.php](src/MCP/Service/Logger/RendererInterface.php)
-* [XmlRenderer.php](src/MCP/Service/Logger/Renderer/XmlRenderer.php)
+* [RendererInterface.php](src/Logger/RendererInterface.php)
+* [XmlRenderer.php](src/Logger/Renderer/XmlRenderer.php)
 
 #### MCP\Service\Logger\ServiceInterface
 
@@ -276,8 +274,9 @@ $service->send($message);
 
 See also:
 
-* [ServiceInterface.php](src/MCP/Service/Logger/ServiceInterface.php)
-* [HttpService.php](src/MCP/Service/Logger/Service/HttpService.php)
+* [ServiceInterface.php](src/Logger/ServiceInterface.php)
+* [HttpService.php](src/Logger/Service/HttpService.php)
+* [GuzzleService.php](src/Logger/Service/GuzzleService.php)
 
 ## Contribute
 
