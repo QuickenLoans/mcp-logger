@@ -66,6 +66,9 @@ class XmlRenderer implements RendererInterface
         $date = ($message->createTime() !== null) ? $message->createTime()->format(DateTime::RFC3339, 'UTC') : null;
         $this->addNode($xml, 'CreateTime', $date);
 
+        // Optional - MUST BE BEFORE EXTENDED PROPERTIES
+        $this->addOptionalNode($xml, 'ExceptionData', $this->sanitizeString($message->exceptionData()));
+
         $this->addExtendedPropertiesNode($xml, $message->extendedProperties());
 
         $this->addNode($xml, 'IsUserDisrupted', $this->sanitizeBoolean($message->isUserDisrupted()));
@@ -80,7 +83,6 @@ class XmlRenderer implements RendererInterface
         // Optional
         $this->addOptionalNode($xml, 'AffectedSystem', $this->sanitizeString($message->affectedSystem()));
         $this->addOptionalNode($xml, 'CategoryId', $this->sanitizeInteger($message->categoryId()));
-        $this->addOptionalNode($xml, 'ExceptionData', $this->sanitizeString($message->exceptionData()));
         $this->addOptionalNode($xml, 'Referrer', $this->sanitizeString($message->referrer()));
         $this->addOptionalNode($xml, 'RequestMethod', $this->sanitizeString($message->requestMethod()));
         $this->addOptionalNode($xml, 'Url', $this->sanitizeString($message->url()));

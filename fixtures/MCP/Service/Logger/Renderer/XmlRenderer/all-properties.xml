@@ -1,6 +1,7 @@
 <LogEntry xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://rock/framework/logging">
     <ApplicationId>10</ApplicationId>
     <CreateTime>1977-05-25 03:00:00</CreateTime>
+    <ExceptionData>beep boop</ExceptionData>
     <ExtendedProperties xmlns:d2p1="http://schemas.datacontract.org/2004/07/Rock.Framework.Logging">
         <d2p1:Entry>
             <d2p1:Key>key</d2p1:Key>
@@ -18,7 +19,6 @@
     <Message>I used to bullseye womp rats in my T-16</Message>
     <AffectedSystem>Empire</AffectedSystem>
     <CategoryId>200</CategoryId>
-    <ExceptionData>beep boop</ExceptionData>
     <Referrer>Uncle Ben</Referrer>
     <RequestMethod>DELETE</RequestMethod>
     <Url>Spaaaaaace</Url>
