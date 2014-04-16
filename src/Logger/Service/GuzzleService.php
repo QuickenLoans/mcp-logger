@@ -77,8 +77,8 @@ class GuzzleService implements ServiceInterface
 
         } else {
             $response = $request->send();
-            if ($response->getResponseCode() !== 200) {
-                throw new Exception(sprintf(self::ERR_RESPONSE_CODE, $response->getResponseCode()));
+            if ($response->getStatusCode() !== 200) {
+                throw new Exception(sprintf(self::ERR_RESPONSE_CODE, $response->getStatusCode()));
             }
         }
     }
