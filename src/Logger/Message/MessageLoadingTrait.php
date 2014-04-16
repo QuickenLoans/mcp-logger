@@ -126,21 +126,32 @@ trait MessageLoadingTrait
                 throw new InvalidArgumentException(sprintf("'%s' must be an instance of '%s'.", $name, 'array'));
             }
 
-            foreach ($inputData[$name] as $key => $value) {
+            foreach ($inputData[$name] as $key => &$value) {
                 if (is_int($key)) {
-                    throw new InvalidArgumentException('Extended Properties must use named keys.');
+                    // Remove the data if it has no property name.
+                    // If you try to pass a non-associative array as context, this will wipe remove that data.
+                    unset($inputData[$name][$key]);
+                    continue;
+                }
+
+                if (null === $value || is_bool($value)) {
+                    $value = var_export($value, true);
                 }
 
                 if (is_array($value)) {
-                    throw new InvalidArgumentException('Extended Properties must not nest arrays.');
+                    $value = json_encode($value, JSON_PRETTY_PRINT);
                 }
 
-                if (!is_scalar($value) &&
-                    !(is_object($value) && is_callable(array($value, '__toString')))
-                ) {
-                    throw new InvalidArgumentException(
-                        'Extended Properties must be scalars or objects that implement __toString.'
-                    );
+                // stringify scalars and stringable classes
+                if (is_scalar($value) || (is_object($value) && is_callable([$value, '__toString']))) {
+                    $value = (string) $value;
+
+                } elseif (is_object($value)) {
+                    $value = sprintf('[object] %s', get_class($value));
+                }
+
+                if (is_resource($value)) {
+                    $value = '[resource]';
                 }
             }
         }

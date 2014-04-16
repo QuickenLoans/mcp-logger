@@ -136,11 +136,11 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
             'machineIPAddress' => Mockery::mock('MCP\DataType\IPv4Address'),
             'machineName' => 'TestMachine'
         );
-        $expectedUnknownProperty = array('unknown' => new Stringable);
+        $expectedUnknownProperty = ['unknown' => new Stringable];
 
         $factory = new MessageFactory($clock, array_merge($expectedDefaults, $expectedUnknownProperty));
         $actual = $factory->buildMessage('', 'message');
 
-        $this->assertSame($expectedUnknownProperty, $actual->extendedProperties());
+        $this->assertSame(['unknown' => ''], $actual->extendedProperties());
     }
 }

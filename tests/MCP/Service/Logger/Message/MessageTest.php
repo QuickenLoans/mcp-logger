@@ -52,40 +52,64 @@ class MessageTest extends TestCase
         $message = new Message($fixture);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Extended Properties must use named keys
-     */
-    public function testIndexedExtendedPropertiesThrowsException()
+    public function testIndexedExtendedPropertiesAreSkipped()
     {
         $fixture = $this->loadPhpFixture('minimum-properties.phpd');
         $fixture['extendedProperties'] = array('tacos');
 
         $message = new Message($fixture);
+        $this->assertSame([], $message->extendedProperties());
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Extended Properties must not nest arrays
-     */
-    public function testNestedArrayInExtendedPropertiesThrowsException()
+    public function testNestedArrayInExtendedPropertiesIsJsonified()
     {
         $fixture = $this->loadPhpFixture('minimum-properties.phpd');
-        $fixture['extendedProperties'] = array('key' => array('tacos'));
+        $fixture['extendedProperties'] = ['key' => ['tacos']];
+
+        $expected = <<<'JSON'
+[
+    "tacos"
+]
+JSON;
 
         $message = new Message($fixture);
+        $this->assertSame(['key' => $expected], $message->extendedProperties());
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Extended Properties must be scalars or objects that implement __toString
-     */
-    public function testInvalidObjectInExtendedPropertiesThrowsException()
+    public function testNonAssociativeArrayValuesAreSkipped()
     {
         $fixture = $this->loadPhpFixture('minimum-properties.phpd');
-        $fixture['extendedProperties'] = array('key' => new stdClass);
+        $fixture['extendedProperties'] = ['this', 'that'];
 
         $message = new Message($fixture);
+        $this->assertSame([], $message->extendedProperties());
+    }
+
+    public function testUnstringableObjectIsTypeChecked()
+    {
+        $fixture = $this->loadPhpFixture('minimum-properties.phpd');
+        $fixture['extendedProperties'] = ['key' => new stdClass];
+
+        $message = new Message($fixture);
+        $this->assertSame(['key' => '[object] stdClass'], $message->extendedProperties());
+    }
+
+    public function testResourcePropertyIsHandled()
+    {
+        $fixture = $this->loadPhpFixture('minimum-properties.phpd');
+        $fixture['extendedProperties'] = ['key' => fopen('php://stdout', 'r')];
+
+        $message = new Message($fixture);
+        $this->assertSame(['key' => '[resource]'], $message->extendedProperties());
+    }
+
+    public function testBooleanIsHandled()
+    {
+        $fixture = $this->loadPhpFixture('minimum-properties.phpd');
+        $fixture['extendedProperties'] = ['key' => false];
+
+        $message = new Message($fixture);
+        $this->assertSame(['key' => 'false'], $message->extendedProperties());
     }
 
     /**
