@@ -10,7 +10,6 @@ namespace MCP\Service\Logger\Service;
 use Guzzle\Common\Exception\GuzzleException;
 use Guzzle\Http\ClientInterface;
 use Guzzle\Http\Message\RequestInterface;
-use Guzzle\Http\Message\Response;
 use MCP\Service\Logger\Exception;
 use MCP\Service\Logger\MessageInterface;
 use MCP\Service\Logger\RendererInterface;
@@ -31,7 +30,7 @@ class GuzzleService implements ServiceInterface
     /**
      * @var ClientInterface
      */
-    private $httpClient;
+    private $client;
 
     /**
      * @var RendererInterface
