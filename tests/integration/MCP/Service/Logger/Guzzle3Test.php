@@ -7,12 +7,12 @@
 
 namespace MCP\Service\Logger;
 
-use HttpRequest;
+use Guzzle\Http\Client;
 use MCP\DataType\IPv4Address;
 use MCP\DataType\Time\Clock;
 use MCP\Service\Logger\Message\Message;
 use MCP\Service\Logger\Renderer\XmlRenderer;
-use MCP\Service\Logger\Service\HttpService;
+use MCP\Service\Logger\Service\GuzzleService;
 use PHPUnit_Framework_TestCase;
 use XMLWriter;
 
@@ -20,35 +20,23 @@ use XMLWriter;
  * @coversNothing
  * @group integration
  */
-class IntegrationTest extends PHPUnit_Framework_TestCase
+class Guzzle3IntegrationTest extends PHPUnit_Framework_TestCase
 {
     public function test()
     {
-        $request = new HttpRequest(
-            'http://qlsonictest:2581/web/core/logentries',
-            null,
-            array(
-                'timeout' => 5,
-                'connecttimeout' => 5,
-                'useragent' => 'MCP-TEST'
-            )
-        );
-
+        $client = new Client('http://qlsonictest:2581/web/core/logentries');
         $clock = new Clock('now', 'America/Detroit');
-        $ip = new IPv4Address(0);
 
-        $message = new Message(
-            array(
+        $message = new Message([
                 'applicationId' => '200001',
                 'createTime' => $clock->read(),
-                'machineIPAddress' => $ip,
+                'machineIPAddress' => new IPv4Address(0),
                 'machineName' => 'Test',
                 'message' => 'Hello World!' // not actually required!
-            )
-        );
+        ]);
 
         $renderer = new XmlRenderer(new XMLWriter);
-        $service = new HttpService($request, $renderer);
+        $service = new GuzzleService($client, $renderer);
 
         $this->assertNull($service->send($message));
     }
