@@ -1,5 +1,4 @@
 # miscellaneous
-/phpmd.xml
 /phpunit.xml
 
 # ide specific configuration
@@ -11,4 +10,5 @@
 /build/
 
 # package installation
+/composer.lock
 /vendor/
