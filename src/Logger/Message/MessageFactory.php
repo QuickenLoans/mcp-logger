@@ -34,7 +34,7 @@ class MessageFactory implements LogLevelInterface, MessageFactoryInterface
     /**
      * @var string
      */
-    const ERR_UNRENDERABLE = 'Log Properties must be scalars or objects that implement __toString.';
+    const ERR_UNRENDERABLE = 'Invalid property: "%s". Log Properties must be scalars or objects that implement __toString.';
 
     /**
      * @var string
@@ -111,7 +111,7 @@ class MessageFactory implements LogLevelInterface, MessageFactoryInterface
      */
     private function validateProperty($name, $value)
     {
-        if (is_scalar($value)) {
+        if (is_scalar($value) || is_null($value)) {
             return;
         }
 
@@ -127,7 +127,7 @@ class MessageFactory implements LogLevelInterface, MessageFactoryInterface
             return;
         }
 
-        throw new InvalidArgumentException(self::ERR_UNRENDERABLE);
+        throw new InvalidArgumentException(sprintf(self::ERR_UNRENDERABLE, $name));
     }
 
     /**
