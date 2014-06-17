@@ -8,6 +8,7 @@
 namespace MCP\Service\Logger\Service;
 
 use Guzzle\Http\Exception\RequestException;
+use Guzzle\Http\Message\Response;
 use Mockery;
 use PHPUnit_Framework_TestCase;
 
@@ -47,7 +48,7 @@ class GuzzleServiceTest extends PHPUnit_Framework_TestCase
         $renderer = Mockery::mock('MCP\Service\Logger\RendererInterface');
         $message = Mockery::mock('MCP\Service\Logger\MessageInterface');
 
-        $response = Mockery::mock('Guzzle\Http\Message\Response', ['getStatusCode' => 404]);
+        $response = new Response(404);
         $request = Mockery::mock('Guzzle\Http\Message\RequestInterface', ['send' => $response]);
 
         $client = Mockery::mock('Guzzle\Http\ClientInterface', array('getBaseUrl' => '/some/url'));
@@ -103,7 +104,7 @@ class GuzzleServiceTest extends PHPUnit_Framework_TestCase
         $renderer = Mockery::mock('MCP\Service\Logger\RendererInterface');
         $message = Mockery::mock('MCP\Service\Logger\MessageInterface');
 
-        $response = Mockery::mock('Guzzle\Http\Message\Response', ['getStatusCode' => 500]);
+        $response = new Response(500);
         $request = Mockery::mock('Guzzle\Http\Message\RequestInterface', ['send' => $response]);
 
         $client = Mockery::mock('Guzzle\Http\ClientInterface', array('getBaseUrl' => '/some/url'));

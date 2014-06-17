@@ -49,7 +49,7 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
 
         $client = Mockery::mock('GuzzleHttp\ClientInterface', [
             'getBaseUrl' => '/some/url',
-            'post' => Mockery::mock('Guzzle\Http\Message\Response', ['getStatusCode' => 404])
+            'post' => Mockery::mock('GuzzleHttp\Message\Response', ['getStatusCode' => 404])
         ]);
 
         $renderer
@@ -96,7 +96,7 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
 
         $client = Mockery::mock('GuzzleHttp\ClientInterface', [
             'getBaseUrl' => '/some/url',
-            'post' => Mockery::mock('Guzzle\Http\Message\Response', ['getStatusCode' => 404])
+            'post' => Mockery::mock('GuzzleHttp\Message\Response', ['getStatusCode' => 404])
         ]);
 
         $renderer
