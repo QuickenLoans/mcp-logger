@@ -8,10 +8,10 @@
 namespace MCP\Service\Logger\Renderer;
 
 use Mockery;
-use MCP\Testing\TestCase;
+use MCP\Testing\FixtureLoadingTestCase;
 use XMLWriter;
 
-class XmlRendererTest extends TestCase
+class XmlRendererTest extends FixtureLoadingTestCase
 {
     /**
      * @dataProvider providerFixtureNames

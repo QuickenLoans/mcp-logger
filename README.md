@@ -299,13 +299,10 @@ bin/clean
 #### Run unit tests
 
 ```bash
-bin/test
+vendor/bin/phpunit
 
 # Run specific unit tests
-bin/test <file|directory>
-
-# Run unit tests for rapid development without statistics
-bin/test --rapid <file|directory>
+vendor/bin/phpunit <file|directory>
 
 # Run integration tests
 vendor/bin/phpunit --group integration

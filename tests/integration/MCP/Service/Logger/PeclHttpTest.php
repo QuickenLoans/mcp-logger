@@ -8,20 +8,15 @@
 namespace MCP\Service\Logger;
 
 use HttpRequest;
-use MCP\DataType\IPv4Address;
-use MCP\DataType\Time\Clock;
 use MCP\Service\Logger\Message\Message;
-use MCP\Service\Logger\Renderer\XmlRenderer;
 use MCP\Service\Logger\Service\PeclHttpService;
-use PHPUnit_Framework_TestCase;
-use QL\UriTemplate\UriTemplate;
-use XMLWriter;
+use MCP\Testing\IntegrationTestCase;
 
 /**
  * @coversNothing
  * @group integration
  */
-class PeclIntegrationTest extends PHPUnit_Framework_TestCase
+class PeclIntegrationTest extends IntegrationTestCase
 {
     public function test()
     {
@@ -32,20 +27,12 @@ class PeclIntegrationTest extends PHPUnit_Framework_TestCase
             'useragent' => 'MCP-TEST'
         ]);
 
-        $clock = new Clock('now', 'America/Detroit');
+        $service = new PeclHttpService($request, $this->renderer, $this->uri);
 
-        $message = new Message([
-                'applicationId' => '200001',
-                'createTime' => $clock->read(),
-                'machineIPAddress' => new IPv4Address(0),
-                'machineName' => 'Test',
-                'message' => 'Hello World!' // not actually required!
-        ]);
+        $this->defaultMessage['extendedProperties']['serviceType'] = get_class($service);
+        $message = new Message($this->defaultMessage);
+        $response = $service->send($message);
 
-        $uri = new UriTemplate('http://qlsonictest:2581/web/core/logentries');
-        $renderer = new XmlRenderer(new XMLWriter);
-        $service = new PeclHttpService($request, $renderer, $uri);
-
-        $this->assertNull($service->send($message));
+        $this->assertNull($response);
     }
 }

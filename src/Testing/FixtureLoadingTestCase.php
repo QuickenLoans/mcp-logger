@@ -11,11 +11,9 @@ use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 
 /**
- * Shamelessly stolen from ql/qa-toolchain
- *
  * @codeCoverageIgnore
  */
-class TestCase extends PHPUnit_Framework_TestCase
+class FixtureLoadingTestCase extends PHPUnit_Framework_TestCase
 {
     const FIXTURES_DIR = FIXTURES_DIR;
 

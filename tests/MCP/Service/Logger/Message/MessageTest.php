@@ -8,13 +8,13 @@
 namespace MCP\Service\Logger\Message;
 
 use stdClass;
-use MCP\Testing\TestCase;
+use MCP\Testing\FixtureLoadingTestCase;
 
 /**
  * @covers MCP\Service\Logger\Message\Message
  * @covers MCP\Service\Logger\Message\MessageLoadingTrait
  */
-class MessageTest extends TestCase
+class MessageTest extends FixtureLoadingTestCase
 {
     /**
      * @dataProvider providerMissingRequiredFields
