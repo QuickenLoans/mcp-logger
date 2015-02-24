@@ -234,8 +234,8 @@ The following properties are required but will populate with defaults if missing
 
 See also:
 
-* [MessageInterface.php](src/Logger/MessageInterface.php)
-* [Message.php](src/Logger/Message/Message.php)
+* [MessageInterface.php](src/MessageInterface.php)
+* [Message.php](src/Message/Message.php)
 * [Core Logger Specifications](https://itiki/index.php/Core_Logger)
 
 #### MCP\Logger\RendererInterface
@@ -254,8 +254,8 @@ $output = $renderer($message);
 
 See also:
 
-* [RendererInterface.php](src/Logger/RendererInterface.php)
-* [XmlRenderer.php](src/Logger/Renderer/XmlRenderer.php)
+* [RendererInterface.php](src/RendererInterface.php)
+* [XmlRenderer.php](src/Renderer/XmlRenderer.php)
 
 #### MCP\Logger\ServiceInterface
 
@@ -271,11 +271,11 @@ $service->send($message);
 
 See also:
 
-* [ServiceInterface.php](src/Logger/ServiceInterface.php)
-* [PeclHttpService.php](src/Logger/Service/PeclHttpService.php)
-* [Guzzle3Service.php](src/Logger/Service/Guzzle3Service.php)
-* [Guzzle4Service.php](src/Logger/Service/Guzzle4Service.php)
-* [Guzzle5Service.php](src/Logger/Service/Guzzle5Service.php)
+* [ServiceInterface.php](src/ServiceInterface.php)
+* [PeclHttpService.php](src/Service/PeclHttpService.php)
+* [Guzzle3Service.php](src/Service/Guzzle3Service.php)
+* [Guzzle4Service.php](src/Service/Guzzle4Service.php)
+* [Guzzle5Service.php](src/Service/Guzzle5Service.php)
 
 ## Contribute
 
