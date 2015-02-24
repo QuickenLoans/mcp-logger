@@ -18,20 +18,15 @@
     "archive": {
         "exclude": [
             "/bin",
-            "/fixtures",
             "/phpunit.xml.dist",
-            "src/MCP/Testing",
-            "/tests"
+            "/testing"
         ]
     },
     "autoload": {
         "psr-4": {
-            "MCP\\Service\\Logger\\": "src/Logger",
-            "MCP\\Testing\\": "src/Testing"
+            "MCP\\Logger\\": "src",
+            "MCP\\Logger\\Testing\\": "testing/src"
         }
-    },
-    "conflict": {
-        "ql/mcp": "*"
     },
     "repositories": [
         {

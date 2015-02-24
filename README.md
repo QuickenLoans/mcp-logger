@@ -41,28 +41,28 @@ Add the following to your project's `composer.json`:
 
 The MCP Logger consists of 3 main components:
 
-* [MCP\Service\Logger\MessageInterface](#mcpserviceloggermessageinterface)
-* [MCP\Service\Logger\RendererInterface](#mcpserviceloggerrendererinterface)
-* [MCP\Service\Logger\ServiceInterface](#mcpserviceloggerserviceinterface)
+* [MCP\Logger\MessageInterface](#mcploggermessageinterface)
+* [MCP\Logger\RendererInterface](#mcploggerrendererinterface)
+* [MCP\Logger\ServiceInterface](#mcploggerserviceinterface)
 
 **In a single sentence:**  
 The `Renderer` renders a `Message` that is sent by the `Service`.
 
 There are default implementations of each of these components:
 
-* [MCP\Service\Logger\Message\Message](#mcpserviceloggermessageinterface)
-* [MCP\Service\Logger\Renderer\XmlRenderer](#mcpserviceloggerrendererinterface)
-* [MCP\Service\Logger\Service\HttpService](#mcpserviceloggerserviceinterface)
+* [MCP\Logger\Message\Message](#mcploggermessageinterface)
+* [MCP\Logger\Renderer\XmlRenderer](#mcploggerrendererinterface)
+* [MCP\Logger\Service\HttpService](#mcploggerserviceinterface)
 
 In addition there are several convenience classes:
 
 A PSR-3 Logger:
 
-* [MCP\Service\Logger\Logger](#psr-3)
+* [MCP\Logger\Logger](#psr-3)
 
 A Message Factory
 
-* [MCP\Service\Logger\Message\MessageFactory](#build-a-message-with-the-messagefactory)
+* [MCP\Logger\Message\MessageFactory](#build-a-message-with-the-messagefactory)
 
 ## Using MCP Logger
 
@@ -73,8 +73,8 @@ The target url **MUST** be set on the `Client` or `Request` that is passed to th
 
 ```php
 use Guzzle\Http\Client;
-use MCP\Service\Logger\Renderer\XmlRenderer;
-use MCP\Service\Logger\Service\GuzzleService;
+use MCP\Logger\Renderer\XmlRenderer;
+use MCP\Logger\Service\GuzzleService;
 use XMLWriter;
 
 $renderer = new XmlRenderer(new XMLWriter);
@@ -90,7 +90,7 @@ at a different level, you must provide it in the message data.
 ```php
 use MCP\DataType\IPv4Address;
 use MCP\DataType\Time\TimePoint;
-use MCP\Service\Logger\Message\Message;
+use MCP\Logger\Message\Message;
 
 $message = new Message(
     array(
@@ -114,7 +114,7 @@ so you do not have to populate these fields every time a message is logged.
 The factory will add `createTime`, `message`, and `level` to the message payload.
 ```php
 use MCP\DataType\Time\Clock;
-use MCP\Service\Logger\Message\MessageFactory;
+use MCP\Logger\Message\MessageFactory;
 
 $clock = new Clock('now', 'UTC');
 $factory = new MessageFactory($clock);
@@ -163,10 +163,10 @@ specifically converts a PSR-3 log level to a core log level.
 
 ```php
 use Guzzle\Http\Client;
-use MCP\Service\Logger\Adapter\Psr\MessageFactory;
-use MCP\Service\Logger\Logger;
-use MCP\Service\Logger\Renderer\XmlRenderer;
-use MCP\Service\Logger\Service\GuzzleService;
+use MCP\Logger\Adapter\Psr\MessageFactory;
+use MCP\Logger\Logger;
+use MCP\Logger\Renderer\XmlRenderer;
+use MCP\Logger\Service\GuzzleService;
 use XMLWriter;
 
 $renderer = new XmlRenderer(new XMLWriter);
@@ -192,7 +192,7 @@ $logger->warning('Warning Message!', $context);
 
 ## Components In Detail
 
-#### MCP\Service\Logger\MessageInterface
+#### MCP\Logger\MessageInterface
 
 The `Message` object has the following properties:
 
@@ -241,14 +241,14 @@ See also:
 * [Message.php](src/Logger/Message/Message.php)
 * [Core Logger Specifications](https://itiki/index.php/Core_Logger)
 
-#### MCP\Service\Logger\RendererInterface
+#### MCP\Logger\RendererInterface
 
 The `Renderer` is not directly used by consumers of this package. The renderer provided to the
 service will be invoked upon the message and format the message so it can be sent. The provided renderer
 converts a message to an XML string.
 
 ```php
-use MCP\Service\Logger\Renderer\XmlRenderer;
+use MCP\Logger\Renderer\XmlRenderer;
 use XMLWriter;
 
 $renderer = new XmlRenderer(new XMLWriter);
@@ -260,12 +260,12 @@ See also:
 * [RendererInterface.php](src/Logger/RendererInterface.php)
 * [XmlRenderer.php](src/Logger/Renderer/XmlRenderer.php)
 
-#### MCP\Service\Logger\ServiceInterface
+#### MCP\Logger\ServiceInterface
 
 By default, the provided Http Service silently consumes exceptions if the http request fails.
 
 ```php
-use MCP\Service\Logger\Service\HttpService;
+use MCP\Logger\Service\HttpService;
 
 $isSilent = false;
 $service = new HttpService($request, $renderer, $isSilent);
@@ -301,9 +301,9 @@ bin/clean
 ```bash
 vendor/bin/phpunit
 
-# Run specific unit tests
-vendor/bin/phpunit <file|directory>
+# Run unit tests
+vendor/bin/phpunit --testsuite unit
 
 # Run integration tests
-vendor/bin/phpunit --group integration
+vendor/bin/phpunit --testsuite integration
 ```
