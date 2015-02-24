@@ -58,7 +58,7 @@ class PeclHttpService implements ServiceInterface
         HttpRequest $request,
         RendererInterface $renderer,
         UriTemplate $uri,
-        $isSilent = false
+        $isSilent = true
     ) {
         $this->request = $request;
         $this->renderer = $renderer;

@@ -61,7 +61,7 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
             ->andReturn('rendered message')
             ->once();
 
-        $service = new Guzzle4Service($client, $renderer, $this->uri);
+        $service = new Guzzle4Service($client, $renderer, $this->uri, false);
         $service->send($message);
     }
 
@@ -84,7 +84,7 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
             ->with($message)
             ->andReturn('rendered message');
 
-        $service = new Guzzle4Service($client, $renderer, $this->uri);
+        $service = new Guzzle4Service($client, $renderer, $this->uri, false);
         $service->send($message);
     }
 

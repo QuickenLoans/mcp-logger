@@ -59,7 +59,7 @@ class Guzzle3Service implements ServiceInterface
         ClientInterface $client,
         RendererInterface $renderer,
         UriTemplate $uri,
-        $isSilent = false
+        $isSilent = true
     ) {
         $this->client = $client;
         $this->renderer = $renderer;

@@ -60,7 +60,7 @@ class Guzzle3ServiceTest extends PHPUnit_Framework_TestCase
             ->with($message)
             ->andReturn('rendered message');
 
-        $service = new Guzzle3Service($client, $renderer, $this->uri);
+        $service = new Guzzle3Service($client, $renderer, $this->uri, false);
         $service->send($message);
     }
 
@@ -91,7 +91,7 @@ class Guzzle3ServiceTest extends PHPUnit_Framework_TestCase
             ->with($message)
             ->andReturn('rendered message');
 
-        $service = new Guzzle3Service($client, $renderer, $this->uri);
+        $service = new Guzzle3Service($client, $renderer, $this->uri, false);
         $service->send($message);
     }
 

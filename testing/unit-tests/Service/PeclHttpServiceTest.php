@@ -64,7 +64,7 @@ class PeclHttpServiceTest extends PHPUnit_Framework_TestCase
             ->with($message)
             ->andReturn('rendered message');
 
-        $service = new PeclHttpService($request, $renderer, $this->uri);
+        $service = new PeclHttpService($request, $renderer, $this->uri, false);
         $service->send($message);
     }
 
@@ -97,7 +97,7 @@ class PeclHttpServiceTest extends PHPUnit_Framework_TestCase
             ->with($message)
             ->andReturn('rendered message');
 
-        $service = new PeclHttpService($request, $renderer, $this->uri);
+        $service = new PeclHttpService($request, $renderer, $this->uri, false);
         $this->assertNull($service->send($message));
     }
 

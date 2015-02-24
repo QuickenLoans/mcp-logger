@@ -48,12 +48,6 @@ The MCP Logger consists of 3 main components:
 **In a single sentence:**  
 The `Renderer` renders a `Message` that is sent by the `Service`.
 
-There are default implementations of each of these components:
-
-* [MCP\Logger\Message\Message](#mcploggermessageinterface)
-* [MCP\Logger\Renderer\XmlRenderer](#mcploggerrendererinterface)
-* [MCP\Logger\Service\HttpService](#mcploggerserviceinterface)
-
 In addition there are several convenience classes:
 
 A PSR-3 Logger:
@@ -68,18 +62,17 @@ A Message Factory
 
 #### Setup
 
-**Note:**  
-The target url **MUST** be set on the `Client` or `Request` that is passed to the service.
-
 ```php
-use Guzzle\Http\Client;
+use GuzzleHttp\Client;
 use MCP\Logger\Renderer\XmlRenderer;
-use MCP\Logger\Service\GuzzleService;
+use MCP\Logger\Service\Guzzle4Service;
+use QL\UriTemplate\UriTemplate;
 use XMLWriter;
 
 $renderer = new XmlRenderer(new XMLWriter);
-$client = new Client('http://sonic');
-$service = new GuzzleService($client, $renderer);
+$client = new Client;
+$uri = new UriTemplate('http://sonic');
+$service = new Guzzle4Service($client, $renderer, $uri);
 ```
 
 #### Sending a message
@@ -92,15 +85,13 @@ use MCP\DataType\IPv4Address;
 use MCP\DataType\Time\TimePoint;
 use MCP\Logger\Message\Message;
 
-$message = new Message(
-    array(
-        'applicationId' => '1',
-        'createTime' => new TimePoint(2013, 8, 15, 0, 0, 0, 'UTC'),
-        'machineIPAddress' => new IPv4Address(0),
-        'machineName' => 'ServerName',
-        'message' => 'This is a message'
-    )
-);
+$message = new Message([
+    'applicationId' => '1',
+    'createTime' => new TimePoint(2013, 8, 15, 0, 0, 0, 'UTC'),
+    'machineIPAddress' => new IPv4Address(0),
+    'machineName' => 'ServerName',
+    'message' => 'This is a message'
+]);
 
 // Send a message
 $service->send($message);
@@ -126,10 +117,12 @@ There are three ways to add data to a message when using the factory.
 
 In the constructor:
 ```php
-$factory = new MessageFactory($clock, array(
+use MCP\DataType\IPv4Address;
+
+$factory = new MessageFactory($clock, [
     'applicationId' => '1',
-    'machineIPAddress' => new MCP\DataType\IPv4Address(0)
-));
+    'machineIPAddress' => new IPv4Address(0)
+]);
 ```
 
 With a setter
@@ -139,10 +132,12 @@ $factory->setDefaultProperty('machineName', 'ServerName');
 
 As context data when building the message:
 ```php
+use MCP\DataType\IPv4Address;
+
 $message = $factory->buildMessage(
     MessageFactory::DEBUG,
     'A debug message',
-    array('userIPAddress' => new MCP\DataType\IPv4Address(0))
+    ['userIPAddress' => new IPv4Address(0)]
 );
 ```
 
@@ -162,16 +157,18 @@ specifically converts a PSR-3 log level to a core log level.
 ### In use
 
 ```php
-use Guzzle\Http\Client;
+use GuzzleHttp\Client;
+use MCP\DataType\IPv4Address;
 use MCP\Logger\Adapter\Psr\MessageFactory;
 use MCP\Logger\Logger;
 use MCP\Logger\Renderer\XmlRenderer;
-use MCP\Logger\Service\GuzzleService;
+use MCP\Logger\Service\Guzzle5Service;
 use XMLWriter;
 
 $renderer = new XmlRenderer(new XMLWriter);
-$client = new Client('http://sonic');
-$service = new GuzzleService($client, $renderer);
+$client = new Client;
+$uri = new UriTemplate('http://sonic');
+$service = new Guzzle5Service($client, $renderer, $uri);
 
 $clock = new Clock('now', 'UTC');
 $factory = new MessageFactory($clock);
@@ -186,7 +183,7 @@ $factory->setDefaultProperty('machineName', 'ServerName');
 $logger->error('Error Message!');
 
 // Log a warning
-$context = array('exceptionData' => 'stacktrace dump here');
+$context = ['exceptionData' => 'stacktrace dump here'];
 $logger->warning('Warning Message!', $context);
 ```
 
@@ -275,8 +272,10 @@ $service->send($message);
 See also:
 
 * [ServiceInterface.php](src/Logger/ServiceInterface.php)
-* [HttpService.php](src/Logger/Service/HttpService.php)
-* [GuzzleService.php](src/Logger/Service/GuzzleService.php)
+* [PeclHttpService.php](src/Logger/Service/PeclHttpService.php)
+* [Guzzle3Service.php](src/Logger/Service/Guzzle3Service.php)
+* [Guzzle4Service.php](src/Logger/Service/Guzzle4Service.php)
+* [Guzzle5Service.php](src/Logger/Service/Guzzle5Service.php)
 
 ## Contribute
 
