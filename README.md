@@ -259,13 +259,16 @@ See also:
 
 #### MCP\Logger\ServiceInterface
 
-By default, the provided Http Service silently consumes exceptions if the http request fails.
+By default, the provided Http Services silently consumes exceptions if the http request fails.
 
 ```php
-use MCP\Logger\Service\HttpService;
+use HttpRequest;
+use MCP\Logger\Service\PeclHttpService;
 
 $isSilent = false;
-$service = new HttpService($request, $renderer, $isSilent);
+
+$request = new HttpRequest;
+$service = new PeclHttpService($request, $renderer, $isSilent);
 $service->send($message);
 ```
 
