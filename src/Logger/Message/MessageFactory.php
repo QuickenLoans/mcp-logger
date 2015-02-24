@@ -35,11 +35,14 @@ class MessageFactory implements LogLevelInterface, MessageFactoryInterface
      * @var string
      */
     const ERR_UNRENDERABLE = 'Invalid property: "%s". Log Properties must be scalars or objects that implement __toString.';
+    const ERR_INVALID_IP = "'%s' must be an instance of IPv4Address.";
 
     /**
      * @var string
      */
-    const ERR_INVALID_IP = "'%s' must be an instance of IPv4Address.";
+    const DEFAULT_APPLICATION_ID = '200001';
+    const DEFAULT_MACHINE_NAME = 'unknown';
+    const DEFAULT_MACHINE_IP = '0.0.0.0';
 
     /**
      * @var Clock
@@ -60,16 +63,18 @@ class MessageFactory implements LogLevelInterface, MessageFactoryInterface
      * @param Clock $clock
      * @param mixed[] $defaultLogProperties
      */
-    public function __construct(Clock $clock, array $defaultLogProperties = array())
+    public function __construct(Clock $clock, array $defaultLogProperties = [])
     {
         $this->clock = $clock;
 
-        $this->logProperties = array();
+        $this->logProperties = [];
+        $this->addDefaultDefaultProperties();
+
         foreach ($defaultLogProperties as $property => $value) {
             $this->setDefaultProperty($property, $value);
         }
 
-        $this->knownProperties = array(
+        $this->knownProperties = [
             'affectedSystem',
             'applicationId',
             'categoryId',
@@ -86,7 +91,7 @@ class MessageFactory implements LogLevelInterface, MessageFactoryInterface
             'userIPAddress',
             'userName',
             'userScreenName'
-        );
+        ];
     }
 
     /**
@@ -123,7 +128,7 @@ class MessageFactory implements LogLevelInterface, MessageFactoryInterface
             throw new InvalidArgumentException(sprintf(self::ERR_INVALID_IP, $name));
         }
 
-        if (is_object($value) && is_callable(array($value, '__toString'))) {
+        if (is_object($value) && is_callable([$value, '__toString'])) {
             return;
         }
 
@@ -138,18 +143,18 @@ class MessageFactory implements LogLevelInterface, MessageFactoryInterface
      * @param array $context
      * @return Message
      */
-    public function buildMessage($level, $message, array $context = array())
+    public function buildMessage($level, $message, array $context = [])
     {
         if (!$level) {
             $level = static::ERROR;
         }
 
-        $messageData = array(
+        $messageData = [
             'createTime' => $this->clock->read(),
             'extendedProperties' => array(),
             'level' => $level,
             'message' => $message
-        );
+        ];
 
         $messageData = $this->consume($messageData, $this->logProperties);
 
@@ -158,10 +163,20 @@ class MessageFactory implements LogLevelInterface, MessageFactoryInterface
 
         // We probably shouldn't do this
         if (!isset($messageData['isUserDisrupted'])) {
-            $messageData['isUserDisrupted'] = (in_array($level, array(static::ERROR, static::FATAL), true));
+            $messageData['isUserDisrupted'] = (in_array($level, [static::ERROR, static::FATAL], true));
         }
 
         return new Message($messageData);
+    }
+
+    /**
+     * @return null
+     */
+    protected function addDefaultDefaultProperties()
+    {
+        $this->setDefaultProperty('applicationId', static::DEFAULT_APPLICATION_ID);
+        $this->setDefaultProperty('machineIPAddress', IPv4Address::create(static::DEFAULT_MACHINE_IP));
+        $this->setDefaultProperty('machineName', static::DEFAULT_MACHINE_NAME);
     }
 
     /**

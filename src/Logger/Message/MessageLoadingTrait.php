@@ -129,7 +129,7 @@ trait MessageLoadingTrait
             foreach ($inputData[$name] as $key => &$value) {
                 if (is_int($key)) {
                     // Remove the data if it has no property name.
-                    // If you try to pass a non-associative array as context, this will wipe remove that data.
+                    // If you try to pass a non-associative array as context, this will wipe that data.
                     unset($inputData[$name][$key]);
                     continue;
                 }

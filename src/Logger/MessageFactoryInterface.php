@@ -29,5 +29,5 @@ interface MessageFactoryInterface
      * @param array $context
      * @return MessageInterface
      */
-    public function buildMessage($level, $message, array $context = array());
+    public function buildMessage($level, $message, array $context = []);
 }
