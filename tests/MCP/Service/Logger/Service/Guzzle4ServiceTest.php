@@ -14,6 +14,7 @@ use PHPUnit_Framework_TestCase;
 class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
 {
     public static $logSetting;
+    public $uri;
 
     public static function setUpBeforeClass()
     {
@@ -26,16 +27,11 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
         ini_set('error_log', self::$logSetting);
     }
 
-    /**
-     * @expectedException MCP\Service\Logger\Exception
-     * @expectedExceptionMessage The Http Client is missing a base url
-     */
-    public function testMissingUrlThrowsException()
+    public function setUp()
     {
-        $client = Mockery::mock('GuzzleHttp\ClientInterface', ['getBaseUrl' => '']);
-        $renderer = Mockery::mock('MCP\Service\Logger\RendererInterface');
-
-        $service = new Guzzle4Service($client, $renderer);
+        $this->uri = Mockery::mock('QL\UriTemplate\UriTemplate', [
+            'expand' => 'http://corelogger'
+        ]);
     }
 
     /**
@@ -47,18 +43,25 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
         $renderer = Mockery::mock('MCP\Service\Logger\RendererInterface');
         $message = Mockery::mock('MCP\Service\Logger\MessageInterface');
 
-        $client = Mockery::mock('GuzzleHttp\ClientInterface', [
-            'getBaseUrl' => '/some/url',
-            'post' => Mockery::mock('GuzzleHttp\Message\Response', ['getStatusCode' => 404])
-        ]);
+        $options = [
+            'body' => 'rendered message',
+            'headers' => ['Content-Type' => 'text/xml']
+        ];
+
+        $client = Mockery::mock('GuzzleHttp\ClientInterface');
+        $client
+            ->shouldReceive('post')
+            ->with('http://corelogger', $options)
+            ->andReturn(Mockery::mock('GuzzleHttp\Message\Response', ['getStatusCode' => '404']))
+            ->once();
 
         $renderer
             ->shouldReceive('__invoke')
-            ->once()
             ->with($message)
-            ->andReturn('rendered message');
+            ->andReturn('rendered message')
+            ->once();
 
-        $service = new Guzzle4Service($client, $renderer);
+        $service = new Guzzle4Service($client, $renderer, $this->uri);
         $service->send($message);
     }
 
@@ -71,21 +74,17 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
         $renderer = Mockery::mock('MCP\Service\Logger\RendererInterface');
         $message = Mockery::mock('MCP\Service\Logger\MessageInterface');
 
-        $client = Mockery::mock('GuzzleHttp\ClientInterface', [
-            'getBaseUrl' => '/some/url'
-        ]);
-
+        $client = Mockery::mock('GuzzleHttp\ClientInterface');
         $client
             ->shouldReceive('post')
             ->andThrow(new RequestException('msg', Mockery::mock('GuzzleHttp\Message\RequestInterface')));
 
         $renderer
             ->shouldReceive('__invoke')
-            ->once()
             ->with($message)
             ->andReturn('rendered message');
 
-        $service = new Guzzle4Service($client, $renderer);
+        $service = new Guzzle4Service($client, $renderer, $this->uri);
         $service->send($message);
     }
 
@@ -94,16 +93,17 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
         $renderer = Mockery::mock('MCP\Service\Logger\RendererInterface');
         $message = Mockery::mock('MCP\Service\Logger\MessageInterface');
 
-        $client = Mockery::mock('GuzzleHttp\ClientInterface', [
-            'getBaseUrl' => '/some/url',
-            'post' => Mockery::mock('GuzzleHttp\Message\Response', ['getStatusCode' => 404])
-        ]);
+        $client = Mockery::mock('GuzzleHttp\ClientInterface');
+        $client
+            ->shouldReceive('post')
+            ->andReturn(Mockery::mock('GuzzleHttp\Message\Response', ['getStatusCode' => '404']))
+            ->once();
 
         $renderer
             ->shouldReceive('__invoke')
             ->once();
 
-        $service = new Guzzle4Service($client, $renderer, true);
+        $service = new Guzzle4Service($client, $renderer, $this->uri, true);
         $this->assertNull($service->send($message));
     }
 
@@ -113,10 +113,7 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
         $message = Mockery::mock('MCP\Service\Logger\MessageInterface');
 
 
-        $client = Mockery::mock('GuzzleHttp\ClientInterface', [
-            'getBaseUrl' => '/some/url'
-        ]);
-
+        $client = Mockery::mock('GuzzleHttp\ClientInterface');
         $client
             ->shouldReceive('post')
             ->andThrow(new RequestException('msg', Mockery::mock('GuzzleHttp\Message\RequestInterface')));
@@ -125,7 +122,7 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
             ->shouldReceive('__invoke')
             ->once();
 
-        $service = new Guzzle4Service($client, $renderer, true);
+        $service = new Guzzle4Service($client, $renderer, $this->uri, true);
         $this->assertNull($service->send($message));
     }
 }

@@ -12,8 +12,9 @@ use MCP\DataType\IPv4Address;
 use MCP\DataType\Time\Clock;
 use MCP\Service\Logger\Message\Message;
 use MCP\Service\Logger\Renderer\XmlRenderer;
-use MCP\Service\Logger\Service\HttpService;
+use MCP\Service\Logger\Service\PeclHttpService;
 use PHPUnit_Framework_TestCase;
+use QL\UriTemplate\UriTemplate;
 use XMLWriter;
 
 /**
@@ -24,15 +25,12 @@ class PeclIntegrationTest extends PHPUnit_Framework_TestCase
 {
     public function test()
     {
-        $request = new HttpRequest(
-            'http://qlsonictest:2581/web/core/logentries',
-            null,
-            [
-                'timeout' => 5,
-                'connecttimeout' => 5,
-                'useragent' => 'MCP-TEST'
-            ]
-        );
+        $request = new HttpRequest;
+        $request->setOptions([
+            'timeout' => 5,
+            'connecttimeout' => 5,
+            'useragent' => 'MCP-TEST'
+        ]);
 
         $clock = new Clock('now', 'America/Detroit');
 
@@ -44,8 +42,9 @@ class PeclIntegrationTest extends PHPUnit_Framework_TestCase
                 'message' => 'Hello World!' // not actually required!
         ]);
 
+        $uri = new UriTemplate('http://qlsonictest:2581/web/core/logentries');
         $renderer = new XmlRenderer(new XMLWriter);
-        $service = new HttpService($request, $renderer);
+        $service = new PeclHttpService($request, $renderer, $uri);
 
         $this->assertNull($service->send($message));
     }

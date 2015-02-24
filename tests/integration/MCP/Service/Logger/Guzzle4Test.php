@@ -14,6 +14,7 @@ use MCP\Service\Logger\Message\Message;
 use MCP\Service\Logger\Renderer\XmlRenderer;
 use MCP\Service\Logger\Service\Guzzle4Service;
 use PHPUnit_Framework_TestCase;
+use QL\UriTemplate\UriTemplate;
 use XMLWriter;
 
 /**
@@ -24,19 +25,20 @@ class Guzzle4IntegrationTest extends PHPUnit_Framework_TestCase
 {
     public function test()
     {
-        $client = new Client(['base_url' => 'http://qlsonictest:2581/web/core/logentries']);
+        $client = new Client;
         $clock = new Clock('now', 'America/Detroit');
 
         $message = new Message([
-                'applicationId' => '200001',
-                'createTime' => $clock->read(),
-                'machineIPAddress' => new IPv4Address(0),
-                'machineName' => 'Test',
-                'message' => 'Hello World!' // not actually required!
+            'applicationId' => '200001',
+            'createTime' => $clock->read(),
+            'machineIPAddress' => new IPv4Address(0),
+            'machineName' => 'Test',
+            'message' => 'Hello World!' // not actually required!
         ]);
 
+        $uri = new UriTemplate('http://qlsonictest:2581/web/core/logentries');
         $renderer = new XmlRenderer(new XMLWriter);
-        $service = new Guzzle4Service($client, $renderer);
+        $service = new Guzzle4Service($client, $renderer, $uri);
 
         $this->assertNull($service->send($message));
     }

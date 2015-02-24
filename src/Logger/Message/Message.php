@@ -20,7 +20,7 @@ class Message implements LogLevelInterface, MessageInterface
     use MessageLoadingTrait;
 
     /**#@+
-     * @var string|null
+     * @type string|null
      */
     private $affectedSystem;
     private $applicationId;
@@ -40,25 +40,25 @@ class Message implements LogLevelInterface, MessageInterface
     /**#@-*/
 
     /**#@+
-     * @var boolean
+     * @type boolean
      */
     private $isUserDisrupted;
 
     /**#@+
-     * @var TimePoint|null
+     * @type TimePoint|null
      */
     private $createTime;
     /**#@-*/
 
     /**#@+
-     * @var IPv4Address|null
+     * @type IPv4Address|null
      */
     private $machineIPAddress;
     private $userIPAddress;
     /**#@-*/
 
     /**
-     * @var mixed[]
+     * @type mixed[]
      */
     private $extendedProperties;
 

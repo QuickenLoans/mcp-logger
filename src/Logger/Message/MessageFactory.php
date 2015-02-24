@@ -31,31 +31,33 @@ use MCP\Service\Logger\MessageInterface;
  */
 class MessageFactory implements LogLevelInterface, MessageFactoryInterface
 {
-    /**
-     * @var string
+    /**#@+
+     * @type string
      */
     const ERR_UNRENDERABLE = 'Invalid property: "%s". Log Properties must be scalars or objects that implement __toString.';
     const ERR_INVALID_IP = "'%s' must be an instance of IPv4Address.";
+    /**#@-*/
 
-    /**
-     * @var string
+    /**#@+
+     * @type string
      */
     const DEFAULT_APPLICATION_ID = '200001';
     const DEFAULT_MACHINE_NAME = 'unknown';
     const DEFAULT_MACHINE_IP = '0.0.0.0';
+    /**#@-*/
 
     /**
-     * @var Clock
+     * @type Clock
      */
     private $clock;
 
     /**
-     * @var string[]
+     * @type string[]
      */
     private $logProperties;
 
     /**
-     * @var string[]
+     * @type string[]
      */
     private $knownProperties;
 

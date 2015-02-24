@@ -11,9 +11,10 @@ use HttpException;
 use Mockery;
 use PHPUnit_Framework_TestCase;
 
-class HttpServiceTest extends PHPUnit_Framework_TestCase
+class PeclHttpServiceTest extends PHPUnit_Framework_TestCase
 {
     public static $logSetting;
+    public $uri;
 
     public static function setUpBeforeClass()
     {
@@ -26,16 +27,11 @@ class HttpServiceTest extends PHPUnit_Framework_TestCase
         ini_set('error_log', self::$logSetting);
     }
 
-    /**
-     * @expectedException MCP\Service\Logger\Exception
-     * @expectedExceptionMessage The HttpRequest object is missing a url
-     */
-    public function testMissingUrlThrowsException()
+    public function setUp()
     {
-        $request = Mockery::mock('HttpRequest', array('getUrl' => ''));
-        $renderer = Mockery::mock('MCP\Service\Logger\RendererInterface');
-
-        $service = new HttpService($request, $renderer);
+        $this->uri = Mockery::mock('QL\UriTemplate\UriTemplate', [
+            'expand' => 'http://corelogger'
+        ]);
     }
 
     /**
@@ -69,7 +65,7 @@ class HttpServiceTest extends PHPUnit_Framework_TestCase
             ->with($message)
             ->andReturn('rendered message');
 
-        $service = new HttpService($request, $renderer);
+        $service = new PeclHttpService($request, $renderer, $this->uri);
         $service->send($message);
     }
 
@@ -103,7 +99,7 @@ class HttpServiceTest extends PHPUnit_Framework_TestCase
             ->with($message)
             ->andReturn('rendered message');
 
-        $service = new HttpService($request, $renderer);
+        $service = new PeclHttpService($request, $renderer, $this->uri);
         $this->assertNull($service->send($message));
     }
 
@@ -134,7 +130,7 @@ class HttpServiceTest extends PHPUnit_Framework_TestCase
             ->with($message)
             ->andReturn('rendered message');
 
-        $service = new HttpService($request, $renderer, true);
+        $service = new PeclHttpService($request, $renderer, $this->uri, true);
         $this->assertNull($service->send($message));
     }
 
@@ -165,7 +161,7 @@ class HttpServiceTest extends PHPUnit_Framework_TestCase
             ->with($message)
             ->andReturn('rendered message');
 
-        $service = new HttpService($request, $renderer, true);
+        $service = new PeclHttpService($request, $renderer, $this->uri, true);
         $this->assertNull($service->send($message));
     }
 
@@ -174,11 +170,9 @@ class HttpServiceTest extends PHPUnit_Framework_TestCase
      */
     public function buildMockRequest()
     {
-        $request = $this->getMockBuilder('HttpRequest')->getMock();
-        $request
-            ->expects($this->once())
-            ->method('getUrl')
-            ->will($this->returnValue('http://service'));
+        $request = $this
+            ->getMockBuilder('HttpRequest')
+            ->getMock();
 
         $request
             ->expects($this->once())

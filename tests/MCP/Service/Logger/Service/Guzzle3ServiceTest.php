@@ -12,9 +12,10 @@ use Guzzle\Http\Message\Response;
 use Mockery;
 use PHPUnit_Framework_TestCase;
 
-class GuzzleServiceTest extends PHPUnit_Framework_TestCase
+class Guzzle3ServiceTest extends PHPUnit_Framework_TestCase
 {
     public static $logSetting;
+    public $uri;
 
     public static function setUpBeforeClass()
     {
@@ -27,16 +28,11 @@ class GuzzleServiceTest extends PHPUnit_Framework_TestCase
         ini_set('error_log', self::$logSetting);
     }
 
-    /**
-     * @expectedException MCP\Service\Logger\Exception
-     * @expectedExceptionMessage The Http Client is missing a base url
-     */
-    public function testMissingUrlThrowsException()
+    public function setUp()
     {
-        $client = Mockery::mock('Guzzle\Http\ClientInterface', array('getBaseUrl' => ''));
-        $renderer = Mockery::mock('MCP\Service\Logger\RendererInterface');
-
-        $service = new GuzzleService($client, $renderer);
+        $this->uri = Mockery::mock('QL\UriTemplate\UriTemplate', [
+            'expand' => 'http://corelogger'
+        ]);
     }
 
     /**
@@ -51,10 +47,10 @@ class GuzzleServiceTest extends PHPUnit_Framework_TestCase
         $response = new Response(404);
         $request = Mockery::mock('Guzzle\Http\Message\RequestInterface', ['send' => $response]);
 
-        $client = Mockery::mock('Guzzle\Http\ClientInterface', array('getBaseUrl' => '/some/url'));
+        $client = Mockery::mock('Guzzle\Http\ClientInterface');
         $client
             ->shouldReceive('post')
-            ->with(null, null, 'rendered message', ['Content-Type' => 'text/xml'])
+            ->with('http://corelogger', ['Content-Type' => 'text/xml'], 'rendered message')
             ->andReturn($request)
             ->once();
 
@@ -64,7 +60,7 @@ class GuzzleServiceTest extends PHPUnit_Framework_TestCase
             ->with($message)
             ->andReturn('rendered message');
 
-        $service = new GuzzleService($client, $renderer);
+        $service = new Guzzle3Service($client, $renderer, $this->uri);
         $service->send($message);
     }
 
@@ -82,10 +78,10 @@ class GuzzleServiceTest extends PHPUnit_Framework_TestCase
             ->shouldReceive('send')
             ->andThrow(new RequestException('msg'));
 
-        $client = Mockery::mock('Guzzle\Http\ClientInterface', array('getBaseUrl' => '/some/url'));
+        $client = Mockery::mock('Guzzle\Http\ClientInterface');
         $client
             ->shouldReceive('post')
-            ->with(null, null, 'rendered message', ['Content-Type' => 'text/xml'])
+            ->with('http://corelogger', ['Content-Type' => 'text/xml'], 'rendered message')
             ->andReturn($request)
             ->once();
 
@@ -95,7 +91,7 @@ class GuzzleServiceTest extends PHPUnit_Framework_TestCase
             ->with($message)
             ->andReturn('rendered message');
 
-        $service = new GuzzleService($client, $renderer);
+        $service = new Guzzle3Service($client, $renderer, $this->uri);
         $service->send($message);
     }
 
@@ -107,7 +103,7 @@ class GuzzleServiceTest extends PHPUnit_Framework_TestCase
         $response = new Response(500);
         $request = Mockery::mock('Guzzle\Http\Message\RequestInterface', ['send' => $response]);
 
-        $client = Mockery::mock('Guzzle\Http\ClientInterface', array('getBaseUrl' => '/some/url'));
+        $client = Mockery::mock('Guzzle\Http\ClientInterface');
         $client
             ->shouldReceive('post')
             ->andReturn($request)
@@ -117,7 +113,7 @@ class GuzzleServiceTest extends PHPUnit_Framework_TestCase
             ->shouldReceive('__invoke')
             ->once();
 
-        $service = new GuzzleService($client, $renderer, true);
+        $service = new Guzzle3Service($client, $renderer, $this->uri, true);
         $this->assertNull($service->send($message));
     }
 
@@ -141,7 +137,7 @@ class GuzzleServiceTest extends PHPUnit_Framework_TestCase
             ->shouldReceive('__invoke')
             ->once();
 
-        $service = new GuzzleService($client, $renderer, true);
+        $service = new Guzzle3Service($client, $renderer, $this->uri, true);
         $this->assertNull($service->send($message));
     }
 }

@@ -7,9 +7,8 @@
 
 namespace MCP\Service\Logger\Service;
 
-use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\TransferException;
-use GuzzleHttp\Message\ResponseInterface;
+use HttpException;
+use HttpRequest;
 use MCP\Service\Logger\Exception;
 use MCP\Service\Logger\MessageInterface;
 use MCP\Service\Logger\RendererInterface;
@@ -17,11 +16,11 @@ use MCP\Service\Logger\ServiceInterface;
 use QL\UriTemplate\UriTemplate;
 
 /**
- * Http Service for Guzzle 4 and Guzzle 5.
+ * Http Service for Pecl HTTP 1.*.
  *
  * @internal
  */
-class Guzzle4Service implements ServiceInterface
+class PeclHttpService implements ServiceInterface
 {
     /**#@+
      * @type string
@@ -30,9 +29,9 @@ class Guzzle4Service implements ServiceInterface
     /**#@-*/
 
     /**
-     * @type ClientInterface
+     * @type HttpRequest
      */
-    private $client;
+    private $request;
 
     /**
      * @type RendererInterface
@@ -50,18 +49,18 @@ class Guzzle4Service implements ServiceInterface
     private $isSilent;
 
     /**
-     * @param ClientInterface $client
+     * @param HttpRequest $request
      * @param RendererInterface $renderer
      * @param UriTemplate $uri
      * @param boolean $isSilent
      */
     public function __construct(
-        ClientInterface $client,
+        HttpRequest $request,
         RendererInterface $renderer,
         UriTemplate $uri,
         $isSilent = false
     ) {
-        $this->client = $client;
+        $this->request = $request;
         $this->renderer = $renderer;
         $this->uri = $uri;
 
@@ -70,41 +69,38 @@ class Guzzle4Service implements ServiceInterface
 
     /**
      * @param MessageInterface $message
+     * @throws HttpException
      * @return null
      */
     public function send(MessageInterface $message)
     {
-        $options = [
-            'body' => call_user_func($this->renderer, $message),
-            'headers' => ['Content-Type' => 'text/xml']
-        ];
+        $request = clone $this->request;
+        $request->setUrl($this->uri->expand([]));
+        $request->setMethod(HttpRequest::METH_POST);
+        $request->setBody(call_user_func($this->renderer, $message));
+        $request->setContentType('text/xml');
 
         if ($this->isSilent) {
-            $this->fireAndForget($options);
+            $this->fireAndForget($request);
 
         } else {
-            $uri = $this->uri->expand([]);
-            $response = $this->client->post($uri, $options);
-
-            // Guzzle 4 = string, Guzzle 5 = int
-            $status = (int) $response->getStatusCode();
-            if ($status !== 200) {
-                throw new Exception(sprintf(self::ERR_RESPONSE_CODE, $response->getStatusCode()));
+            $response = $request->send();
+            if ($response->getResponseCode() !== 200) {
+                throw new Exception(sprintf(self::ERR_RESPONSE_CODE, $response->getResponseCode()));
             }
         }
     }
 
     /**
-     * @param array $requestOptions
+     * @param HttpRequest $request
      * @return null
      */
-    private function fireAndForget(array $requestOptions)
+    private function fireAndForget(HttpRequest $request)
     {
         try {
-            $uri = $this->uri->expand([]);
-            $this->client->post($uri, $requestOptions);
+            $request->send();
 
-        } catch (TransferException $e) {
+        } catch (HttpException $e) {
             error_log($e->getMessage());
         }
     }

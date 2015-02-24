@@ -7,89 +7,99 @@
 
 namespace MCP\Service\Logger\Service;
 
+use Guzzle\Common\Exception\GuzzleException;
+use Guzzle\Http\ClientInterface;
+use Guzzle\Http\Message\RequestInterface;
 use MCP\Service\Logger\Exception;
-use HttpException;
-use HttpRequest;
 use MCP\Service\Logger\MessageInterface;
 use MCP\Service\Logger\RendererInterface;
 use MCP\Service\Logger\ServiceInterface;
+use QL\UriTemplate\UriTemplate;
 
 /**
+ * Http Service for Guzzle 3.
+ *
  * @internal
  */
-class HttpService implements ServiceInterface
+class Guzzle3Service implements ServiceInterface
 {
     /**#@+
-     * @var string
+     * @type string
      */
-    const ERR_MISSING_URL = 'The HttpRequest object is missing a url.';
     const ERR_RESPONSE_CODE = "The service responded with an unexpected http code: '%s'.";
     /**#@-*/
 
     /**
-     * @var HttpRequest
+     * @type ClientInterface
      */
-    private $request;
+    private $client;
 
     /**
-     * @var RendererInterface
+     * @type RendererInterface
      */
     private $renderer;
 
     /**
-     * @var boolean
+     * @type UriTemplate
+     */
+    private $uri;
+
+    /**
+     * @type boolean
      */
     private $isSilent;
 
     /**
-     * @param HttpRequest $request
+     * @param ClientInterface $client
      * @param RendererInterface $renderer
+     * @param UriTemplate $uri
      * @param boolean $isSilent
      */
-    public function __construct(HttpRequest $request, RendererInterface $renderer, $isSilent = false)
-    {
-        $this->request = $request;
+    public function __construct(
+        ClientInterface $client,
+        RendererInterface $renderer,
+        UriTemplate $uri,
+        $isSilent = false
+    ) {
+        $this->client = $client;
         $this->renderer = $renderer;
+        $this->uri = $uri;
         $this->isSilent = $isSilent;
-
-        if (!$this->request->getUrl()) {
-            throw new Exception(self::ERR_MISSING_URL);
-        }
     }
 
     /**
      * @param MessageInterface $message
-     * @throws HttpException
      * @return null
      */
     public function send(MessageInterface $message)
     {
-        $request = clone $this->request;
-        $request->setMethod(HttpRequest::METH_POST);
-        $request->setBody(call_user_func($this->renderer, $message));
-        $request->setContentType('text/xml');
+        $request = $this->client->post(
+            $this->uri->expand([]),
+            ['Content-Type' => 'text/xml'],
+            call_user_func($this->renderer, $message)
+        );
 
         if ($this->isSilent) {
             $this->fireAndForget($request);
 
         } else {
             $response = $request->send();
-            if ($response->getResponseCode() !== 200) {
-                throw new Exception(sprintf(self::ERR_RESPONSE_CODE, $response->getResponseCode()));
+            if ($response->getStatusCode() !== 200) {
+                throw new Exception(sprintf(self::ERR_RESPONSE_CODE, $response->getStatusCode()));
             }
         }
     }
 
     /**
-     * @param HttpRequest $request
+     * @param RequestInterface $request
      * @return null
      */
-    private function fireAndForget(HttpRequest $request)
+    private function fireAndForget(RequestInterface $request)
     {
         try {
             $request->send();
 
-        } catch (HttpException $e) {
+        } catch (GuzzleException $e) {
             error_log($e->getMessage());
         }
     }
