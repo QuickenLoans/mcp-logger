@@ -1,28 +1,18 @@
 {
     "name": "ql/mcp-logger",
-    "description": "Library for handling Core Logger within Quicken Loans.",
+    "description": "Library for handling PHP Logging within Quicken Loans.",
     "license": "proprietary",
+    "homepage": "http://git/mcp/mcp-logger",
     "authors": [
         {
-            "name": "Matt Nagi",
-            "email": "mattnagi@quickenloans.com",
-            "role": "Tech Lead"
-        },
-        {
-            "name": "Steven Snider",
-            "email": "stevensnider@quickenloans.com",
-            "role": "Contributor"
-        },
-        {
-            "name": "Steve Kluck",
-            "email": "stevekluck@quickenloans.com",
-            "role": "Contributor"
+            "name": "IT Team Web Core",
+            "email": "itteamwebcore@quickenloans.com"
         }
     ],
     "support": {
-        "email": "stevekluck@quickenloans.com",
-        "issues": "http://git/mnagi/mcp-logger/issues",
-        "source": "http://git/mnagi/mcp-logger"
+        "email": "itteamwebcore@quickenloans.com",
+        "issues": "http://git/mcp/mcp-logger/issues",
+        "source": "http://git/mcp/mcp-logger"
     },
 
     "archive": {
