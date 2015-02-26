@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright ©2005—2013 Quicken Loans Inc. All rights reserved. Trade Secret,
+ * @copyright ©2015 Quicken Loans Inc. All rights reserved. Trade Secret,
  *    Confidential and Proprietary. Any dissemination outside of Quicken Loans
  *    is strictly prohibited.
  */
@@ -20,10 +20,13 @@ use QL\UriTemplate\UriTemplate;
 /**
  * Http Service for Guzzle 4.
  *
+ * @deprecated
  * @internal
  */
 class Guzzle4Service implements ServiceInterface
 {
+    use GuzzleTrait;
+
     /**
      * @type string
      */
@@ -74,37 +77,27 @@ class Guzzle4Service implements ServiceInterface
      */
     public function send(MessageInterface $message)
     {
-        $options = [
-            'body' => call_user_func($this->renderer, $message),
-            'headers' => ['Content-Type' => 'text/xml']
-        ];
+        $request = $this->createRequest($message);
 
-        $request = $this->guzzle->createRequest('POST', $this->uri->expand([]), $options);
-
-        if ($this->isSilent) {
-            return $this->fireAndForget($request);
-        }
-
-        $response = $this->guzzle->send($request);
-
-        // Guzzle 4 = string, Guzzle 5 = int
-        $status = (int) $response->getStatusCode();
-        if ($status !== 200) {
-            throw new Exception(sprintf(self::ERR_RESPONSE_CODE, $response->getStatusCode()));
+        try {
+            $this->guzzle->send($request);
+        } catch (TransferException $ex) {
+            $this->handleError($ex);
         }
     }
 
     /**
-     * @param RequestInterface $request
+     * @param TransferException $ex
+     *
      * @return null
      */
-    private function fireAndForget(RequestInterface $request)
+    private function handleError(TransferException $ex)
     {
-        try {
-            $this->guzzle->send($request);
-
-        } catch (TransferException $e) {
-            error_log($e->getMessage());
+        if ($this->isSilent) {
+            error_log($ex->getMessage());
+            return;
         }
+
+        throw new Exception($ex->getMessage(), $ex->getCode(), $ex);
     }
 }

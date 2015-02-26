@@ -36,46 +36,9 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException MCP\Logger\Exception
-     * @expectedExceptionMessage The service responded with an unexpected http code: '404'
-     */
-    public function testServiceReceivesNon200ResponseThrowsException()
-    {
-        $renderer = Mockery::mock('MCP\Logger\RendererInterface');
-        $message = Mockery::mock('MCP\Logger\MessageInterface');
-
-        $options = [
-            'body' => 'rendered message',
-            'headers' => ['Content-Type' => 'text/xml']
-        ];
-
-        $client = Mockery::mock('GuzzleHttp\ClientInterface');
-        $request = Mockery::mock('GuzzleHttp\Message\Request');
-        $response = Mockery::mock('GuzzleHttp\Message\Response', ['getStatusCode' => '404']);
-        $client
-            ->shouldReceive('createRequest')
-            ->with('POST', 'http://corelogger', $options)
-            ->andReturn($request)
-            ->once();
-        $client
-            ->shouldReceive('send')
-            ->with($request)
-            ->andReturn($response);
-
-        $renderer
-            ->shouldReceive('__invoke')
-            ->with($message)
-            ->andReturn('rendered message')
-            ->once();
-
-        $service = new Guzzle4Service($client, $renderer, $this->uri, false);
-        $service->send($message);
-    }
-
-    /**
-     * @expectedException GuzzleHttp\Exception\RequestException
      * @expectedExceptionMessage msg
      */
-    public function testExceptionIsNotCaughtWhenServiceThrowsHttpException()
+    public function testExceptionIsCaughtWhenServiceThrowsHttpException()
     {
         $renderer = Mockery::mock('MCP\Logger\RendererInterface');
         $message = Mockery::mock('MCP\Logger\MessageInterface');

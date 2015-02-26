@@ -18,6 +18,7 @@ use QL\UriTemplate\UriTemplate;
 /**
  * Http Service for Pecl HTTP 1.*.
  *
+ * @deprecated
  * @internal
  */
 class PeclHttpService implements ServiceInterface

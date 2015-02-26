@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright ©2005—2013 Quicken Loans Inc. All rights reserved. Trade Secret,
+ * @copyright ©2015 Quicken Loans Inc. All rights reserved. Trade Secret,
  *    Confidential and Proprietary. Any dissemination outside of Quicken Loans
  *    is strictly prohibited.
  */
@@ -28,6 +28,9 @@ use QL\UriTemplate\UriTemplate;
  */
 class Guzzle5Service implements ServiceInterface
 {
+    use GuzzleTrait;
+    use BufferedServiceTrait;
+
     /**
      * @type string
      */
@@ -56,16 +59,6 @@ class Guzzle5Service implements ServiceInterface
     private $isSilent;
 
     /**
-     * @type int
-     */
-    private $bufferLimit;
-
-    /**
-     * @type int
-     */
-    private $buffer;
-
-    /**
      * @param ClientInterface $guzzle
      * @param RendererInterface $renderer
      * @param UriTemplate $uri
@@ -87,17 +80,11 @@ class Guzzle5Service implements ServiceInterface
 
         $this->isSilent = (bool) $isSilent;
 
-        $this->buffer = [];
-        $this->bufferLimit = (int) $bufferLimit;
-
         if (!class_exists('GuzzleHttp\Pool')) {
             throw new Exception(self::ERR_GUZZLE_5_REQUIRED);
         }
 
-        if ($enableshutDownHandler) {
-            // register to run on shutdown
-            register_shutdown_function([$this, 'flush']);
-        }
+        $this->initializeBuffer($bufferLimit, $enableshutDownHandler);
     }
 
     /**
@@ -106,64 +93,7 @@ class Guzzle5Service implements ServiceInterface
      */
     public function send(MessageInterface $message)
     {
-        $this->buffer[] = $message;
-
-        $this->checkBuffer();
-    }
-
-    /**
-     * Flush and send all messages in the buffer.
-     *
-     * By default this is called through an automatically attached shutdown handler.
-     *
-     * Alternatively, you can disable the shutdown handler and call it manually in your own shutdown or error handler.
-     *
-     * @return null
-     */
-    public function flush()
-    {
-        if (!$this->buffer) {
-            return;
-        }
-
-        $messages = $this->buffer;
-        $this->buffer = [];
-
-        // Convert messages to Guzzle requests
-        array_walk($messages, function(&$message) {
-            $message = $this->createRequest($message);
-        });
-
-        $this->handleBatch($messages);
-    }
-
-    /**
-     * Check if the buffer limit has been breached and flush messages if so.
-     *
-     * @return null
-     */
-    private function checkBuffer()
-    {
-        if (count($this->buffer) <= $this->bufferLimit) {
-            return;
-        }
-
-        $this->flush();
-    }
-
-    /**
-     * @param MessageInterface $message
-     *
-     * @return RequestInterface
-     */
-    protected function createRequest(MessageInterface $message)
-    {
-        $options = [
-            'body' => call_user_func($this->renderer, $message),
-            'headers' => ['Content-Type' => 'text/xml']
-        ];
-
-        return $this->guzzle->createRequest('POST', $this->uri->expand([]), $options);
+        $this->append($message);
     }
 
     /**

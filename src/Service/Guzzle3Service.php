@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright ©2005—2013 Quicken Loans Inc. All rights reserved. Trade Secret,
+ * @copyright ©2015 Quicken Loans Inc. All rights reserved. Trade Secret,
  *    Confidential and Proprietary. Any dissemination outside of Quicken Loans
  *    is strictly prohibited.
  */
@@ -19,6 +19,7 @@ use QL\UriTemplate\UriTemplate;
 /**
  * Http Service for Guzzle 3.
  *
+ * @deprecated
  * @internal
  */
 class Guzzle3Service implements ServiceInterface
