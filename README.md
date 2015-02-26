@@ -289,7 +289,7 @@ By default, this service will **not** buffer any messages, and immediately send 
 
 Increase the `$batchLimit` to group messages. Messages will be sent once the batch limit is reached, or at the end of the entire PHP request.
 
-You can disable the **shutdown handler** if you wish to flush messages manually.
+You can disable the **shutdown handler** if you wish to flush messages manually. In addition, if you have an error handler that catches fatal errors, this service must be instantiated **after** the error handler is attached so that messages logged in the error handler will be sent by the logger.
 
 ```php
 use GuzzleHttp\Client;
