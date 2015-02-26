@@ -1,13 +1,11 @@
-# miscellaneous
+# testing artifacts
 /phpunit.xml
+/.phpunit/
 
 # ide specific configuration
 *.swo
 *.swp
 /nbproject/
-
-# build directory
-/build/
 
 # package installation
 /composer.lock

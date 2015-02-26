@@ -1,7 +1,0 @@
-#!/bin/bash
-export COMPOSER_HOME=~/.composer
-DIR=$( cd "$( dirname "$0" )" && pwd )
-CMPR="$DIR/composer install --prefer-dist --working-dir $DIR/../ --no-dev"
-CMPR_DEV="$DIR/composer install --prefer-dist --working-dir $DIR/../ --dev"
-
-$CMPR_DEV

@@ -279,7 +279,7 @@ See also:
 * [Guzzle4Service.php](src/Service/Guzzle4Service.php)
 * [Guzzle5Service.php](src/Service/Guzzle5Service.php)
 
-### Batched, asynchronous requests
+##### Batched, asynchronous requests
 
 Use Guzzle 5 and the included Guzzle 5 service to batch log messages, and send them asychronously in groups.
 
@@ -314,26 +314,18 @@ $service->flush();
 
 This library follows PSR-2 conventions.
 
-#### Install development dependencies
+#### Install dependencies
 
 ```bash
-bin/install
-```
-
-#### Wipe compiled and built files
-
-```bash
-bin/clean
+composer install --prefer-dist
 ```
 
 #### Run unit tests
 
 ```bash
+# Run unit tests
 vendor/bin/phpunit
 
-# Run unit tests
-vendor/bin/phpunit --testsuite unit
-
 # Run integration tests
-vendor/bin/phpunit --testsuite integration
+vendor/bin/phpunit --group integration
 ```
