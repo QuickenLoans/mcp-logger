@@ -49,11 +49,17 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
         ];
 
         $client = Mockery::mock('GuzzleHttp\ClientInterface');
+        $request = Mockery::mock('GuzzleHttp\Message\Request');
+        $response = Mockery::mock('GuzzleHttp\Message\Response', ['getStatusCode' => '404']);
         $client
-            ->shouldReceive('post')
-            ->with('http://corelogger', $options)
-            ->andReturn(Mockery::mock('GuzzleHttp\Message\Response', ['getStatusCode' => '404']))
+            ->shouldReceive('createRequest')
+            ->with('POST', 'http://corelogger', $options)
+            ->andReturn($request)
             ->once();
+        $client
+            ->shouldReceive('send')
+            ->with($request)
+            ->andReturn($response);
 
         $renderer
             ->shouldReceive('__invoke')
@@ -75,9 +81,14 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
         $message = Mockery::mock('MCP\Logger\MessageInterface');
 
         $client = Mockery::mock('GuzzleHttp\ClientInterface');
+        $request = Mockery::mock('GuzzleHttp\Message\Request');
         $client
-            ->shouldReceive('post')
-            ->andThrow(new RequestException('msg', Mockery::mock('GuzzleHttp\Message\RequestInterface')));
+            ->shouldReceive('createRequest')
+            ->andReturn($request)
+            ->once();
+        $client
+            ->shouldReceive('send')
+            ->andThrow(new RequestException('msg', $request));
 
         $renderer
             ->shouldReceive('__invoke')
@@ -94,9 +105,16 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
         $message = Mockery::mock('MCP\Logger\MessageInterface');
 
         $client = Mockery::mock('GuzzleHttp\ClientInterface');
+        $request = Mockery::mock('GuzzleHttp\Message\Request');
+        $response = Mockery::mock('GuzzleHttp\Message\Response', ['getStatusCode' => '404']);
         $client
-            ->shouldReceive('post')
-            ->andReturn(Mockery::mock('GuzzleHttp\Message\Response', ['getStatusCode' => '404']))
+            ->shouldReceive('createRequest')
+            ->andReturn($request)
+            ->once();
+        $client
+            ->shouldReceive('send')
+            ->with($request)
+            ->andReturn($response)
             ->once();
 
         $renderer
@@ -114,9 +132,14 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
 
 
         $client = Mockery::mock('GuzzleHttp\ClientInterface');
+        $request = Mockery::mock('GuzzleHttp\Message\Request');
         $client
-            ->shouldReceive('post')
-            ->andThrow(new RequestException('msg', Mockery::mock('GuzzleHttp\Message\RequestInterface')));
+            ->shouldReceive('createRequest')
+            ->andReturn($request)
+            ->once();
+        $client
+            ->shouldReceive('send')
+            ->andThrow(new RequestException('msg', $request));
 
         $renderer
             ->shouldReceive('__invoke')

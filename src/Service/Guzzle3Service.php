@@ -23,16 +23,15 @@ use QL\UriTemplate\UriTemplate;
  */
 class Guzzle3Service implements ServiceInterface
 {
-    /**#@+
+    /**
      * @type string
      */
     const ERR_RESPONSE_CODE = "The service responded with an unexpected http code: '%s'.";
-    /**#@-*/
 
     /**
      * @type ClientInterface
      */
-    private $client;
+    private $pecl;
 
     /**
      * @type RendererInterface
@@ -50,18 +49,18 @@ class Guzzle3Service implements ServiceInterface
     private $isSilent;
 
     /**
-     * @param ClientInterface $client
+     * @param ClientInterface $pecl
      * @param RendererInterface $renderer
      * @param UriTemplate $uri
      * @param boolean $isSilent
      */
     public function __construct(
-        ClientInterface $client,
+        ClientInterface $pecl,
         RendererInterface $renderer,
         UriTemplate $uri,
         $isSilent = true
     ) {
-        $this->client = $client;
+        $this->pecl = $pecl;
         $this->renderer = $renderer;
         $this->uri = $uri;
         $this->isSilent = $isSilent;
@@ -73,20 +72,19 @@ class Guzzle3Service implements ServiceInterface
      */
     public function send(MessageInterface $message)
     {
-        $request = $this->client->post(
+        $request = $this->pecl->post(
             $this->uri->expand([]),
             ['Content-Type' => 'text/xml'],
             call_user_func($this->renderer, $message)
         );
 
         if ($this->isSilent) {
-            $this->fireAndForget($request);
+            return $this->fireAndForget($request);
+        }
 
-        } else {
-            $response = $request->send();
-            if ($response->getStatusCode() !== 200) {
-                throw new Exception(sprintf(self::ERR_RESPONSE_CODE, $response->getStatusCode()));
-            }
+        $response = $request->send();
+        if ($response->getStatusCode() !== 200) {
+            throw new Exception(sprintf(self::ERR_RESPONSE_CODE, $response->getStatusCode()));
         }
     }
 

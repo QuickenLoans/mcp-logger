@@ -9,6 +9,7 @@ namespace MCP\Logger\Service;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\TransferException;
+use GuzzleHttp\Message\RequestInterface;
 use GuzzleHttp\Message\ResponseInterface;
 use MCP\Logger\Exception;
 use MCP\Logger\MessageInterface;
@@ -17,22 +18,21 @@ use MCP\Logger\ServiceInterface;
 use QL\UriTemplate\UriTemplate;
 
 /**
- * Http Service for Guzzle 4 and Guzzle 5.
+ * Http Service for Guzzle 4.
  *
  * @internal
  */
 class Guzzle4Service implements ServiceInterface
 {
-    /**#@+
+    /**
      * @type string
      */
     const ERR_RESPONSE_CODE = "The service responded with an unexpected http code: '%s'.";
-    /**#@-*/
 
     /**
      * @type ClientInterface
      */
-    private $client;
+    private $guzzle;
 
     /**
      * @type RendererInterface
@@ -50,18 +50,18 @@ class Guzzle4Service implements ServiceInterface
     private $isSilent;
 
     /**
-     * @param ClientInterface $client
+     * @param ClientInterface $guzzle
      * @param RendererInterface $renderer
      * @param UriTemplate $uri
      * @param boolean $isSilent
      */
     public function __construct(
-        ClientInterface $client,
+        ClientInterface $guzzle,
         RendererInterface $renderer,
         UriTemplate $uri,
         $isSilent = true
     ) {
-        $this->client = $client;
+        $this->guzzle = $guzzle;
         $this->renderer = $renderer;
         $this->uri = $uri;
 
@@ -79,30 +79,29 @@ class Guzzle4Service implements ServiceInterface
             'headers' => ['Content-Type' => 'text/xml']
         ];
 
+        $request = $this->guzzle->createRequest('POST', $this->uri->expand([]), $options);
+
         if ($this->isSilent) {
-            $this->fireAndForget($options);
+            return $this->fireAndForget($request);
+        }
 
-        } else {
-            $uri = $this->uri->expand([]);
-            $response = $this->client->post($uri, $options);
+        $response = $this->guzzle->send($request);
 
-            // Guzzle 4 = string, Guzzle 5 = int
-            $status = (int) $response->getStatusCode();
-            if ($status !== 200) {
-                throw new Exception(sprintf(self::ERR_RESPONSE_CODE, $response->getStatusCode()));
-            }
+        // Guzzle 4 = string, Guzzle 5 = int
+        $status = (int) $response->getStatusCode();
+        if ($status !== 200) {
+            throw new Exception(sprintf(self::ERR_RESPONSE_CODE, $response->getStatusCode()));
         }
     }
 
     /**
-     * @param array $requestOptions
+     * @param RequestInterface $request
      * @return null
      */
-    private function fireAndForget(array $requestOptions)
+    private function fireAndForget(RequestInterface $request)
     {
         try {
-            $uri = $this->uri->expand([]);
-            $this->client->post($uri, $requestOptions);
+            $this->guzzle->send($request);
 
         } catch (TransferException $e) {
             error_log($e->getMessage());

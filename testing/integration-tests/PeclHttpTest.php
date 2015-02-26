@@ -17,7 +17,7 @@ use PHPUnit_Framework_TestCase;
  * @coversNothing
  * @group integration
  */
-class PeclIntegrationTest extends PHPUnit_Framework_TestCase
+class PeclHttpTest extends PHPUnit_Framework_TestCase
 {
     use IntegrationTestTrait;
 
@@ -32,8 +32,7 @@ class PeclIntegrationTest extends PHPUnit_Framework_TestCase
 
         $service = new PeclHttpService($request, $this->renderer, $this->uri);
 
-        $this->defaultMessage['extendedProperties']['serviceType'] = get_class($service);
-        $message = new Message($this->defaultMessage);
+        $message = new Message(array_merge($this->defaultMessage, ['message' => 'PECL ' . $this->defaultMessage['message']]));
         $response = $service->send($message);
 
         $this->assertNull($response);

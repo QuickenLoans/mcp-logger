@@ -43,7 +43,7 @@
     },
     "require-dev": {
         "guzzle/http": "*",
-        "guzzlehttp/guzzle": "*",
+        "guzzlehttp/guzzle": "5.*",
         "mockery/mockery": ">=0.8",
         "phpunit/phpunit": "*",
         "phpunit/php-invoker": "*",

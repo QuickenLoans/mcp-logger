@@ -22,11 +22,10 @@ use QL\UriTemplate\UriTemplate;
  */
 class PeclHttpService implements ServiceInterface
 {
-    /**#@+
+    /**
      * @type string
      */
     const ERR_RESPONSE_CODE = "The service responded with an unexpected http code: '%s'.";
-    /**#@-*/
 
     /**
      * @type HttpRequest
