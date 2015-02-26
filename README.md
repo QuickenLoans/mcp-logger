@@ -265,10 +265,9 @@ By default, the provided Http Services silently consumes exceptions if the http 
 use HttpRequest;
 use MCP\Logger\Service\PeclHttpService;
 
-$isSilent = false;
+$isSilent = true;
 
-$request = new HttpRequest;
-$service = new PeclHttpService($request, $renderer, $isSilent);
+$service = new PeclHttpService(new HttpRequest, $renderer, $isSilent);
 $service->send($message);
 ```
 
@@ -279,6 +278,35 @@ See also:
 * [Guzzle3Service.php](src/Service/Guzzle3Service.php)
 * [Guzzle4Service.php](src/Service/Guzzle4Service.php)
 * [Guzzle5Service.php](src/Service/Guzzle5Service.php)
+
+### Batched, asynchronous requests
+
+Use Guzzle 5 and the included Guzzle 5 service to batch log messages, and send them asychronously in groups.
+
+**Note**: The Pecl, Guzzle3, and Guzzle4 services do not support batching or asynchronous requests.
+
+By default, this service will **not** buffer any messages, and immediately send new messages.
+
+Increase the `$batchLimit` to group messages. Messages will be sent once the batch limit is reached, or at the end of the entire PHP request.
+
+You can disable the **shutdown handler** if you wish to flush messages manually.
+
+```php
+use GuzzleHttp\Client;
+use MCP\Logger\Service\Guzzle5Service;
+
+$isSilent = true;
+$useShutDownHandler = false;
+$batchLimit = 5;
+
+$service = new Guzzle5Service(new Client, $renderer, $isSilent, $useShutDownHandler, $batchLimit);
+$service->send($message);
+$service->send($message);
+$service->send($message);
+
+// Manually flush the messages queued, since the shutdown handler was disabled.
+$service->flush();
+```
 
 ## Contribute
 
