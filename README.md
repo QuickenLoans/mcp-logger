@@ -1,6 +1,8 @@
-# Core Logger, stand-alone.
+# MCP Logger
 
-MCP-Logger is a module that lets an application log entries to our internal [Core Logger](http://core) service.
+MCP Logger is a module that lets an PHP applications log messages.
+
+The primary service for logging is our internal [Core Logger](http://core) service.
 
 Using this package, an application can write warnings, fatals, and stack traces to Core.
 
