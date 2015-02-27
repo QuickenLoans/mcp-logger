@@ -79,8 +79,7 @@ $service = new Guzzle4Service($client, $renderer, $uri);
 
 #### Sending a message
 
-There are 5 required fields to create a message. By default, the standard message level is `INFO`. To send a message
-at a different level, you must provide it in the message data.
+There are 5 required fields to create a message. By default, the standard message level is `INFO`. To send a message at a different level, you must provide it in the message data.
 
 ```php
 use MCP\DataType\IPv4Address;
@@ -101,8 +100,7 @@ $service->send($message);
 
 #### Build a message with the MessageFactory
 
-Alternatively, a convenience factory is provided that will allow you to pass message defaults at setup
-so you do not have to populate these fields every time a message is logged.
+Alternatively, a convenience factory is provided that will allow you to pass message defaults at setup so you do not have to populate these fields every time a message is logged.
 
 The factory will add `createTime`, `message`, and `level` to the message payload.
 ```php
@@ -148,11 +146,9 @@ by the factory.
 
 ## PSR-3
 
-If your application does not require a complex logging setup (e.g., cascading loggers), and is compatible
-with PSR-3, a PSR-3 Logger is provided.
+If your application does not require a complex logging setup (e.g., cascading loggers), and is compatible with PSR-3, a PSR-3 Logger is provided.
 
-This logger has the Service and MessageFactory as dependencies. The logger uses a different MessageFactory that
-specifically converts a PSR-3 log level to a core log level.
+This logger has the Service and MessageFactory as dependencies. The logger uses a different MessageFactory that specifically converts a PSR-3 log level to a core log level.
 
 **Note**: You must still provide the required message properties to the factory.
 
@@ -242,9 +238,7 @@ See also:
 
 #### MCP\Logger\RendererInterface
 
-The `Renderer` is not directly used by consumers of this package. The renderer provided to the
-service will be invoked upon the message and format the message so it can be sent. The provided renderer
-converts a message to an XML string.
+The `Renderer` is not directly used by consumers of this package. The renderer provided to the service will be invoked upon the message and format the message so it can be sent.
 
 ```php
 use MCP\Logger\Renderer\XmlRenderer;
@@ -257,6 +251,7 @@ $output = $renderer($message);
 See also:
 
 * [RendererInterface.php](src/RendererInterface.php)
+* [JsonRenderer.php](src/Renderer/JsonRenderer.php)
 * [XmlRenderer.php](src/Renderer/XmlRenderer.php)
 
 #### MCP\Logger\ServiceInterface
