@@ -7,10 +7,13 @@
 
 namespace MCP\Logger\Service;
 
-use GuzzleHttp\Message\RequestInterface;
 use MCP\Logger\MessageInterface;
 
 /**
+ * Requires the following methods to be provided:
+ * - createRequest($message)
+ * - handleBatch($requests)
+ *
  * @internal
  */
 trait BufferedServiceTrait
@@ -84,7 +87,7 @@ trait BufferedServiceTrait
         $messages = $this->buffer;
         $this->buffer = [];
 
-        // Convert messages to Guzzle requests
+        // Convert messages to requests
         array_walk($messages, function(&$message) {
             $message = $this->createRequest($message);
         });

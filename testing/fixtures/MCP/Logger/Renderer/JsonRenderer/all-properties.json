@@ -1,0 +1,26 @@
+{
+    "ApplicationId": 10,
+    "CreateTime": "1977-05-25 03:00:00",
+    "Level": "Fatal",
+    "Message": "I used to bullseye womp rats in my T-16",
+    "IsUserDisrupted": true,
+    "ExtendedProperties": {
+        "key": "value",
+        "key2": "value2"
+    },
+    "MachineIPAddress": "127.0.0.1",
+    "MachineName": "Deathstar",
+
+    "ExceptionData": "beep boop",
+    "AffectedSystem": "Empire",
+    "CategoryId": 200,
+    "Referrer": "Uncle Ben",
+    "RequestMethod": "DELETE",
+    "Url": "Spaaaaaace",
+    "UserAgentBrowser": "X-Wing",
+    "UserCommonId": 5,
+    "UserDisplayName": "Skywalker",
+    "UserIPAddress": "192.168.0.1",
+    "UserName": "Luke",
+    "UserScreenName": "Red 5"
+}

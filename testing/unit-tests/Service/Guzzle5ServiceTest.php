@@ -18,6 +18,7 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
 {
     public static $logSetting;
     public $uri;
+    public $renderer;
 
     public static function setUpBeforeClass()
     {
@@ -36,6 +37,8 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
             'expand' => 'http://corelogger'
         ]);
 
+        $this->renderer = Mockery::mock('MCP\Logger\RendererInterface', ['contentType' => 'text/xml']);
+
         touch(__DIR__ . '/errlog');
     }
 
@@ -50,7 +53,6 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
      */
     public function testServiceReceivesNon200ResponseThrowsException()
     {
-        $renderer = Mockery::mock('MCP\Logger\RendererInterface');
         $message = Mockery::mock('MCP\Logger\MessageInterface');
 
         $mock = new Mock([
@@ -60,13 +62,13 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
         $client = new Client;
         $client->getEmitter()->attach($mock);
 
-        $renderer
+        $this->renderer
             ->shouldReceive('__invoke')
             ->with($message)
             ->andReturn('rendered message')
             ->once();
 
-        $service = new Guzzle5Service($client, $renderer, $this->uri, false, false);
+        $service = new Guzzle5Service($client, $this->renderer, $this->uri, false, false);
         $service->send($message);
     }
 
@@ -76,7 +78,6 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
      */
     public function testMultipleErrorsWhenNotSilent()
     {
-        $renderer = Mockery::mock('MCP\Logger\RendererInterface');
         $message = Mockery::mock('MCP\Logger\MessageInterface');
 
         $mock = new Mock([
@@ -87,13 +88,13 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
         $client = new Client;
         $client->getEmitter()->attach($mock);
 
-        $renderer
+        $this->renderer
             ->shouldReceive('__invoke')
             ->with($message)
             ->andReturn('rendered message')
             ->twice();
 
-        $service = new Guzzle5Service($client, $renderer, $this->uri, false, false, 1);
+        $service = new Guzzle5Service($client, $this->renderer, $this->uri, false, false, 1);
         $service->send($message);
         $service->send($message);
 
@@ -103,7 +104,6 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
 
     public function testServiceReceivesNon200ResponseSilentlyContinues()
     {
-        $renderer = Mockery::mock('MCP\Logger\RendererInterface');
         $message = Mockery::mock('MCP\Logger\MessageInterface');
 
         $mock = new Mock([
@@ -117,13 +117,13 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
         $client = new Client;
         $client->getEmitter()->attach($mock);
 
-        $renderer
+        $this->renderer
             ->shouldReceive('__invoke')
             ->with($message)
             ->andReturn('rendered message')
             ->times(5);
 
-        $service = new Guzzle5Service($client, $renderer, $this->uri, true, false, 10);
+        $service = new Guzzle5Service($client, $this->renderer, $this->uri, true, false, 10);
         $service->send($message);
         $service->send($message);
         $service->send($message);
@@ -137,7 +137,6 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
 
     public function testSilentLoggingDoesNotUseIndividualErrorMessage()
     {
-        $renderer = Mockery::mock('MCP\Logger\RendererInterface');
         $message = Mockery::mock('MCP\Logger\MessageInterface');
 
         $mock = new Mock([
@@ -149,13 +148,13 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
         $client = new Client;
         $client->getEmitter()->attach($mock);
 
-        $renderer
+        $this->renderer
             ->shouldReceive('__invoke')
             ->with($message)
             ->andReturn('rendered message')
             ->times(3);
 
-        $service = new Guzzle5Service($client, $renderer, $this->uri, true, false, 0);
+        $service = new Guzzle5Service($client, $this->renderer, $this->uri, true, false, 0);
         $service->send($message);
         $service->send($message);
         $service->send($message);

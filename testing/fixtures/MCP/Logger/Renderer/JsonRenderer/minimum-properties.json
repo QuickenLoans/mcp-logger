@@ -1,0 +1,10 @@
+{
+    "ApplicationId": null,
+    "CreateTime": null,
+    "Level": "",
+    "Message": "",
+    "IsUserDisrupted": false,
+    "ExtendedProperties": [],
+    "MachineIPAddress": null,
+    "MachineName": ""
+}

@@ -8,11 +8,6 @@
 namespace MCP\Logger\Service;
 
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Event\ErrorEvent;
-use GuzzleHttp\Exception\TransferException;
-use GuzzleHttp\Message\RequestInterface;
-use GuzzleHttp\Message\ResponseInterface;
-use GuzzleHttp\Pool;
 use MCP\Logger\Exception;
 use MCP\Logger\MessageInterface;
 use MCP\Logger\RendererInterface;
@@ -28,13 +23,12 @@ use QL\UriTemplate\UriTemplate;
  */
 class Guzzle5Service implements ServiceInterface
 {
-    use GuzzleTrait;
     use BufferedServiceTrait;
+    use GuzzleTrait;
 
     /**
      * @type string
      */
-    const ERR_RESPONSE_CODE = "The service responded with an unexpected http code: '%s'.";
     const ERR_GUZZLE_5_REQUIRED = 'Guzzle 5 and GuzzleHttp\Pool are required to use this service.';
     const ERR_BATCH = '%d Errors occured while sending %d messages with mcp-logger';
 
@@ -89,58 +83,11 @@ class Guzzle5Service implements ServiceInterface
 
     /**
      * @param MessageInterface $message
+     *
      * @return null
      */
     public function send(MessageInterface $message)
     {
         $this->append($message);
-    }
-
-    /**
-     * @param RequestInterface[] $requests
-     *
-     * @return null
-     */
-    protected function handleBatch(array $requests)
-    {
-        $errors = [];
-
-        Pool::send($this->guzzle, $requests, [
-            'error' => function (ErrorEvent $event) use (&$errors) {
-                $errors[] = $event;
-            }
-        ]);
-
-        if ($errors) {
-            $this->handleErrors(count($requests), $errors);
-        }
-    }
-
-    /**
-     * @param int $batchSize
-     * @param array $errors
-     *
-     * @return null
-     */
-    private function handleErrors($batchSize, array $errors)
-    {
-        $msg = sprintf(static::ERR_BATCH, count($errors), $batchSize);
-
-        if ($this->isSilent) {
-            error_log($msg);
-            return;
-        }
-
-        if ($batchSize === 1) {
-            $err = reset($errors);
-            $ex = $err->getException();
-
-            $ex = new Exception($ex->getMessage(), $ex->getCode(), $ex);
-
-        } else {
-            $ex = new Exception($msg);
-        }
-
-        throw $ex;
     }
 }

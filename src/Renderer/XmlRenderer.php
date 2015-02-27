@@ -40,6 +40,7 @@ class XmlRenderer implements RendererInterface
 
     /**
      * @param MessageInterface $message
+     *
      * @return string
      */
     public function __invoke(MessageInterface $message)
@@ -99,6 +100,14 @@ class XmlRenderer implements RendererInterface
         $xml->endElement();
 
         return $xml->outputMemory(true);
+    }
+
+    /**
+     * @return string
+     */
+    public function contentType()
+    {
+        return 'text/xml';
     }
 
     /**

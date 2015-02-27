@@ -17,4 +17,9 @@ interface RendererInterface
      * @return string
      */
     public function __invoke(MessageInterface $message);
+
+    /**
+     * @return string
+     */
+    public function contentType();
 }

@@ -15,6 +15,7 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
 {
     public static $logSetting;
     public $uri;
+    public $renderer;
 
     public static function setUpBeforeClass()
     {
@@ -32,6 +33,8 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
         $this->uri = Mockery::mock('QL\UriTemplate\UriTemplate', [
             'expand' => 'http://corelogger'
         ]);
+
+        $this->renderer = Mockery::mock('MCP\Logger\RendererInterface', ['contentType' => 'text/xml']);
     }
 
     /**
@@ -40,7 +43,6 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
      */
     public function testExceptionIsCaughtWhenServiceThrowsHttpException()
     {
-        $renderer = Mockery::mock('MCP\Logger\RendererInterface');
         $message = Mockery::mock('MCP\Logger\MessageInterface');
 
         $client = Mockery::mock('GuzzleHttp\ClientInterface');
@@ -53,18 +55,17 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
             ->shouldReceive('send')
             ->andThrow(new RequestException('msg', $request));
 
-        $renderer
+        $this->renderer
             ->shouldReceive('__invoke')
             ->with($message)
             ->andReturn('rendered message');
 
-        $service = new Guzzle4Service($client, $renderer, $this->uri, false);
+        $service = new Guzzle4Service($client, $this->renderer, $this->uri, false);
         $service->send($message);
     }
 
     public function testServiceReceivesNon200ResponseReturnsNullWhenSilent()
     {
-        $renderer = Mockery::mock('MCP\Logger\RendererInterface');
         $message = Mockery::mock('MCP\Logger\MessageInterface');
 
         $client = Mockery::mock('GuzzleHttp\ClientInterface');
@@ -80,11 +81,11 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
             ->andReturn($response)
             ->once();
 
-        $renderer
+        $this->renderer
             ->shouldReceive('__invoke')
             ->once();
 
-        $service = new Guzzle4Service($client, $renderer, $this->uri, true);
+        $service = new Guzzle4Service($client, $this->renderer, $this->uri, true);
         $this->assertNull($service->send($message));
     }
 
@@ -104,11 +105,11 @@ class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
             ->shouldReceive('send')
             ->andThrow(new RequestException('msg', $request));
 
-        $renderer
+        $this->renderer
             ->shouldReceive('__invoke')
             ->once();
 
-        $service = new Guzzle4Service($client, $renderer, $this->uri, true);
+        $service = new Guzzle4Service($client, $this->renderer, $this->uri, true);
         $this->assertNull($service->send($message));
     }
 }
