@@ -2,11 +2,6 @@
 /phpunit.xml
 /.phpunit/
 
-# ide specific configuration
-*.swo
-*.swp
-/nbproject/
-
 # package installation
 /composer.lock
 /vendor/

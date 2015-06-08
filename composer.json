@@ -9,15 +9,9 @@
             "email": "itteamwebcore@quickenloans.com"
         }
     ],
-    "support": {
-        "email": "itteamwebcore@quickenloans.com",
-        "issues": "http://git/mcp/mcp-logger/issues",
-        "source": "http://git/mcp/mcp-logger"
-    },
 
     "archive": {
         "exclude": [
-            "/bin",
             "/phpunit.xml.dist",
             "/testing"
         ]
@@ -36,7 +30,6 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "ext-date": "*",
         "ext-xmlwriter": "*",
         "ql/mcp-core": "1.*",
         "ql/uri-template": "1.*"
