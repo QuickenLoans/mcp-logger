@@ -25,18 +25,10 @@ Installation with composer is recommended. Other methods are unsupported.
 
 Add the following to your project's `composer.json`:
 
-```javascript
-{
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "http://composer/"
-        }
-    ],
-    "require": {
-        "ql/mcp-logger": "*"
-    }
-}
+Run the following [?](http://composer/):
+
+```
+composer require ql/mcp-logger 2.*
 ```
 
 ## Components

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright ©2005—2013 Quicken Loans Inc. All rights reserved. Trade Secret,
+ * @copyright ©2015 Quicken Loans Inc. All rights reserved. Trade Secret,
  *    Confidential and Proprietary. Any dissemination outside of Quicken Loans
  *    is strictly prohibited.
  */
@@ -19,7 +19,7 @@ class Message implements LogLevelInterface, MessageInterface
 {
     use MessageLoadingTrait;
 
-    /**#@+
+    /**
      * @type string|null
      */
     private $affectedSystem;
@@ -37,25 +37,22 @@ class Message implements LogLevelInterface, MessageInterface
     private $userDisplayName;
     private $userName;
     private $userScreenName;
-    /**#@-*/
 
-    /**#@+
+    /**
      * @type boolean
      */
     private $isUserDisrupted;
 
-    /**#@+
+    /**
      * @type TimePoint|null
      */
     private $createTime;
-    /**#@-*/
 
-    /**#@+
+    /**
      * @type IPv4Address|null
      */
     private $machineIPAddress;
     private $userIPAddress;
-    /**#@-*/
 
     /**
      * @type mixed[]

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright ©2005—2013 Quicken Loans Inc. All rights reserved. Trade Secret,
+ * @copyright ©2015 Quicken Loans Inc. All rights reserved. Trade Secret,
  *    Confidential and Proprietary. Any dissemination outside of Quicken Loans
  *    is strictly prohibited.
  */
@@ -31,20 +31,18 @@ use MCP\Logger\MessageInterface;
  */
 class MessageFactory implements LogLevelInterface, MessageFactoryInterface
 {
-    /**#@+
+    /**
      * @type string
      */
     const ERR_UNRENDERABLE = 'Invalid property: "%s". Log Properties must be scalars or objects that implement __toString.';
     const ERR_INVALID_IP = "'%s' must be an instance of IPv4Address.";
-    /**#@-*/
 
-    /**#@+
+    /**
      * @type string
      */
     const DEFAULT_APPLICATION_ID = '200001';
     const DEFAULT_MACHINE_NAME = 'unknown';
     const DEFAULT_MACHINE_IP = '0.0.0.0';
-    /**#@-*/
 
     /**
      * @type Clock
