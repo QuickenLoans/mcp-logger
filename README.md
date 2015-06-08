@@ -21,11 +21,7 @@ See Also:
 
 ## Installation
 
-Installation with composer is recommended. Other methods are unsupported.
-
-Add the following to your project's `composer.json`:
-
-Run the following [?](http://composer/):
+[[?](http://composer/)] Run the following command.
 
 ```
 composer require ql/mcp-logger 2.*
@@ -251,19 +247,19 @@ See also:
 By default, the provided Http Services silently consumes exceptions if the http request fails.
 
 ```php
-use HttpRequest;
-use MCP\Logger\Service\PeclHttpService;
+use GuzzleHttp\Client;
+use MCP\Logger\Service\Guzzle4Service;
+use QL\UriTemplate\UriTemplate;
 
 $isSilent = true;
 
-$service = new PeclHttpService(new HttpRequest, $renderer, $isSilent);
+$service = new Guzzle4Service(new Client, $renderer, new UriTemplate('http://corelogger'), $isSilent);
 $service->send($message);
 ```
 
 See also:
 
 * [ServiceInterface.php](src/ServiceInterface.php)
-* [PeclHttpService.php](src/Service/PeclHttpService.php)
 * [Guzzle3Service.php](src/Service/Guzzle3Service.php)
 * [Guzzle4Service.php](src/Service/Guzzle4Service.php)
 * [Guzzle5Service.php](src/Service/Guzzle5Service.php)
@@ -272,7 +268,7 @@ See also:
 
 Use Guzzle 5 and the included Guzzle 5 service to batch log messages, and send them asychronously in groups.
 
-**Note**: The Pecl, Guzzle3, and Guzzle4 services do not support batching or asynchronous requests.
+**Note**: The Guzzle3, and Guzzle4 services do not support batching or asynchronous requests.
 
 By default, this service will **not** buffer any messages, and immediately send new messages.
 
