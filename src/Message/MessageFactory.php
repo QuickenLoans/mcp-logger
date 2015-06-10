@@ -60,12 +60,12 @@ class MessageFactory implements LogLevelInterface, MessageFactoryInterface
     private $knownProperties;
 
     /**
-     * @param Clock $clock
+     * @param Clock|nul $clock
      * @param mixed[] $defaultLogProperties
      */
-    public function __construct(Clock $clock, array $defaultLogProperties = [])
+    public function __construct(Clock $clock = null, array $defaultLogProperties = [])
     {
-        $this->clock = $clock;
+        $this->clock = $clock ?: new Clock('now', 'UTC');
 
         $this->logProperties = [];
         $this->addDefaultDefaultProperties();

@@ -31,11 +31,11 @@ class XmlRenderer implements RendererInterface
     private $writer;
 
     /**
-     * @param XMLWriter $writer
+     * @param XMLWriter|null $writer
      */
-    public function __construct(XMLWriter $writer)
+    public function __construct(XMLWriter $writer = null)
     {
-        $this->writer = $writer;
+        $this->writer = $writer ?: new XMLWriter;
     }
 
     /**
