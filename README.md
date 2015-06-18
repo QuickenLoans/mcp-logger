@@ -279,12 +279,13 @@ You can disable the **shutdown handler** if you wish to flush messages manually.
 ```php
 use GuzzleHttp\Client;
 use MCP\Logger\Service\Guzzle5Service;
+use QL\UriTemplate\UriTemplate;
 
 $isSilent = true;
 $useShutDownHandler = false;
 $batchLimit = 5;
 
-$service = new Guzzle5Service(new Client, $renderer, $isSilent, $useShutDownHandler, $batchLimit);
+$service = new Guzzle5Service(new Client, $renderer, new UriTemplate('http://corelogger'), $isSilent, $useShutDownHandler, $batchLimit);
 $service->send($message);
 $service->send($message);
 $service->send($message);
