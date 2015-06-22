@@ -1,10 +1,10 @@
 {
-    "ApplicationId": 5,
-    "CreateTime": "date",
-    "Level": "Info",
+    "AppID": 5,
+    "Created": "date",
+    "Level": "info",
     "Message": "message",
-    "IsUserDisrupted": false,
-    "ExtendedProperties": [],
-    "MachineIPAddress": "0.0.0.0",
-    "MachineName": "machine"
+    "UserIsDisrupted": false,
+    "Properties": [],
+    "ServerIP": "0.0.0.0",
+    "ServerHostname": "machine"
 }

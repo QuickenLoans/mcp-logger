@@ -1,10 +1,10 @@
 {
-    "ApplicationId": null,
-    "CreateTime": null,
+    "AppID": null,
+    "Created": null,
     "Level": "",
     "Message": "",
-    "IsUserDisrupted": false,
-    "ExtendedProperties": [],
-    "MachineIPAddress": null,
-    "MachineName": ""
+    "UserIsDisrupted": false,
+    "Properties": [],
+    "ServerIP": null,
+    "ServerHostname": ""
 }
