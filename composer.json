@@ -43,7 +43,7 @@
         "psr/log": "*"
     },
     "suggest": {
-        "guzzle/http": "Required for Guzzle-based service",
+        "guzzlehttp/guzzle": "Required for Guzzle-based service",
         "psr/log": "Required to use the included PSR-3 logger"
     }
 }
