@@ -1,6 +1,7 @@
 # testing artifacts
 /phpunit.xml
 /.phpunit/
+test.php
 
 # package installation
 /composer.lock

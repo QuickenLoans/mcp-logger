@@ -40,10 +40,12 @@
         "mockery/mockery": ">=0.8",
         "phpunit/phpunit": "*",
         "phpunit/php-invoker": "*",
+        "aws/aws-sdk-php": "^3.0",
         "psr/log": "*"
     },
     "suggest": {
         "guzzlehttp/guzzle": "Required for Guzzle-based service",
-        "psr/log": "Required to use the included PSR-3 logger"
+        "psr/log": "Required to use the included PSR-3 logger",
+        "aws/aws-sdk-php": "Required to use Kinesis Service"
     }
 }
