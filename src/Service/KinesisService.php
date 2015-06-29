@@ -116,11 +116,11 @@ class KinesisService implements ServiceInterface
 
         do {
 
-            echo "\n\nPREPARING TO SEND (".$attempts.")\n\n";
-            var_dump([
-                'Records' => $messages,
-                'StreamName' => $this->stream
-            ]);
+//            echo "\n\nPREPARING TO SEND (".$attempts.")\n\n";
+//            var_dump([
+//                'Records' => $messages,
+//                'StreamName' => $this->stream
+//            ]);
 
             $result = $this->client->putRecords([
                 'Records' => $messages,
