@@ -10,6 +10,7 @@ Table of Contents:
 * [Installation](#installation)
 * [Components](#components)
 * [Using MCP Logger](#using-mcp-logger)
+* [Using MCP Logger in AWS](#using-mcp-logger-in-aws)
 * [PSR-3](#psr-3)
 * [Components In Detail](#components-in-detail)
 * [Contribute](#contribute)
@@ -50,7 +51,7 @@ A Message Factory
 
 ## Using MCP Logger
 
-#### Setup
+### Setup
 
 ```php
 use GuzzleHttp\Client;
@@ -65,7 +66,7 @@ $uri = new UriTemplate('http://sonic');
 $service = new Guzzle4Service($client, $renderer, $uri);
 ```
 
-#### Sending a message
+### Sending a message
 
 There are 5 required fields to create a message. By default, the standard message level is `INFO`. To send a message at a different level, you must provide it in the message data.
 
@@ -86,7 +87,7 @@ $message = new Message([
 $service->send($message);
 ```
 
-#### Build a message with the MessageFactory
+### Build a message with the MessageFactory
 
 Alternatively, a convenience factory is provided that will allow you to pass message defaults at setup so you do not have to populate these fields every time a message is logged.
 
@@ -131,6 +132,10 @@ $message = $factory->buildMessage(
 
 Unknown fields that the core service does not understand will be automatically added to `Extended Properties`
 by the factory.
+
+## Using MCP Logger in AWS
+
+@todo
 
 ## PSR-3
 
@@ -263,6 +268,7 @@ See also:
 * [Guzzle3Service.php](src/Service/Guzzle3Service.php)
 * [Guzzle4Service.php](src/Service/Guzzle4Service.php)
 * [Guzzle5Service.php](src/Service/Guzzle5Service.php)
+* [KinesisService.php](src/Service/KinesisService.php)
 
 ##### Batched, asynchronous requests
 

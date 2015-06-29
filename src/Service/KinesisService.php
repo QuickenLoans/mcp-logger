@@ -17,6 +17,7 @@ class KinesisService implements ServiceInterface
 {
     use BufferedServiceTrait;
 
+    const ERR_BUFFER = 'Buffer size must be between 0 and 499.';
     const ERR_RESPONSE = 'Received improperly formatted response when sending messages.';
     const ERR_BATCH = 'Unable to send %s (of %s) log messages after %s attempts. Check that the Kinesis stream exists and has enough shards.';
 
@@ -56,6 +57,7 @@ class KinesisService implements ServiceInterface
      * @param int $attempts
      * @param bool $shutdownHandler
      * @param int $bufferLimit
+     * @throws Exception
      */
     public function __construct(
         KinesisClient $client,
@@ -71,6 +73,10 @@ class KinesisService implements ServiceInterface
         $this->stream = $stream;
         $this->silent = $silent;
         $this->attempts = $attempts;
+
+        if ($bufferLimit < 0 || $bufferLimit > 499) {
+            throw new Exception(self::ERR_BUFFER);
+        }
 
         $this->initializeBuffer($bufferLimit, $shutdownHandler);
     }
@@ -93,7 +99,7 @@ class KinesisService implements ServiceInterface
         $data = call_user_func($this->renderer, $message);
 
         return [
-            'Data' => $data,
+            'Data' => base64_encode($data),
             'PartitionKey' => hash('sha256', mt_rand() . $data)
         ];
     }
@@ -110,6 +116,12 @@ class KinesisService implements ServiceInterface
 
         do {
 
+            echo "\n\nPREPARING TO SEND (".$attempts.")\n\n";
+            var_dump([
+                'Records' => $messages,
+                'StreamName' => $this->stream
+            ]);
+
             $result = $this->client->putRecords([
                 'Records' => $messages,
                 'StreamName' => $this->stream
@@ -119,13 +131,10 @@ class KinesisService implements ServiceInterface
                 throw new Exception(self::ERR_RESPONSE);
             }
 
-            $messages = array_map(function (array $message) {
-                // include only message data and partition key
-                return array_intersect_key($message, ['Data' => '', 'PartitionKey' => '']);
-            }, array_filter($result['Records'], function (array $message) {
+            $messages = array_values(array_intersect_key($messages, array_filter($result['Records'], function (array $message) {
                 // filter out messages that were successfully sent
                 return (isset($message['SequenceNumber']) && isset($message['ShardId'])) ? false : true;
-            }));
+            })));
 
         } while (count($messages) > 0 && $attempts++ < $this->attempts);
 
