@@ -29,7 +29,9 @@ class KinesisService implements ServiceInterface
     const SIZE_MAX = 950000;
 
     const STREAM_DEFAULT = 'Logger';
+    const BUFFER_SIZE_DEFAULT = 0;
     const ATTEMPTS_DEFAULT = 5;
+    const SHUTDOWN_HANDLER_DEFAULT = true;
 
     /**
      * @var KinesisClient
@@ -59,21 +61,21 @@ class KinesisService implements ServiceInterface
     /**
      * @param KinesisClient $client
      * @param RendererInterface $renderer
-     * @param string $stream
      * @param bool $silent
+     * @param string $stream
+     * @param int $bufferLimit
      * @param int $attempts
      * @param bool $shutdownHandler
-     * @param int $bufferLimit
      * @throws Exception
      */
     public function __construct(
         KinesisClient $client,
         RendererInterface $renderer,
-        $stream = self::STREAM_DEFAULT,
         $silent = true,
+        $stream = self::STREAM_DEFAULT,
+        $bufferLimit = self::BUFFER_SIZE_DEFAULT,
         $attempts = self::ATTEMPTS_DEFAULT,
-        $shutdownHandler = true,
-        $bufferLimit = 0
+        $shutdownHandler = self::SHUTDOWN_HANDLER_DEFAULT
     ) {
         $this->client = $client;
         $this->renderer = $renderer;
@@ -188,6 +190,7 @@ class KinesisService implements ServiceInterface
             foreach ($messages as $message) {
                 error_log($message);
             }
+            return;
         }
 
         if (count($messages) > 1) {
