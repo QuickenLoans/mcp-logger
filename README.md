@@ -140,6 +140,7 @@ When using MCP Logger on Amazon AWS (the cloud), there are a few differences you
 - Messages are sent through an Amazon Kinesis channel.
 - Messages are received and processed by Splunk instead of CORE Logger.
 - You must use the `MCP\Logger\Service\KinesisService` logger service.
+- You must use the `MCP\Logger\Renderer\JsonRenderer` message renderer.
 - The Amazon AWS PHP SDK composer package is required ("aws/aws-sdk-php": "^3.0").
 
 To get started with the Kinesis Service, you need an instance of the AWS Kinesis Client.
@@ -173,7 +174,37 @@ In the above example, you'll need to provide the following configuration keys.
     
 For more details on the available configuration values, review the [AWS SDK Configuration  Documentation](http://docs.aws.amazon.com/aws-sdk-php/v3/guide/guide/configuration.html).
 
-@todo
+Now, just instantiate an instance of the `MCP\Logger\Service\KinesisService`.
+
+```php
+use MCP\Logger\Service\KinesisService;
+use MCP\Logger\Renderer\JsonRenderer;
+
+$service = new KinesisService(
+    $client,                    // The Amazon AWS Kinesis Client
+    $renderer,                  // The JSON Message Renderer
+    $configuration = []         // A dictionary of configuration keys and values
+);
+```
+
+The service allows a number of configuration keys to be provided, depending on your needs.
+
+Key                                        | Type    | Required | Default | Explanation
+------------------------------------------ | ------- | -------- | ------- |------------------------------------------
+`KinesisService::CONFIG_IS_SILENT`         | bool    | no       | `true`  | When true, errors will be handled silently. If false, exceptions will be thrown instead.
+`KinesisService::CONFIG_BUFFER_LIMIT`      | int     | no       | `0`     | Defines the maximum number of log messages that will be queued before they are sent. When set to `0`, messages are immediately sent. This value must be between 0 and 499.
+`KinesisService::CONFIG_KINESIS_ATTEMPTS`  | int     | no       | `5`     | The number of attempts to make when sending log messages to Kinesis. This value must be at least 1. Because of the nature of Kinesis, it is likely that not all messages will be able to be sent on the first attempt. For this reason, it is suggested that this value be at least 5. The lower this value, the higher the liklihood that messages will be lost.
+`KinesisService::CONFIG_KINESIS_STREAM`    | string  | no       | `Logger`| The name of the Kinesis stream that log messages should be sent to. If you are unsure of this value, then speak with Security or a Unix administrator.
+`KinesisService::CONFIG_REGISTER_SHUTDOWN` | bool    | no       | `true`  | When using a buffer limit greater than zero, you must flush queued messages (`$service->flush()`) before your application shuts down to ensure that messages are not lost. When this value is true, that flushing is done automatically.
+
+Once you have an instance of the service, you can send log messages as your normally would.
+
+```php
+use MCP\Logger\Message\Message;
+
+$message = new Message([/* ... */]);
+$service->send($message);
+```
 
 ## PSR-3
 
