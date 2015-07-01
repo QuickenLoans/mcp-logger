@@ -18,6 +18,21 @@ class KinesisService implements ServiceInterface
 {
     use BufferedServiceTrait;
 
+    // Configuration Keys
+    const CONFIG_IS_SILENT = 'silent';
+    const CONFIG_BUFFER_LIMIT = 'buffer.limit';
+    const CONFIG_KINESIS_ATTEMPTS = 'kinesis.attempts';
+    const CONFIG_KINESIS_STREAM = 'kinesis.stream';
+    const CONFIG_REGISTER_SHUTDOWN = 'shutdown.register';
+
+    // Configuration Defaults
+    const DEFAULT_CONFIG_IS_SILENT = true;
+    const DEFAULT_CONFIG_BUFFER_LIMIT = 0;
+    const DEFAULT_CONFIG_KINESIS_ATTEMPTS = 5;
+    const DEFAULT_CONFIG_KINESIS_STREAM = 'Logger';
+    const DEFAULT_CONFIG_REGISTER_SHUTDOWN = true;
+
+    // Error Messages
     const ERR_BUFFER = 'Buffer size must be between 1 and 499.';
     const ERR_ATTEMPTS = 'Number of attempts must be 1 or greater.';
     const ERR_SIZE = 'Log message exceeds 1MB in size. Cannot be sent to Kinesis. Discarding. %s';
@@ -27,11 +42,6 @@ class KinesisService implements ServiceInterface
     const ERR_MULTIPLE = "Encountered %s errors when sending log messages.\n%s";
 
     const SIZE_MAX = 950000;
-
-    const STREAM_DEFAULT = 'Logger';
-    const BUFFER_SIZE_DEFAULT = 0;
-    const ATTEMPTS_DEFAULT = 5;
-    const SHUTDOWN_HANDLER_DEFAULT = true;
 
     /**
      * @var KinesisClient
@@ -44,54 +54,44 @@ class KinesisService implements ServiceInterface
     private $renderer;
 
     /**
-     * @var string
+     * @var array
      */
-    private $stream;
-
-    /**
-     * @var bool
-     */
-    private $silent;
-
-    /**
-     * @var int
-     */
-    private $attempts;
+    private $configuration;
 
     /**
      * @param KinesisClient $client
      * @param RendererInterface $renderer
-     * @param bool $silent
-     * @param string $stream
-     * @param int $bufferLimit
-     * @param int $attempts
-     * @param bool $shutdownHandler
+     * @param array $configuration
      * @throws Exception
      */
     public function __construct(
         KinesisClient $client,
         RendererInterface $renderer,
-        $silent = true,
-        $stream = self::STREAM_DEFAULT,
-        $bufferLimit = self::BUFFER_SIZE_DEFAULT,
-        $attempts = self::ATTEMPTS_DEFAULT,
-        $shutdownHandler = self::SHUTDOWN_HANDLER_DEFAULT
+        array $configuration = []
     ) {
         $this->client = $client;
         $this->renderer = $renderer;
-        $this->stream = $stream;
-        $this->silent = $silent;
-        $this->attempts = $attempts;
 
-        if ($attempts < 1) {
+        $this->configuration = array_merge([
+            self::CONFIG_IS_SILENT => self::DEFAULT_CONFIG_IS_SILENT,
+            self::CONFIG_BUFFER_LIMIT => self::DEFAULT_CONFIG_BUFFER_LIMIT,
+            self::CONFIG_KINESIS_ATTEMPTS => self::DEFAULT_CONFIG_KINESIS_ATTEMPTS,
+            self::CONFIG_KINESIS_STREAM => self::DEFAULT_CONFIG_KINESIS_STREAM,
+            self::CONFIG_REGISTER_SHUTDOWN => self::DEFAULT_CONFIG_REGISTER_SHUTDOWN
+        ], $configuration);
+
+        if ($this->configuration[self::CONFIG_KINESIS_ATTEMPTS] < 1) {
             throw new Exception(self::ERR_ATTEMPTS);
         }
 
-        if ($bufferLimit < 0 || $bufferLimit > 499) {
+        if ($this->configuration[self::CONFIG_BUFFER_LIMIT] < 0 || $this->configuration[self::CONFIG_BUFFER_LIMIT] > 499) {
             throw new Exception(self::ERR_BUFFER);
         }
 
-        $this->initializeBuffer($bufferLimit, $shutdownHandler);
+        $this->initializeBuffer(
+            $this->configuration[self::CONFIG_BUFFER_LIMIT],
+            $this->configuration[self::CONFIG_REGISTER_SHUTDOWN]
+        );
     }
 
     /**
@@ -139,7 +139,7 @@ class KinesisService implements ServiceInterface
 
         $attempts = 0;
 
-        while (count($messages) > 0 && $attempts < $this->attempts) {
+        while (count($messages) > 0 && $attempts < $this->configuration[self::CONFIG_KINESIS_ATTEMPTS]) {
 
             $messages = array_map(function (array $message) {
                 return array_intersect_key($message, array_flip(['Data', 'PartitionKey']));
@@ -148,7 +148,7 @@ class KinesisService implements ServiceInterface
             try {
                 $results = $this->client->putRecords([
                     'Records' => $messages,
-                    'StreamName' => $this->stream
+                    'StreamName' => $this->configuration[self::CONFIG_KINESIS_STREAM]
                 ]);
             } catch (KinesisException $e) {
                 throw new Exception(self::ERR_UNKNOWN, 0, $e);
@@ -186,7 +186,7 @@ class KinesisService implements ServiceInterface
      */
     private function handleErrors(array $messages)
     {
-        if ($this->silent) {
+        if ($this->configuration[self::CONFIG_IS_SILENT]) {
             foreach ($messages as $message) {
                 error_log($message);
             }

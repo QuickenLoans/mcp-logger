@@ -10,7 +10,6 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
     public function testConstructAttemptsTooSmall()
     {
         $silent = false;
-        $stream = KinesisService::STREAM_DEFAULT;
         $bufferLimit = 0;
         $attempts = -1;
         $shutdown = false;
@@ -23,7 +22,12 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $service = new KinesisService($kinesis, $renderer, $silent, $stream, $bufferLimit, $attempts, $shutdown);
+        $service = new KinesisService($kinesis, $renderer, [
+            KinesisService::CONFIG_IS_SILENT => $silent,
+            KinesisService::CONFIG_BUFFER_LIMIT => $bufferLimit,
+            KinesisService::CONFIG_KINESIS_ATTEMPTS => $attempts,
+            KinesisService::CONFIG_REGISTER_SHUTDOWN => $shutdown
+        ]);
     }
 
     /**
@@ -32,7 +36,6 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
     public function testConstructBufferLimitSmall()
     {
         $silent = false;
-        $stream = KinesisService::STREAM_DEFAULT;
         $bufferLimit = -1;
         $attempts = 1;
         $shutdown = false;
@@ -45,7 +48,12 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $service = new KinesisService($kinesis, $renderer, $silent, $stream, $bufferLimit, $attempts, $shutdown);
+        $service = new KinesisService($kinesis, $renderer, [
+            KinesisService::CONFIG_IS_SILENT => $silent,
+            KinesisService::CONFIG_BUFFER_LIMIT => $bufferLimit,
+            KinesisService::CONFIG_KINESIS_ATTEMPTS => $attempts,
+            KinesisService::CONFIG_REGISTER_SHUTDOWN => $shutdown
+        ]);
     }
 
     /**
@@ -56,7 +64,6 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
         $data = str_repeat('a', KinesisService::SIZE_MAX+1);
 
         $silent = false;
-        $stream = KinesisService::STREAM_DEFAULT;
         $bufferLimit = 0;
         $attempts = 1;
         $shutdown = false;
@@ -79,7 +86,13 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
             ->with($message)
             ->will($this->returnValue($data));
 
-        $service = new KinesisService($kinesis, $renderer, $silent, $stream, $bufferLimit, $attempts, $shutdown);
+        $service = new KinesisService($kinesis, $renderer, [
+            KinesisService::CONFIG_IS_SILENT => $silent,
+            KinesisService::CONFIG_BUFFER_LIMIT => $bufferLimit,
+            KinesisService::CONFIG_KINESIS_ATTEMPTS => $attempts,
+            KinesisService::CONFIG_REGISTER_SHUTDOWN => $shutdown
+        ]);
+
         $service->send($message);
     }
 
@@ -87,7 +100,6 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
     {
         $data = 'abc123';
         $silent = false;
-        $stream = KinesisService::STREAM_DEFAULT;
         $bufferLimit = 0;
         $attempts = 1;
         $shutdown = false;
@@ -126,7 +138,12 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
             ->with($message)
             ->will($this->returnValue($data));
 
-        $service = new KinesisService($kinesis, $renderer, $silent, $stream, $bufferLimit, $attempts, $shutdown);
+        $service = new KinesisService($kinesis, $renderer, [
+            KinesisService::CONFIG_IS_SILENT => $silent,
+            KinesisService::CONFIG_BUFFER_LIMIT => $bufferLimit,
+            KinesisService::CONFIG_KINESIS_ATTEMPTS => $attempts,
+            KinesisService::CONFIG_REGISTER_SHUTDOWN => $shutdown
+        ]);
 
         foreach ($messages as $message) {
             $service->send($message);
@@ -140,7 +157,6 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
     {
         $data = 'abc123';
         $silent = false;
-        $stream = KinesisService::STREAM_DEFAULT;
         $bufferLimit = 0;
         $attempts = 1;
         $shutdown = false;
@@ -172,7 +188,13 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
             ->with($message)
             ->will($this->returnValue($data));
 
-        $service = new KinesisService($kinesis, $renderer, $silent, $stream, $bufferLimit, $attempts, $shutdown);
+        $service = new KinesisService($kinesis, $renderer, [
+            KinesisService::CONFIG_IS_SILENT => $silent,
+            KinesisService::CONFIG_BUFFER_LIMIT => $bufferLimit,
+            KinesisService::CONFIG_KINESIS_ATTEMPTS => $attempts,
+            KinesisService::CONFIG_REGISTER_SHUTDOWN => $shutdown
+        ]);
+
         $service->send($message);
     }
 
@@ -183,7 +205,6 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
     {
         $data = 'abc123';
         $silent = false;
-        $stream = KinesisService::STREAM_DEFAULT;
         $bufferLimit = 0;
         $attempts = 1;
         $shutdown = false;
@@ -222,7 +243,13 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
             ->with($message)
             ->will($this->returnValue($data));
 
-        $service = new KinesisService($kinesis, $renderer, $silent, $stream, $bufferLimit, $attempts, $shutdown);
+        $service = new KinesisService($kinesis, $renderer, [
+            KinesisService::CONFIG_IS_SILENT => $silent,
+            KinesisService::CONFIG_BUFFER_LIMIT => $bufferLimit,
+            KinesisService::CONFIG_KINESIS_ATTEMPTS => $attempts,
+            KinesisService::CONFIG_REGISTER_SHUTDOWN => $shutdown
+        ]);
+
         $service->send($message);
     }
 
@@ -233,7 +260,6 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
     {
         $data = 'abc123';
         $silent = false;
-        $stream = KinesisService::STREAM_DEFAULT;
         $bufferLimit = 0;
         $attempts = 1;
         $shutdown = false;
@@ -269,7 +295,13 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
             ->with($message)
             ->will($this->returnValue($data));
 
-        $service = new KinesisService($kinesis, $renderer, $silent, $stream, $bufferLimit, $attempts, $shutdown);
+        $service = new KinesisService($kinesis, $renderer, [
+            KinesisService::CONFIG_IS_SILENT => $silent,
+            KinesisService::CONFIG_BUFFER_LIMIT => $bufferLimit,
+            KinesisService::CONFIG_KINESIS_ATTEMPTS => $attempts,
+            KinesisService::CONFIG_REGISTER_SHUTDOWN => $shutdown
+        ]);
+
         $service->send($message);
     }
 
@@ -280,7 +312,6 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
     {
         $data = str_repeat('a', KinesisService::SIZE_MAX+1);
         $silent = false;
-        $stream = KinesisService::STREAM_DEFAULT;
         $bufferLimit = 3;
         $attempts = 1;
         $shutdown = false;
@@ -304,7 +335,13 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
             ->with($message)
             ->will($this->returnValue($data));
 
-        $service = new KinesisService($kinesis, $renderer, $silent, $stream, $bufferLimit, $attempts, $shutdown);
+        $service = new KinesisService($kinesis, $renderer, [
+            KinesisService::CONFIG_IS_SILENT => $silent,
+            KinesisService::CONFIG_BUFFER_LIMIT => $bufferLimit,
+            KinesisService::CONFIG_KINESIS_ATTEMPTS => $attempts,
+            KinesisService::CONFIG_REGISTER_SHUTDOWN => $shutdown
+        ]);
+
         $service->send($message);
         $service->send($message);
         $service->flush();
@@ -321,7 +358,6 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
         $data = str_repeat('a', KinesisService::SIZE_MAX+1);
 
         $silent = true;
-        $stream = KinesisService::STREAM_DEFAULT;
         $bufferLimit = 0;
         $attempts = 1;
         $shutdown = false;
@@ -344,7 +380,13 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
             ->with($message)
             ->will($this->returnValue($data));
 
-        $service = new KinesisService($kinesis, $renderer, $silent, $stream, $bufferLimit, $attempts, $shutdown);
+        $service = new KinesisService($kinesis, $renderer, [
+            KinesisService::CONFIG_IS_SILENT => $silent,
+            KinesisService::CONFIG_BUFFER_LIMIT => $bufferLimit,
+            KinesisService::CONFIG_KINESIS_ATTEMPTS => $attempts,
+            KinesisService::CONFIG_REGISTER_SHUTDOWN => $shutdown
+        ]);
+
         $service->send($message);
 
         ///////
