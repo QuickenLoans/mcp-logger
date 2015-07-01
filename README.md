@@ -135,6 +135,44 @@ by the factory.
 
 ## Using MCP Logger in AWS
 
+When using MCP Logger on Amazon AWS (the cloud), there are a few differences you should be aware of.
+
+- Messages are sent through an Amazon Kinesis channel.
+- Messages are received and processed by Splunk instead of CORE Logger.
+- You must use the `MCP\Logger\Service\KinesisService` logger service.
+- The Amazon AWS PHP SDK composer package is required ("aws/aws-sdk-php": "^3.0").
+
+To get started with the Kinesis Service, you need an instance of the AWS Kinesis Client.
+
+```php
+usw Aws\Kinesis\KinesisClient;
+
+$client = new KinesisClient([
+    'region' => 'replaceme',        // Amazon AWS Region (required)
+    'version' => '2013-12-02',      // Amazon AWS Kinesis API Version (required)
+    'credentials' => [              // Amazon AWS Credentials
+        'key' => 'replaceme',
+        'secret' => 'replaceme'
+    ]
+]);
+```
+
+In the above example, you'll need to provide the following configuration keys.
+
+- `region` (required)
+
+    The Amazon AWS Region that you code will be deployed to. If you are unsure of this value, speak with your friendly neighborhood Unix administrator.
+
+- `version` (required)
+
+    The Amazon AWS Kinesis API version to use when communicating. At the moment, this library supports the `2013-12-02` release. Do not change this to `latest` or any more recent release without speaking with the library maintainer first as it could break the sending of log messages.
+    
+- `credentials`
+
+    This configuration value allows you to manually specify the credentials to use when communicating with the Amazon AWS Kinesis API. You probably won't need to provide this as an IAM Role will likely be used to provide credentials. For more details on how credentials work, review the [AWS SDK Credentials  Documentation](http://docs.aws.amazon.com/aws-sdk-php/v3/guide/guide/credentials.html) or speak with a Unix administrator.
+    
+For more details on the available configuration values, review the [AWS SDK Configuration  Documentation](http://docs.aws.amazon.com/aws-sdk-php/v3/guide/guide/configuration.html).
+
 @todo
 
 ## PSR-3
