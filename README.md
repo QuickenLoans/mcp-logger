@@ -1,31 +1,33 @@
 # MCP Logger
 
-MCP Logger is a module that lets an PHP applications log messages.
+This library allows developers to easily send log messages from their application to either the Splunk or 
+[CORE](http://core) logging service. For more information on the CORE Logger service, review the service  
+[documentation](https://itiki/index.php/Core_Logger).
 
-The primary service for logging is our internal [Core Logger](http://core) service.
+## Contents
 
-Using this package, an application can write warnings, fatals, and stack traces to Core.
-
-Table of Contents:
 * [Installation](#installation)
 * [Components](#components)
 * [Using MCP Logger](#using-mcp-logger)
-* [Using MCP Logger in AWS](#using-mcp-logger-in-aws)
+* [Services](#services)
 * [PSR-3](#psr-3)
 * [Components In Detail](#components-in-detail)
 * [Contribute](#contribute)
 
-See Also:
-
-* [Core Logger](http://core)
-* [Core Logger Specifications](https://itiki/index.php/Core_Logger)
-
 ## Installation
 
-[[?](http://composer/)] Run the following command.
+Add the following lines to your `composer.json` file.
 
-```
-composer require ql/mcp-logger 2.*
+```js
+"repositories": [
+    { 
+        "type": "composer",
+        "url": "http://composer/"
+    }
+],
+"require": {
+    "ql/mcp-logger": "^2.0"
+}
 ```
 
 ## Components
@@ -36,22 +38,13 @@ The MCP Logger consists of 3 main components:
 * [MCP\Logger\RendererInterface](#mcploggerrendererinterface)
 * [MCP\Logger\ServiceInterface](#mcploggerserviceinterface)
 
-**In a single sentence:**  
-The `Renderer` renders a `Message` that is sent by the `Service`.
+To put things simply, a `Renderer` renders a `Message` that is sent by a `Service`. Additionally, several convenience 
+classes are also available to make connecting the pieces easier.
 
-In addition there are several convenience classes:
+*   [PSR-3 Compliant Logger](#psr-3)
+*   [Message Factory](#build-a-message-with-the-messagefactory)
 
-A PSR-3 Logger:
-
-* [MCP\Logger\Logger](#psr-3)
-
-A Message Factory
-
-* [MCP\Logger\Message\MessageFactory](#build-a-message-with-the-messagefactory)
-
-## Using MCP Logger
-
-### Setup
+## Setup
 
 ```php
 use GuzzleHttp\Client;
@@ -60,15 +53,24 @@ use MCP\Logger\Service\Guzzle4Service;
 use QL\UriTemplate\UriTemplate;
 use XMLWriter;
 
-$renderer = new XmlRenderer(new XMLWriter);
 $client = new Client;
 $uri = new UriTemplate('http://sonic');
+
+// A renderer of your choice
+$renderer = new XmlRenderer(new XMLWriter);
+
+// A service of your choice
 $service = new Guzzle4Service($client, $renderer, $uri);
 ```
 
-### Sending a message
+## Creating a Message
 
-There are 5 required fields to create a message. By default, the standard message level is `INFO`. To send a message at a different level, you must provide it in the message data.
+You can either create message objects manually or use the message factory.
+
+### Manually
+
+There are 5 required fields to create a message. By default, the standard message level is `INFO`. To send a message at 
+a different level, you must provide it in the message data.
 
 ```php
 use MCP\DataType\IPv4Address;
@@ -87,11 +89,13 @@ $message = new Message([
 $service->send($message);
 ```
 
-### Build a message with the MessageFactory
+### Using the Factory
 
-Alternatively, a convenience factory is provided that will allow you to pass message defaults at setup so you do not have to populate these fields every time a message is logged.
+Alternatively, a convenience factory is provided that will allow you to pass message defaults at setup so you do not 
+have to populate these fields every time a message is logged.
 
 The factory will add `createTime`, `message`, and `level` to the message payload.
+
 ```php
 use MCP\DataType\Time\Clock;
 use MCP\Logger\Message\MessageFactory;
@@ -102,27 +106,21 @@ $factory = new MessageFactory($clock);
 $message = $factory->buildMessage(MessageFactory::DEBUG, 'A debug message');
 ```
 
-There are three ways to add data to a message when using the factory.
+When using the factory, there are several ways for you to add data to a message.
 
-In the constructor:
 ```php
 use MCP\DataType\IPv4Address;
 
+// In the constructor...
 $factory = new MessageFactory($clock, [
     'applicationId' => '1',
     'machineIPAddress' => new IPv4Address(0)
 ]);
-```
 
-With a setter
-```php
+// With a setter...
 $factory->setDefaultProperty('machineName', 'ServerName');
-```
 
-As context data when building the message:
-```php
-use MCP\DataType\IPv4Address;
-
+// As context data when building the message...
 $message = $factory->buildMessage(
     MessageFactory::DEBUG,
     'A debug message',
@@ -130,18 +128,51 @@ $message = $factory->buildMessage(
 );
 ```
 
-Unknown fields that the core service does not understand will be automatically added to `Extended Properties`
-by the factory.
+Unknown fields that the core service does not understand will be automatically added to `Extended Properties` by the 
+factory.
 
-## Using MCP Logger in AWS
+## Sending a Message
 
-When using MCP Logger on Amazon AWS (the cloud), there are a few differences you should be aware of.
+Once you have a service and a message, sending is easy.
 
-- Messages are sent through an Amazon Kinesis channel.
-- Messages are received and processed by Splunk instead of CORE Logger.
-- You must use the `MCP\Logger\Service\KinesisService` logger service.
-- You must use the `MCP\Logger\Renderer\JsonRenderer` message renderer.
-- The Amazon AWS PHP SDK composer package is required ("aws/aws-sdk-php": "^3.0").
+```php
+$service->send($message);
+```
+
+## Services
+
+A number of services are available for you to select from. Not sure which one is right for your application? In general,
+you should follow these guidelines when selecting a service.
+
+1.  When your application is running on the Quicken Loans network, your log messages should be sent to the CORE logging
+    service using any of the `Guzzle3Service`, `Guzzle4Service`, `Guzzle5Service`, or `Guzzle6Service`. 
+2.  When your application is running in Amazon AWS, you should use the `SyslogService`. The `KinesisService` can also be
+    used but is not recommended because operations cannot be completed asynchronously. 
+    
+If you are still unsure what service to select, contact the Web Core team for guidance.
+
+### CORE Logger Services
+
+These services send messages to the CORE Logger service and can only be used when your application is being run on the
+Quicken Loans network.
+
+*   `Guzzle3Service`
+*   `Guzzle4Service`
+*   `Guzzle5Service`
+*   `Guzzle6Service`
+
+When sending to the CORE Logger service, you should use the `XmlRenderer` renderer class.
+
+### Amazon AWS Services
+
+These services use Amazon AWS infrastructure to send messages so they can only be used when your application is being 
+run on an Amazon AWS EC2 instance.
+
+#### Kinesis Service
+
+This service sends messages using the Amazon Kinesis service. Because of this, the Amazon AWS PHP SDK composer package
+is required (`"aws/aws-sdk-php": "^3.0"`). You should also use the `JsonRenderer` to ensure that logs are formatted
+correctly for Splunk.
 
 To get started with the Kinesis Service, you need an instance of the AWS Kinesis Client.
 
@@ -162,15 +193,21 @@ In the above example, you'll need to provide the following configuration keys.
 
 - `region` (required)
 
-    The Amazon AWS Region that you code will be deployed to. If you are unsure of this value, speak with your friendly neighborhood Unix administrator.
+    The Amazon AWS Region that you code will be deployed to. If you are unsure of this value, speak with your friendly 
+    neighborhood Unix administrator.
 
 - `version` (required)
 
-    The Amazon AWS Kinesis API version to use when communicating. At the moment, this library supports the `2013-12-02` release. Do not change this to `latest` or any more recent release without speaking with the library maintainer first as it could break the sending of log messages.
+    The Amazon AWS Kinesis API version to use when communicating. At the moment, this library supports the `2013-12-02` 
+    release. Do not change this to `latest` or any more recent release without speaking with the library maintainer 
+    first as it could break the sending of log messages.
     
 - `credentials`
 
-    This configuration value allows you to manually specify the credentials to use when communicating with the Amazon AWS Kinesis API. You probably won't need to provide this as an IAM Role will likely be used to provide credentials. For more details on how credentials work, review the [AWS SDK Credentials  Documentation](http://docs.aws.amazon.com/aws-sdk-php/v3/guide/guide/credentials.html) or speak with a Unix administrator.
+    This configuration value allows you to manually specify the credentials to use when communicating with the Amazon 
+    AWS Kinesis API. You probably won't need to provide this as an IAM Role will likely be used to provide credentials. 
+    For more details on how credentials work, review the [AWS SDK Credentials  Documentation](http://docs.aws.amazon.com/aws-sdk-php/v3/guide/guide/credentials.html) 
+    or speak with a Unix administrator.
     
 For more details on the available configuration values, review the [AWS SDK Configuration  Documentation](http://docs.aws.amazon.com/aws-sdk-php/v3/guide/guide/configuration.html).
 
@@ -197,24 +234,48 @@ Key                                        | Type   | Required      | Explanatio
 `KinesisService::CONFIG_KINESIS_STREAM`    | string | no (`Logger`) | The name of the Kinesis stream that log messages should be sent to. If you are unsure of this value, then speak with Security or a Unix administrator.
 `KinesisService::CONFIG_REGISTER_SHUTDOWN` | bool   | no (`true`)   | When using a buffer limit greater than zero, you must flush queued messages (`$service->flush()`) before your application shuts down to ensure that messages are not lost. When this value is true, that flushing is done automatically.
 
-Once you have an instance of the service, you can send log messages as your normally would.
+### Generic Services
+
+These services are generic and can be used pretty much anywhere. However, they may require that the server your 
+application is being run on be configured by the Unix team first.
+
+#### Syslog Service
+
+This services allows you to send log messages directly to Syslog. From there, messages can be sent to a file, central
+Syslog server, or to Splunk directly. These destinations must be configured by Unix administrators.
 
 ```php
-use MCP\Logger\Message\Message;
+use MCP\Logger\Service\SyslogService;
+use MCP\Logger\Renderer\JsonRenderer;
 
-$message = new Message([/* ... */]);
-$service->send($message);
+// A renderer instance
+$renderer = new JsonRenderer();
+
+// An optional backup service where messages should be written if syslog is not accessible
+$backup = null;
+
+// An array of configuration data
+$configuration = [];
+
+$service = new SyslogService($renderer, $configuration, $backup);
 ```
+
+The service allows a number of configuration keys to be provided, depending on your needs.
+
+Key                               | Type   | Required      | Explanation
+--------------------------------- | ------ | ------------- | ------------------------------------------
+`SyslogService::CONFIG_SILENT`    | bool   | no (`true`)   | When true, errors will be handled silently. If false, exceptions will be thrown instead.
+`SyslogService::CONFIG_IDENT`     | string | no            | See PHP `openlog()` [documentation](http://php.net/manual/en/function.openlog.php).
+`SyslogService::CONFIG_FACILITY`  | string | no            | See PHP `openlog()` [documentation](http://php.net/manual/en/function.openlog.php).
+`SyslogService::CONFIG_OPTIONS`   | int    | no            | See PHP `openlog()` [documentation](http://php.net/manual/en/function.openlog.php).
 
 ## PSR-3
 
-If your application does not require a complex logging setup (e.g., cascading loggers), and is compatible with PSR-3, a PSR-3 Logger is provided.
-
-This logger has the Service and MessageFactory as dependencies. The logger uses a different MessageFactory that specifically converts a PSR-3 log level to a core log level.
+If your application does not require a complex logging setup (e.g., cascading loggers), and is compatible with PSR-3, 
+a PSR-3 Logger is provided. This logger has the Service and MessageFactory as dependencies. The logger uses a different 
+MessageFactory that specifically converts a PSR-3 log level to a core log level.
 
 **Note**: You must still provide the required message properties to the factory.
-
-### In use
 
 ```php
 use GuzzleHttp\Client;
