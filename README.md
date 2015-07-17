@@ -145,7 +145,7 @@ A number of services are available for you to select from. Not sure which one is
 you should follow these guidelines when selecting a service.
 
 1.  When your application is running on the Quicken Loans network, your log messages should be sent to the CORE logging
-    service using any of the `Guzzle3Service`, `Guzzle4Service`, `Guzzle5Service`, or `Guzzle6Service`. 
+    service using any of the `Guzzle3Service`, `Guzzle4Service`, or `Guzzle5Service`. 
 2.  When your application is running in Amazon AWS, you should use the `SyslogService`. The `KinesisService` can also be
     used but is not recommended because operations cannot be completed asynchronously. 
     
@@ -159,7 +159,6 @@ Quicken Loans network.
 *   `Guzzle3Service`
 *   `Guzzle4Service`
 *   `Guzzle5Service`
-*   `Guzzle6Service`
 
 When sending to the CORE Logger service, you should use the `XmlRenderer` renderer class.
 
