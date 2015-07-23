@@ -145,13 +145,78 @@ A number of services are available for you to select from. Not sure which one is
 you should follow these guidelines when selecting a service.
 
 1.  When your application is running on the Quicken Loans network, your log messages should be sent to the CORE logging
-    service using any of the `Guzzle3Service`, `Guzzle4Service`, or `Guzzle5Service`. 
+    service using any of the `HttpService`, `Guzzle3Service`, `Guzzle4Service`, or `Guzzle5Service`. 
 2.  When your application is running in Amazon AWS, you should use the `SyslogService`. The `KinesisService` can also be
     used but is not recommended because operations cannot be completed asynchronously. 
     
 If you are still unsure what service to select, contact the Web Core team for guidance.
 
-### CORE Logger Services
+### MCP Http Service
+
+The MCP Http Service is the preferred service for sending messages to the CORE Logger service.
+
+```php
+use QL\MCP\Http\Pool;
+use QL\MCP\Http\Client;
+use MCP\Logger\Service\HttpService;
+use MCP\Logger\Renderer\XMLRenderer;
+
+// Instance of the MCP Http Client
+$client = new Client(/* ... */);
+
+// Instance of the MCP Http Pool
+$pool = new Pool($client);
+
+// Instance of the MCP Logger XML Renderer
+$renderer = XMLRenderer();
+
+$service = new HttpService($pool, $renderer, [
+    HttpService::HOSTNAME => 'replaceme'
+]);
+```
+
+The Http Service can accept a number of configuration keys and values.
+
+*   `HttpClient::CONFIG_HOSTNAME` (required)
+
+    The hostname to use when sending messages.
+
+*   `HttpClient::CONFIG_SILENT` (default: `true`)
+
+    Whether to silently fail or not. When set to false, exceptions will be thrown when an error occurs.
+
+*   `HttpClient::CONFIG_BUFFER_LIMIT` (default: `0`)
+
+    The number of messages to buffer before sending.
+
+*   `HttpClient::CONFIG_SHUTDOWN` (default: `true`)
+
+    Whether to register the shutdown handler or not. When set to true, the `flush()` method will be called when PHP is
+    shutting down so that you don't need to call it manually to clear the queue of messages.
+
+*   `HttpClient::CONFIG_TEMPLATE` (default: `{scheme}://{hostname}:{port}{/root}/{+resource}`)
+
+    The URI Template to use when sending messages. This can be a string or `QL\UriTemplate\UriTemplate` object.
+
+*   `HttpClient::CONFIG_SCHEME` (default: `http`)
+
+    The scheme to use when sending messages.
+
+*   `HttpClient::CONFIG_PORT` (default: `2581`)
+
+    The port to use when sending messages.
+
+*   `HttpClient::CONFIG_ROOT` (default: `web/core`)
+
+    The root URI path to use when sending messages.
+
+*   `HttpClient::CONFIG_RESOURCE` (default: `logentries`)
+
+    The URI resource to use when sending messages.
+
+### Guzzle Services
+
+**Deprecated** Use of these services has been deprecated. Please use the MCP Http Service instead.
 
 These services send messages to the CORE Logger service and can only be used when your application is being run on the
 Quicken Loans network.

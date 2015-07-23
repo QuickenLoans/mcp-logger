@@ -36,16 +36,18 @@
     },
     "require-dev": {
         "guzzle/http": "*",
-        "guzzlehttp/guzzle": "^5.0",
+        "guzzlehttp/guzzle": "^6.0",
         "mockery/mockery": ">=0.8",
         "phpunit/phpunit": "*",
         "phpunit/php-invoker": "*",
         "aws/aws-sdk-php": "^3.0",
-        "psr/log": "*"
+        "psr/log": "*",
+        "ql/mcp-http": "^1.0"
     },
     "suggest": {
         "guzzlehttp/guzzle": "Required when using the Guzzle 4, Guzzle 5, Guzzle 6 services.",
         "psr/log": "Required when using the PSR-3 logger.",
-        "aws/aws-sdk-php": "Required when using the Kinesis Service"
+        "aws/aws-sdk-php": "Required when using the Kinesis Service",
+        "ql/mcp-http": "Required when using Http Service"
     }
 }

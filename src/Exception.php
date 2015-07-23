@@ -9,9 +9,6 @@ namespace MCP\Logger;
 
 use Exception as BaseException;
 
-/**
- * @internal
- */
 class Exception extends BaseException
 {
 }
