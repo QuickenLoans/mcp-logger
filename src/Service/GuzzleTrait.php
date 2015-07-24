@@ -7,17 +7,23 @@
 
 namespace MCP\Logger\Service;
 
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Event\ErrorEvent;
 use GuzzleHttp\Message\RequestInterface;
-use GuzzleHttp\Pool;
 use MCP\Logger\Exception;
 use MCP\Logger\MessageInterface;
+use Exception as BaseException;
 
 /**
  * @internal
  */
 trait GuzzleTrait
 {
+    /**
+     * @var ClientInterface
+     */
+    private $guzzle;
+
     /**
      * @param MessageInterface $message
      *
@@ -45,11 +51,13 @@ trait GuzzleTrait
     {
         $errors = [];
 
-        Pool::send($this->guzzle, $requests, [
-            'error' => function (ErrorEvent $event) use (&$errors) {
-                $errors[] = $event;
+        foreach ($requests as $request) {
+            try {
+                $response = $this->guzzle->send($request);
+            } catch (BaseException $e) {
+                $errors[] = $e;
             }
-        ]);
+        }
 
         $this->handleErrors($requests, $errors);
     }
@@ -83,11 +91,8 @@ trait GuzzleTrait
 
         // Send a more specific message if only one error
         if ($batchSize === 1) {
-            $err = reset($errors);
-            if ($err instanceof ErrorEvent) {
-                $ex = $err->getException();
-                throw new Exception($ex->getMessage(), $ex->getCode(), $ex);
-            }
+            $e = reset($errors);
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
 
         throw new Exception($msg);

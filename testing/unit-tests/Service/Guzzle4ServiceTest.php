@@ -7,109 +7,145 @@
 
 namespace MCP\Logger\Service;
 
-use GuzzleHttp\Exception\RequestException;
 use Mockery;
 use PHPUnit_Framework_TestCase;
 
 class Guzzle4ServiceTest extends PHPUnit_Framework_TestCase
 {
-    public static $logSetting;
     public $uri;
-    public $renderer;
-
-    public static function setUpBeforeClass()
-    {
-        self::$logSetting = ini_get('error_log');
-        ini_set('error_log', 'syslog');
-    }
-
-    public static function tearDownAfterClass()
-    {
-        ini_set('error_log', self::$logSetting);
-    }
+    private $log;
 
     public function setUp()
     {
+        $this->log = ini_get('error_log');
+        ini_set('error_log', __DIR__ . '/errlog');
+        touch(__DIR__ . '/errlog');
+
         $this->uri = Mockery::mock('QL\UriTemplate\UriTemplate', [
             'expand' => 'http://corelogger'
         ]);
+    }
 
-        $this->renderer = Mockery::mock('MCP\Logger\RendererInterface', ['contentType' => 'text/xml']);
+    public function tearDown()
+    {
+        ini_set('error_log', $this->log);
+        unlink(__DIR__ . '/errlog');
     }
 
     /**
-     * @expectedException MCP\Logger\Exception
-     * @expectedExceptionMessage msg
+     * @expectedException \MCP\Logger\Exception
+     * @runInSeparateProcess
      */
     public function testExceptionIsCaughtWhenServiceThrowsHttpException()
     {
         $message = Mockery::mock('MCP\Logger\MessageInterface');
 
-        $client = Mockery::mock('GuzzleHttp\ClientInterface');
-        $request = Mockery::mock('GuzzleHttp\Message\Request');
+        $renderer = Mockery::mock('MCP\Logger\RendererInterface');
+        $client = Mockery::mock('overload:GuzzleHttp\ClientInterface');
+        $request = Mockery::mock('overload:GuzzleHttp\Message\Request');
+        $exception = Mockery::mock('GuzzleHttp\Exception\RequestException');
+
+        $exception
+            ->shouldReceive('getStatus')
+            ->andReturn(0);
+
+        $exception
+            ->shouldReceive('getMessage')
+            ->andReturn('msg');
+
         $client
             ->shouldReceive('createRequest')
             ->andReturn($request)
             ->once();
+
         $client
             ->shouldReceive('send')
-            ->andThrow(new RequestException('msg', $request));
+            ->andThrow($exception);
 
-        $this->renderer
+        $renderer
+            ->shouldReceive('contentType')
+            ->andReturn('text/xml');
+
+        $renderer
             ->shouldReceive('__invoke')
-            ->with($message)
             ->andReturn('rendered message');
 
-        $service = new Guzzle4Service($client, $this->renderer, $this->uri, false);
+        $service = new Guzzle4Service($client, $renderer, $this->uri, false);
         $service->send($message);
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testServiceReceivesNon200ResponseReturnsNullWhenSilent()
     {
         $message = Mockery::mock('MCP\Logger\MessageInterface');
 
-        $client = Mockery::mock('GuzzleHttp\ClientInterface');
-        $request = Mockery::mock('GuzzleHttp\Message\Request');
-        $response = Mockery::mock('GuzzleHttp\Message\Response', ['getStatusCode' => '404']);
+        $renderer = Mockery::mock('MCP\Logger\RendererInterface');
+        $client = Mockery::mock('overload:GuzzleHttp\ClientInterface');
+        $request = Mockery::mock('overload:GuzzleHttp\Message\Request');
+        $response = Mockery::mock('overload:GuzzleHttp\Message\Response', ['getStatusCode' => '404']);
+
         $client
             ->shouldReceive('createRequest')
             ->andReturn($request)
             ->once();
+
         $client
             ->shouldReceive('send')
             ->with($request)
             ->andReturn($response)
             ->once();
 
-        $this->renderer
-            ->shouldReceive('__invoke')
-            ->once();
+        $renderer
+            ->shouldReceive('contentType')
+            ->andReturn('text/xml');
 
-        $service = new Guzzle4Service($client, $this->renderer, $this->uri, true);
+        $renderer
+            ->shouldReceive('__invoke')
+            ->andReturn('');
+
+        $service = new Guzzle4Service($client, $renderer, $this->uri, true);
         $this->assertNull($service->send($message));
     }
 
-    public function testServiceThrowsHttpExceptionResponseReturnsNullWhenSilent()
+    /**
+     * @runInSeparateProcess
+     */
+    public function testServiceExceptionWhenSilent()
     {
-        $renderer = Mockery::mock('MCP\Logger\RendererInterface');
         $message = Mockery::mock('MCP\Logger\MessageInterface');
 
+        $renderer = Mockery::mock('MCP\Logger\RendererInterface');
+        $client = Mockery::mock('overload:GuzzleHttp\ClientInterface');
+        $request = Mockery::mock('overload:GuzzleHttp\Message\Request');
+        $exception = Mockery::mock('GuzzleHttp\Exception\TransferException');
 
-        $client = Mockery::mock('GuzzleHttp\ClientInterface');
-        $request = Mockery::mock('GuzzleHttp\Message\Request');
+        $exception
+            ->shouldReceive('getStatus')
+            ->andReturn(0);
+
+        $exception
+            ->shouldReceive('getMessage')
+            ->andReturn('msg');
+
         $client
             ->shouldReceive('createRequest')
-            ->andReturn($request)
-            ->once();
+            ->andReturn($request);
+
         $client
             ->shouldReceive('send')
-            ->andThrow(new RequestException('msg', $request));
+            ->andThrow($exception);
 
-        $this->renderer
+        $renderer
+            ->shouldReceive('contentType')
+            ->andReturn('text/xml');
+
+        $renderer
             ->shouldReceive('__invoke')
-            ->once();
+            ->andReturn('');
 
-        $service = new Guzzle4Service($client, $this->renderer, $this->uri, true);
-        $this->assertNull($service->send($message));
+        $service = new Guzzle4Service($client, $renderer, $this->uri, true);
+        $service->send($message);
     }
 }

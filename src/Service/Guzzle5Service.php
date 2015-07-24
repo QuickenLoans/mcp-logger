@@ -33,11 +33,6 @@ class Guzzle5Service implements ServiceInterface
     const ERR_BATCH = '%d Errors occured while sending %d messages with mcp-logger';
 
     /**
-     * @type ClientInterface
-     */
-    private $guzzle;
-
-    /**
      * @type RendererInterface
      */
     private $renderer;
@@ -56,9 +51,10 @@ class Guzzle5Service implements ServiceInterface
      * @param ClientInterface $guzzle
      * @param RendererInterface $renderer
      * @param UriTemplate $uri
-     * @param boolean $isSilent
-     * @param boolean $enableshutDownHandler
+     * @param bool|true $isSilent
+     * @param bool|true $enableshutDownHandler
      * @param int $bufferLimit
+     * @throws Exception
      */
     public function __construct(
         ClientInterface $guzzle,
@@ -73,10 +69,6 @@ class Guzzle5Service implements ServiceInterface
         $this->uri = $uri;
 
         $this->isSilent = (bool) $isSilent;
-
-        if (!class_exists('GuzzleHttp\Pool')) {
-            throw new Exception(self::ERR_GUZZLE_5_REQUIRED);
-        }
 
         $this->initializeBuffer($bufferLimit, $enableshutDownHandler);
     }

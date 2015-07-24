@@ -39,6 +39,12 @@ class XmlRendererTest extends FixtureLoadingTestCase
         );
     }
 
+    public function testContentType()
+    {
+        $renderer = new XmlRenderer();
+        $this->assertEquals('text/xml', $renderer->contentType());
+    }
+
     public function buildMock($fixture)
     {
         if (!is_null($fixture['createTime'])) {

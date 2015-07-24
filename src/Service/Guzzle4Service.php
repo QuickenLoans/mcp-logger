@@ -33,11 +33,6 @@ class Guzzle4Service implements ServiceInterface
     const ERR_RESPONSE_CODE = "The service responded with an unexpected http code: '%s'.";
 
     /**
-     * @type ClientInterface
-     */
-    private $guzzle;
-
-    /**
      * @type RendererInterface
      */
     private $renderer;

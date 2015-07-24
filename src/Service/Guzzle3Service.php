@@ -70,6 +70,8 @@ class Guzzle3Service implements ServiceInterface
     /**
      * @param MessageInterface $message
      * @return null
+     * @throws Exception
+     * @throws \QL\UriTemplate\Exception
      */
     public function send(MessageInterface $message)
     {
@@ -84,6 +86,7 @@ class Guzzle3Service implements ServiceInterface
         }
 
         $response = $request->send();
+
         if ($response->getStatusCode() !== 200) {
             throw new Exception(sprintf(self::ERR_RESPONSE_CODE, $response->getStatusCode()));
         }
@@ -97,7 +100,6 @@ class Guzzle3Service implements ServiceInterface
     {
         try {
             $request->send();
-
         } catch (GuzzleException $e) {
             error_log($e->getMessage());
         }

@@ -41,6 +41,12 @@ class JsonRendererTest extends FixtureLoadingTestCase
         );
     }
 
+    public function testContentType()
+    {
+        $renderer = new JsonRenderer();
+        $this->assertEquals('application/json', $renderer->contentType());
+    }
+
     public function buildMock($fixture)
     {
         if (!is_null($fixture['createTime'])) {
