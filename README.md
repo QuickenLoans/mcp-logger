@@ -26,7 +26,7 @@ Add the following lines to your `composer.json` file.
     }
 ],
 "require": {
-    "ql/mcp-logger": "^2.0"
+    "ql/mcp-logger": "^2.3"
 }
 ```
 
