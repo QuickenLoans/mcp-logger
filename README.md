@@ -145,7 +145,8 @@ A number of services are available for you to select from. Not sure which one is
 you should follow these guidelines when selecting a service.
 
 1.  When your application is running on the Quicken Loans network, your log messages should be sent to the CORE logging
-    service using any of the `HttpService`, `Guzzle3Service`, `Guzzle4Service`, or `Guzzle5Service`. 
+    service using the `HttpService` service. The `Guzzle3Service`, `Guzzle4Service`, and `Guzzle5Service` services have
+    been deprecated.
 2.  When your application is running in Amazon AWS, you should use the `SyslogService`. The `KinesisService` can also be
     used but is not recommended because operations cannot be completed asynchronously. 
     
@@ -342,18 +343,13 @@ MessageFactory that specifically converts a PSR-3 log level to a core log level.
 **Note**: You must still provide the required message properties to the factory.
 
 ```php
-use GuzzleHttp\Client;
 use MCP\DataType\IPv4Address;
 use MCP\Logger\Adapter\Psr\MessageFactory;
+use MCP\Logger\Service\HttpService;
 use MCP\Logger\Logger;
-use MCP\Logger\Renderer\XmlRenderer;
-use MCP\Logger\Service\Guzzle5Service;
 use XMLWriter;
 
-$renderer = new XmlRenderer(new XMLWriter);
-$client = new Client;
-$uri = new UriTemplate('http://sonic');
-$service = new Guzzle5Service($client, $renderer, $uri);
+$service = new HttpService(/* ... */);
 
 $clock = new Clock('now', 'UTC');
 $factory = new MessageFactory($clock);
@@ -459,14 +455,15 @@ $service->send($message);
 See also:
 
 * [ServiceInterface.php](src/ServiceInterface.php)
-* [Guzzle3Service.php](src/Service/Guzzle3Service.php)
-* [Guzzle4Service.php](src/Service/Guzzle4Service.php)
-* [Guzzle5Service.php](src/Service/Guzzle5Service.php)
+* [Guzzle3Service.php](src/Service/Guzzle3Service.php) (deprecated)
+* [Guzzle4Service.php](src/Service/Guzzle4Service.php) (deprecated)
+* [Guzzle5Service.php](src/Service/Guzzle5Service.php) (deprecated)
+* [HttpService.php](src/Service/HttpService.php)
 * [KinesisService.php](src/Service/KinesisService.php)
 
 ##### Batched, asynchronous requests
 
-Use Guzzle 5 and the included Guzzle 5 service to batch log messages, and send them asychronously in groups.
+The Http Service and Guzzle 5 Service support batched and asynchronously sending of log messages.
 
 **Note**: The Guzzle3, and Guzzle4 services do not support batching or asynchronous requests.
 
