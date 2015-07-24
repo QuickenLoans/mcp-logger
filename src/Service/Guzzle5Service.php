@@ -19,7 +19,11 @@ use QL\UriTemplate\UriTemplate;
  *
  * This service is capable of buffering messages and sending them all at once at the end of a request.
  *
+ * DEPRECATED. This service has been deprecated. You should instead use the Http Service which leverages
+ * MCP Http for sending messages and can support Guzzle 4, 5, or 6.
+ *
  * @internal
+ * @deprecated
  */
 class Guzzle5Service implements ServiceInterface
 {

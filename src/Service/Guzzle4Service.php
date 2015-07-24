@@ -20,6 +20,9 @@ use QL\UriTemplate\UriTemplate;
 /**
  * Http Service for Guzzle 4.
  *
+ * DEPRECATED. This service has been deprecated. You should instead use the Http Service which leverages
+ * MCP Http for sending messages and can support Guzzle 4, 5, or 6.
+ *
  * @deprecated
  * @internal
  */
