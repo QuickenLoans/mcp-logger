@@ -23,7 +23,6 @@ class SyslogService implements ServiceInterface, LogLevelInterface
     const DEFAULT_SILENT = true;
     const DEFAULT_IDENT = '';
     const DEFAULT_FACILITY = LOG_USER;
-    const DEFAULT_OPTIONS = LOG_ODELAY | LOG_CONS;
 
     // Error Messages
     const ERR_OPEN = 'Unable to open syslog connection.';
@@ -60,7 +59,7 @@ class SyslogService implements ServiceInterface, LogLevelInterface
             self::CONFIG_SILENT => self::DEFAULT_SILENT,
             self::CONFIG_IDENT => self::DEFAULT_IDENT,
             self::CONFIG_FACILITY => self::DEFAULT_FACILITY,
-            self::CONFIG_OPTIONS => self::DEFAULT_OPTIONS
+            self::CONFIG_OPTIONS => LOG_ODELAY | LOG_CONS // for <5.6
         ], $configuration);
 
         $this->renderer = $renderer;
