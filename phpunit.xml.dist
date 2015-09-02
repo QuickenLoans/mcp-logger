@@ -30,12 +30,6 @@
         </whitelist>
     </filter>
 
-    <groups>
-        <exclude>
-            <group>integration</group>
-        </exclude>
-    </groups>
-
     <listeners>
         <listener class="\Mockery\Adapter\Phpunit\TestListener"></listener>
     </listeners>
@@ -56,9 +50,6 @@
     <testsuites>
         <testsuite name="unit">
             <directory>testing/unit-tests</directory>
-        </testsuite>
-        <testsuite name="integration">
-            <directory>testing/integration-tests</directory>
         </testsuite>
     </testsuites>
 </phpunit>

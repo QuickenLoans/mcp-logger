@@ -1,7 +1,7 @@
 # testing artifacts
 /phpunit.xml
 /.phpunit/
-/phpunit
+/phpunit/
 test.php
 
 # package installation

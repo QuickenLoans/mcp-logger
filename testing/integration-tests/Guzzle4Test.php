@@ -1,34 +1,23 @@
 <?php
-/**
- * @copyright ©2005—2013 Quicken Loans Inc. All rights reserved. Trade Secret,
- *    Confidential and Proprietary. Any dissemination outside of Quicken Loans
- *    is strictly prohibited.
- */
 
 namespace MCP\Logger;
 
 use GuzzleHttp\Client;
-use MCP\Logger\Message\Message;
+use MCP\Logger\Adapter\Psr\MessageFactory;
+use MCP\Logger\Renderer\XmlRenderer;
 use MCP\Logger\Service\Guzzle4Service;
-use MCP\Logger\Testing\IntegrationTestTrait;
-use PHPUnit_Framework_TestCase;
+use QL\UriTemplate\UriTemplate;
 
-/**
- * @coversNothing
- * @group integration
- */
-class Guzzle4Test extends PHPUnit_Framework_TestCase
-{
-    use IntegrationTestTrait;
-
-    public function test()
-    {
-        $guzzle = new Client;
-        $service = new Guzzle4Service($guzzle, $this->renderer, $this->uri);
-
-        $message = new Message(array_merge($this->defaultMessage, ['message' => 'GUZZLE4 ' . $this->defaultMessage['message']]));
-        $response = $service->send($message);
-
-        $this->assertNull($response);
-    }
+if (substr(Client::VERSION, 0, 1) !== '4') {
+    echo sprintf('Guzzle 4 is required. %s is installed.', Client::VERSION);
+    exit;
 }
+
+$uri = new UriTemplate('http://qlsonictest:2581/web/core/logentries');
+$service = new Guzzle4Service(new Client, new XmlRenderer, $uri);
+$logger = new Logger($service, new MessageFactory);
+
+$logger->info('mcp-logger : guzzle 4 test 1');
+$logger->info('mcp-logger : guzzle 4 test 2');
+
+echo "\n<br>Sent 2 log messages.";

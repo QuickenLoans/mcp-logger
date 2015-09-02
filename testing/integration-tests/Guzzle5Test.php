@@ -1,47 +1,30 @@
 <?php
-/**
- * @copyright ©2005—2013 Quicken Loans Inc. All rights reserved. Trade Secret,
- *    Confidential and Proprietary. Any dissemination outside of Quicken Loans
- *    is strictly prohibited.
- */
 
 namespace MCP\Logger;
 
 use GuzzleHttp\Client;
-use MCP\Logger\Message\Message;
+use MCP\Logger\Adapter\Psr\MessageFactory;
+use MCP\Logger\Renderer\XmlRenderer;
 use MCP\Logger\Service\Guzzle5Service;
-use MCP\Logger\Testing\IntegrationTestTrait;
-use PHPUnit_Framework_TestCase;
+use QL\UriTemplate\UriTemplate;
 
-/**
- * @coversNothing
- * @group integration
- */
-class Guzzle5Test extends PHPUnit_Framework_TestCase
-{
-    use IntegrationTestTrait;
-
-    public function test()
-    {
-        $guzzle = new Client;
-        $service = new Guzzle5Service($guzzle, $this->renderer, $this->uri, false, false, 3);
-
-        $this->defaultMessage['extendedProperties']['serviceType'] = get_class($service);
-
-        $message1 = new Message(array_merge($this->defaultMessage, ['message' => 'GUZZLE5 ' . $this->defaultMessage['message']. ' : 1']));
-        $message2 = new Message(array_merge($this->defaultMessage, ['message' => 'GUZZLE5 ' . $this->defaultMessage['message']. ' : 2']));
-        $message3 = new Message(array_merge($this->defaultMessage, ['message' => 'GUZZLE5 ' . $this->defaultMessage['message']. ' : 3']));
-        $message4 = new Message(array_merge($this->defaultMessage, ['message' => 'GUZZLE5 ' . $this->defaultMessage['message']. ' : 4']));
-
-        $service->send($message1);
-        $service->send($message2);
-        $service->send($message3);
-
-        // nothing sent at this point
-
-        // now all messages sent together
-        $response = $service->send($message4);
-
-        $this->assertNull($response);
-    }
+if (substr(Client::VERSION, 0, 1) !== '5') {
+    echo sprintf('Guzzle 5 is required. %s is installed.', Client::VERSION);
+    exit;
 }
+
+$silent = true;
+$buffer = 3;
+
+$uri = new UriTemplate('http://qlsonictest:2581/web/core/logentries');
+$service = new Guzzle5Service(new Client, new XmlRenderer, $uri, $silent, false, $buffer);
+$logger = new Logger($service, new MessageFactory);
+
+$logger->info('mcp-logger : guzzle 5 test 1');
+$logger->info('mcp-logger : guzzle 5 test 2');
+$logger->info('mcp-logger : guzzle 5 test 3');
+
+// The 4th message causes the buffer to hit the limit and flush
+$logger->info('mcp-logger : guzzle 5 test 4');
+
+echo "\n<br>Sent 4 log messages.";
