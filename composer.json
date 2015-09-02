@@ -13,7 +13,9 @@
     "archive": {
         "exclude": [
             "/phpunit.xml.dist",
-            "/testing"
+            "/testing",
+            "/docker",
+            "/docker-compose.yml"
         ]
     },
     "autoload": {
@@ -30,17 +32,17 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "ext-xmlwriter": "*",
-        "ql/mcp-core": "1.*",
-        "ql/uri-template": "1.*"
+
+        "ql/mcp-core": "~1.0",
+        "ql/uri-template": "~1.0"
     },
     "require-dev": {
+        "aws/aws-sdk-php": "^3.0",
         "guzzle/http": "*",
         "guzzlehttp/guzzle": "^5.0",
         "mockery/mockery": ">=0.8",
         "phpunit/phpunit": "*",
         "phpunit/php-invoker": "*",
-        "aws/aws-sdk-php": "^3.0",
         "psr/log": "*",
         "ql/mcp-http": "^1.0"
     },
