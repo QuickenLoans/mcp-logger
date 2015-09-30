@@ -16,18 +16,11 @@ This library allows developers to easily send log messages from their applicatio
 
 ## Installation
 
-Add the following lines to your `composer.json` file.
+Run the following commands.
 
-```js
-"repositories": [
-    { 
-        "type": "composer",
-        "url": "http://composer/"
-    }
-],
-"require": {
-    "ql/mcp-logger": "^2.3"
-}
+```bash
+composer config repositories.internal-composer composer http://composer
+composer require ql/mcp-logger ^2.3
 ```
 
 ## Components
