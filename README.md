@@ -6,13 +6,19 @@ This library allows developers to easily send log messages from their applicatio
 
 ## Contents
 
-* [Installation](#installation)
-* [Components](#components)
-* [Using MCP Logger](#using-mcp-logger)
-* [Services](#services)
-* [PSR-3](#psr-3)
-* [Components In Detail](#components-in-detail)
-* [Contribute](#contribute)
+- [Installation](#installation)
+- [Components](#components)
+- [Using MCP Logger](#using-mcp-logger)
+- [Services](#services)
+    - Core Logger
+        - [MCP Http Service](#mcp-http-service)
+        - [Guzzle Services](#guzzle-services)
+    - Splunk
+        - [Kinesis Service](#kinesis-service)
+        - [Syslog Service](#syslog-service)
+- [PSR-3](#psr-3)
+- [Components In Detail](#components-in-detail)
+- [Contribute](#contribute)
 
 ## Installation
 
