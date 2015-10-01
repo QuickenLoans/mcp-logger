@@ -1,8 +1,10 @@
 # MCP Logger
 
-This library allows developers to easily send log messages from their application to either the Splunk or 
-[CORE](http://core) logging service. For more information on the CORE Logger service, review the service  
-[documentation](https://itiki/index.php/Core_Logger).
+This library allows developers to easily send log messages from their application to either the Splunk or the [http://core](http://core) logging service.
+
+For more information on the CORE Logger service, review the documentation in confluence:
+- [How to use Core Logger - PHP, JS](https://confluence/display/CORE/How+to+use+Core+Logger+-+PHP,+JS)
+- [How to use Splunk Logging - PHP, Erlang, Unix, Syslog](https://confluence/display/CORE/How to use Splunk Logging+-+PHP,+Erlang,+Unix,+Syslog)
 
 ## Contents
 
@@ -416,7 +418,7 @@ See also:
 
 * [MessageInterface.php](src/MessageInterface.php)
 * [Message.php](src/Message/Message.php)
-* [Core Logger Specifications](https://itiki/index.php/Core_Logger)
+* [Core Logger Specifications](https://confluence/display/CORE/Core+Logger+Message+Format)
 
 #### MCP\Logger\RendererInterface
 
