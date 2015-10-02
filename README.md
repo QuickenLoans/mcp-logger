@@ -161,7 +161,7 @@ The MCP Http Service is the preferred service for sending messages to the CORE L
 use QL\MCP\Http\Pool;
 use QL\MCP\Http\Client;
 use MCP\Logger\Service\HttpService;
-use MCP\Logger\Renderer\XMLRenderer;
+use MCP\Logger\Renderer\XmlRenderer;
 
 // Instance of the MCP Http Client
 $client = new Client(/* ... */);
@@ -170,7 +170,7 @@ $client = new Client(/* ... */);
 $pool = new Pool($client);
 
 // Instance of the MCP Logger XML Renderer
-$renderer = XMLRenderer();
+$renderer = XmlRenderer();
 
 $service = new HttpService($pool, $renderer, [
     HttpService::HOSTNAME => 'replaceme'
