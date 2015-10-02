@@ -8,6 +8,8 @@
 namespace MCP\Logger\Renderer;
 
 use DateTime;
+use MCP\DataType\IPv4Address;
+use MCP\DataType\Time\TimePoint;
 use MCP\Logger\MessageInterface;
 use MCP\Logger\RendererInterface;
 
@@ -31,18 +33,14 @@ class JsonRenderer implements RendererInterface
 
         // Required
         $this->addProperty($data, 'AppID', $this->sanitizeInteger($message->applicationId()));
-
-        $date = ($message->createTime() !== null) ? $message->createTime()->format(DateTime::RFC3339, 'UTC') : null;
-        $this->addProperty($data, 'Created', $date);
+        $this->addProperty($data, 'Created', $this->sanitizeTime($message->createTime()));
+        $this->addProperty($data, 'Environment', $this->sanitizeString(strtolower($message->environment())));
 
         $this->addProperty($data, 'Level', $this->sanitizeString(strtolower($message->level())));
         $this->addProperty($data, 'Message', $this->sanitizeString($message->message()));
-
         $this->addProperty($data, 'UserIsDisrupted', $this->sanitizeBoolean($message->isUserDisrupted()));
-        $this->addExtendedProperties($data, $message->extendedProperties());
 
-        $ip = ($message->machineIPAddress() !== null) ? $message->machineIPAddress()->asString() : null;
-        $this->addProperty($data, 'ServerIP', $ip);
+        $this->addProperty($data, 'ServerIP', $this->sanitizeIP($message->machineIPAddress()));
         $this->addProperty($data, 'ServerHostname', $this->sanitizeString($message->machineName()));
 
         // Optional
@@ -50,17 +48,18 @@ class JsonRenderer implements RendererInterface
 
         $this->addOptionalProperty($data, 'AffectedSystem', $this->sanitizeString($message->affectedSystem()));
         $this->addOptionalProperty($data, 'Category', $this->sanitizeInteger($message->categoryId()));
+
         $this->addOptionalProperty($data, 'Referrer', $this->sanitizeString($message->referrer()));
         $this->addOptionalProperty($data, 'Method', $this->sanitizeString($message->requestMethod()));
         $this->addOptionalProperty($data, 'URL', $this->sanitizeString($message->url()));
         $this->addOptionalProperty($data, 'UserAgent', $this->sanitizeString($message->userAgentBrowser()));
+
         $this->addOptionalProperty($data, 'UserID', $this->sanitizeInteger($message->userCommonId()));
         $this->addOptionalProperty($data, 'UserDisplayName', $this->sanitizeString($message->userDisplayName()));
-
-        $ip = ($message->userIPAddress() !== null) ? $message->userIPAddress()->asString() : null;
-        $this->addOptionalProperty($data, 'UserIP', $ip);
-
         $this->addOptionalProperty($data, 'UserName', $this->sanitizeString($message->userName()));
+        $this->addOptionalProperty($data, 'UserIP', $this->sanitizeIP($message->userIPAddress()));
+
+        $this->addExtendedProperties($data, $message->extendedProperties());
 
         return json_encode($data);
     }
@@ -90,7 +89,9 @@ class JsonRenderer implements RendererInterface
             $extended[$k] = $this->sanitizeString($prop);
         }
 
-        $this->addProperty($data, 'Properties', $extended);
+        if ($extended) {
+            $this->addProperty($data, 'Properties', $extended);
+        }
     }
 
     /**
@@ -144,6 +145,20 @@ class JsonRenderer implements RendererInterface
     }
 
     /**
+     * @param IPv4Address|null $value
+     *
+     * @return string|null
+     */
+    protected function sanitizeIP($value)
+    {
+        if ($value instanceof IPv4Address) {
+            return $value->asString();
+        }
+
+        return null;
+    }
+
+    /**
      * @param int|string $value
      *
      * @return string
@@ -151,5 +166,19 @@ class JsonRenderer implements RendererInterface
     protected function sanitizeString($value)
     {
         return filter_var((string) $value, FILTER_UNSAFE_RAW, FILTER_FLAG_ENCODE_HIGH);
+    }
+
+    /**
+     * @param TimePoint|null $value
+     *
+     * @return string|null
+     */
+    protected function sanitizeTime($value)
+    {
+        if ($value instanceof TimePoint) {
+            return $value->format('Y-m-d\TH:i:s\Z', 'UTC');
+        }
+
+        return null;
     }
 }

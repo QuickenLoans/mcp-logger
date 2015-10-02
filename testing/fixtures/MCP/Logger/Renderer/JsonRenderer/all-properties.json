@@ -1,25 +1,30 @@
 {
     "AppID": 10,
-    "Created": "1977-05-25 03:00:00",
+    "Created": "1977-05-25T03:00:00Z",
+    "Environment": "prod",
     "Level": "fatal",
     "Message": "I used to bullseye womp rats in my T-16",
     "UserIsDisrupted": true,
-    "Properties": {
-        "key": "value",
-        "key2": "value2"
-    },
+
     "ServerIP": "127.0.0.1",
     "ServerHostname": "Deathstar",
 
     "Exception": "beep boop",
     "AffectedSystem": "Empire",
     "Category": 200,
+
     "Referrer": "Uncle Ben",
     "Method": "DELETE",
     "URL": "Spaaaaaace",
     "UserAgent": "X-Wing",
+
     "UserID": 5,
-    "UserDisplayName": "Skywalker",
+    "UserDisplayName": "Luke Skywalker",
+    "UserName": "lskywalker",
     "UserIP": "192.168.0.1",
-    "UserName": "Luke"
+
+    "Properties": {
+        "key": "value",
+        "key2": "value2"
+    }
 }

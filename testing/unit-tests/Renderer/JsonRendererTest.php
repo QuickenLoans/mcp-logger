@@ -7,8 +7,8 @@
 
 namespace MCP\Logger\Renderer;
 
+use MCP\Logger\Message\Message;
 use MCP\Logger\Testing\FixtureLoadingTestCase;
-use Mockery;
 
 class JsonRendererTest extends FixtureLoadingTestCase
 {
@@ -18,7 +18,7 @@ class JsonRendererTest extends FixtureLoadingTestCase
     public function test($fixtureName)
     {
         $messageFixture = $this->loadPhpFixture(sprintf('%s.phpd', $fixtureName));
-        $message = $this->buildMock($messageFixture);
+        $message = new Message($messageFixture);
 
         $fixture = $this->loadRawFixture(sprintf('%s.json', $fixtureName));
 
@@ -32,39 +32,17 @@ class JsonRendererTest extends FixtureLoadingTestCase
         );
     }
 
-    public function providerFixtureNames()
-    {
-        return array(
-            array('minimum-properties'),
-            array('minimum-valid-properties'),
-            array('all-properties')
-        );
-    }
-
     public function testContentType()
     {
-        $renderer = new JsonRenderer();
+        $renderer = new JsonRenderer;
         $this->assertEquals('application/json', $renderer->contentType());
     }
 
-    public function buildMock($fixture)
+    public function providerFixtureNames()
     {
-        if (!is_null($fixture['createTime'])) {
-            $fixture['createTime'] = Mockery::mock(
-                'MCP\DataType\Time\TimePoint',
-                $fixture['createTime']
-            );
-        }
-
-        foreach (array('machineIPAddress', 'userIPAddress') as $ipField) {
-            if (!is_null($fixture[$ipField])) {
-                $fixture[$ipField] = Mockery::mock(
-                    'MCP\DataType\IPv4Address',
-                    $fixture[$ipField]
-                );
-            }
-        }
-
-        return Mockery::mock('MCP\Logger\MessageInterface', $fixture);
+        return [
+            ['minimum-properties'],
+            ['all-properties']
+        ];
     }
 }

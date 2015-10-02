@@ -1,22 +1,7 @@
-array(
-    'affectedSystem' => null,
-    'applicationId' => null,
-    'categoryId' => null,
-    'createTime' => null,
-    'exceptionData' => null,
-    'extendedProperties' => null,
-    'isUserDisrupted' => null,
-    'level' => null,
-    'machineIPAddress' => null,
-    'machineName' => null,
-    'message' => null,
-    'referrer' => null,
-    'requestMethod' => null,
-    'url' => null,
-    'userAgentBrowser' => null,
-    'userCommonId' => null,
-    'userDisplayName' => null,
-    'userIPAddress' => null,
-    'userName' => null,
-    'userScreenName' => null
-)
+[
+    'applicationId' => '5',
+    'createTime' => new \MCP\DataType\Time\TimePoint(2015, 10, 15, 12, 0, 0, 'UTC'),
+    'machineIPAddress' => \MCP\DataType\IPv4Address::create('127.0.0.1'),
+    'machineName' => 'machine',
+    'message' => 'message'
+]

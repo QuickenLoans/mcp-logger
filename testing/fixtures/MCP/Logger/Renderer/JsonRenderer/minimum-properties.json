@@ -1,10 +1,10 @@
 {
-    "AppID": null,
-    "Created": null,
-    "Level": "",
-    "Message": "",
+    "AppID": 5,
+    "Created": "2015-10-15T12:00:00Z",
+    "Environment":"",
+    "Level": "info",
+    "Message": "message",
     "UserIsDisrupted": false,
-    "Properties": [],
-    "ServerIP": null,
-    "ServerHostname": ""
+    "ServerIP": "127.0.0.1",
+    "ServerHostname": "machine"
 }
