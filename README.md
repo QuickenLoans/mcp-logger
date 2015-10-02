@@ -173,7 +173,7 @@ $pool = new Pool($client);
 $renderer = XmlRenderer();
 
 $service = new HttpService($pool, $renderer, [
-    HttpService::HOSTNAME => 'replaceme'
+    HttpService::CONFIG_HOSTNAME => 'replaceme'
 ]);
 ```
 
