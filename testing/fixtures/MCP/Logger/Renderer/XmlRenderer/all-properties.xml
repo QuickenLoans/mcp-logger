@@ -1,6 +1,6 @@
 <LogEntry xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://rock/framework/logging">
     <ApplicationId>10</ApplicationId>
-    <CreateTime>1977-05-25 03:00:00</CreateTime>
+    <CreateTime>1977-05-25T03:00:00+00:00</CreateTime>
     <ExceptionData>beep boop</ExceptionData>
     <ExtendedProperties xmlns:d2p1="http://schemas.datacontract.org/2004/07/Rock.Framework.Logging">
         <d2p1:Entry>
@@ -24,8 +24,8 @@
     <Url>Spaaaaaace</Url>
     <UserAgentBrowser>X-Wing</UserAgentBrowser>
     <UserCommonId>5</UserCommonId>
-    <UserDisplayName>Skywalker</UserDisplayName>
+    <UserDisplayName>Luke Skywalker</UserDisplayName>
     <UserIPAddress>192.168.0.1</UserIPAddress>
-    <UserName>Luke</UserName>
+    <UserName>lskywalker</UserName>
     <UserScreenName>Red 5</UserScreenName>
 </LogEntry>

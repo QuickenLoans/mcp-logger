@@ -8,11 +8,15 @@
 namespace MCP\Logger\Renderer;
 
 use DateTime;
+use MCP\DataType\IPv4Address;
+use MCP\DataType\Time\TimePoint;
 use MCP\Logger\MessageInterface;
 use MCP\Logger\RendererInterface;
 use XMLWriter;
 
 /**
+ * @see https://confluence/display/CORE/Core+Logger
+ *
  * @internal
  */
 class XmlRenderer implements RendererInterface
@@ -63,9 +67,7 @@ class XmlRenderer implements RendererInterface
 
         // Required
         $this->addNode($xml, 'ApplicationId', $this->sanitizeInteger($message->applicationId()));
-
-        $date = ($message->createTime() !== null) ? $message->createTime()->format(DateTime::RFC3339, 'UTC') : null;
-        $this->addNode($xml, 'CreateTime', $date);
+        $this->addNode($xml, 'CreateTime', $this->sanitizeTime($message->createTime()));
 
         // Optional - MUST BE BEFORE EXTENDED PROPERTIES
         $this->addOptionalNode($xml, 'ExceptionData', $this->sanitizeString($message->exceptionData()));
@@ -75,9 +77,7 @@ class XmlRenderer implements RendererInterface
         $this->addNode($xml, 'IsUserDisrupted', $this->sanitizeBoolean($message->isUserDisrupted()));
         $this->addNode($xml, 'Level', $this->sanitizeString($message->level()));
 
-        $ip = ($message->machineIPAddress() !== null) ? $message->machineIPAddress()->asString() : null;
-        $this->addNode($xml, 'MachineIPAddress', $ip);
-
+        $this->addNode($xml, 'MachineIPAddress', $this->sanitizeIP($message->machineIPAddress()));
         $this->addNode($xml, 'MachineName', $this->sanitizeString($message->machineName()));
         $this->addNode($xml, 'Message', $this->sanitizeString($message->message()));
 
@@ -88,12 +88,10 @@ class XmlRenderer implements RendererInterface
         $this->addOptionalNode($xml, 'RequestMethod', $this->sanitizeString($message->requestMethod()));
         $this->addOptionalNode($xml, 'Url', $this->sanitizeString($message->url()));
         $this->addOptionalNode($xml, 'UserAgentBrowser', $this->sanitizeString($message->userAgentBrowser()));
+
         $this->addOptionalNode($xml, 'UserCommonId', $this->sanitizeInteger($message->userCommonId()));
         $this->addOptionalNode($xml, 'UserDisplayName', $this->sanitizeString($message->userDisplayName()));
-
-        $ip = ($message->userIPAddress() !== null) ? $message->userIPAddress()->asString() : null;
-        $this->addOptionalNode($xml, 'UserIPAddress', $ip);
-
+        $this->addOptionalNode($xml, 'UserIPAddress', $this->sanitizeIP($message->userIPAddress()));
         $this->addOptionalNode($xml, 'UserName', $this->sanitizeString($message->userName()));
         $this->addOptionalNode($xml, 'UserScreenName', $this->sanitizeString($message->userScreenName()));
 
@@ -174,6 +172,7 @@ class XmlRenderer implements RendererInterface
 
     /**
      * @param boolean $value
+     *
      * @return string
      */
     protected function sanitizeBoolean($value)
@@ -183,6 +182,7 @@ class XmlRenderer implements RendererInterface
 
     /**
      * @param int|string $value
+     *
      * @return string
      */
     protected function sanitizeInteger($value)
@@ -191,11 +191,40 @@ class XmlRenderer implements RendererInterface
     }
 
     /**
+     * @param IPv4Address|null $value
+     *
+     * @return string|null
+     */
+    protected function sanitizeIP($value)
+    {
+        if ($value instanceof IPv4Address) {
+            return $value->asString();
+        }
+
+        return null;
+    }
+
+    /**
      * @param int|string $value
+     *
      * @return string
      */
     protected function sanitizeString($value)
     {
         return filter_var((string) $value, FILTER_UNSAFE_RAW, FILTER_FLAG_ENCODE_HIGH);
+    }
+
+    /**
+     * @param TimePoint|null $value
+     *
+     * @return string|null
+     */
+    protected function sanitizeTime($value)
+    {
+        if ($value instanceof TimePoint) {
+            return $value->format(DateTime::RFC3339, 'UTC');
+        }
+
+        return null;
     }
 }
