@@ -39,6 +39,11 @@ interface MessageInterface
     /**
      * @return string|null
      */
+    public function environment();
+
+    /**
+     * @return string|null
+     */
     public function exceptionData();
 
     /**

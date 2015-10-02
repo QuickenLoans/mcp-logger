@@ -25,6 +25,7 @@ class Message implements LogLevelInterface, MessageInterface
     private $affectedSystem;
     private $applicationId;
     private $categoryId;
+    private $environment;
     private $exceptionData;
     private $level;
     private $machineName;
@@ -70,7 +71,9 @@ class Message implements LogLevelInterface, MessageInterface
         $this->machineName = $this->parseValue('machineName', $data, true);
         $this->message = $this->parseValue('message', $data, true);
 
-        $this->extendedProperties = $this->parseProperties('extendedProperties', $data, false, array());
+        $this->environment = $this->parseValue('environment', $data, false);
+
+        $this->extendedProperties = $this->parseProperties('extendedProperties', $data, false, []);
         $this->level = $this->parseLevel('level', $data, false, static::INFO);
         $this->isUserDisrupted = $this->parseBoolean('isUserDisrupted', $data, false);
 
@@ -81,7 +84,7 @@ class Message implements LogLevelInterface, MessageInterface
         $this->requestMethod = $this->parseValue('requestMethod', $data);
         $this->url = $this->parseValue('url', $data);
         $this->userAgentBrowser = $this->parseValue('userAgentBrowser', $data);
-        $this->userCommonId = $this->parseValue('userCommonId', $data, false, 0);
+        $this->userCommonId = $this->parseValue('userCommonId', $data, false, null);
         $this->userDisplayName = $this->parseValue('userDisplayName', $data);
         $this->userName = $this->parseValue('userName', $data);
         $this->userScreenName = $this->parseValue('userScreenName', $data);
@@ -119,6 +122,14 @@ class Message implements LogLevelInterface, MessageInterface
     public function createTime()
     {
         return $this->createTime;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function environment()
+    {
+        return $this->environment;
     }
 
     /**

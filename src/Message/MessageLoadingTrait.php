@@ -20,7 +20,9 @@ trait MessageLoadingTrait
      * @param array $inputData
      * @param boolean $isRequired
      * @param mixed $default
+     *
      * @throws InvalidArgumentException
+     *
      * @return mixed
      */
     private function parseLevel($name, array $inputData, $isRequired = false, $default = null)
@@ -39,6 +41,7 @@ trait MessageLoadingTrait
 
     /**
      * @param string $level
+     *
      * @return boolean
      */
     private function isValidLevel($level)
@@ -62,7 +65,9 @@ trait MessageLoadingTrait
      * @param array $inputData
      * @param boolean $isRequired
      * @param mixed $default
+     *
      * @throws BadFunctionCallException
+     *
      * @return mixed
      */
     private function parseValue($name, array $inputData, $isRequired = false, $default = null)
@@ -82,6 +87,7 @@ trait MessageLoadingTrait
      * @param array $inputData
      * @param boolean $isRequired
      * @param boolean $default
+     *
      * @return boolean
      */
     private function parseBoolean($name, array $inputData, $isRequired = false, $default = false)
@@ -99,7 +105,9 @@ trait MessageLoadingTrait
      * @param string $type
      * @param boolean $isRequired
      * @param mixed|null $default
+     *
      * @throws InvalidArgumentException
+     *
      * @return mixed
      */
     private function parseClassType($name, array $inputData, $type, $isRequired = false, $default = null)
@@ -116,7 +124,9 @@ trait MessageLoadingTrait
      * @param array $inputData
      * @param boolean $isRequired
      * @param array $default
+     *
      * @throws InvalidArgumentException
+     *
      * @return mixed
      */
     private function parseProperties($name, array $inputData, $isRequired = false, $default = null)
