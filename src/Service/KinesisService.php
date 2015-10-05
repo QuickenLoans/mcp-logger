@@ -1,9 +1,15 @@
 <?php
+/**
+ * @copyright ©2015 Quicken Loans Inc. All rights reserved. Trade Secret,
+ *    Confidential and Proprietary. Any dissemination outside of Quicken Loans
+ *    is strictly prohibited.
+ */
 
 namespace MCP\Logger\Service;
 
 use MCP\Logger\Exception;
 use MCP\Logger\RendererInterface;
+use MCP\Logger\Renderer\JsonRenderer;
 use MCP\Logger\ServiceInterface;
 use MCP\Logger\MessageInterface;
 use Aws\Kinesis\KinesisClient;
@@ -62,15 +68,16 @@ class KinesisService implements ServiceInterface
      * @param KinesisClient $client
      * @param RendererInterface $renderer
      * @param array $configuration
+     *
      * @throws Exception
      */
     public function __construct(
         KinesisClient $client,
-        RendererInterface $renderer,
+        RendererInterface $renderer = null,
         array $configuration = []
     ) {
         $this->client = $client;
-        $this->renderer = $renderer;
+        $this->renderer = $renderer ?: new JsonRenderer;
 
         $this->configuration = array_merge([
             self::CONFIG_IS_SILENT => self::DEFAULT_CONFIG_IS_SILENT,
@@ -96,6 +103,7 @@ class KinesisService implements ServiceInterface
 
     /**
      * @param MessageInterface $message
+     *
      * @return void
      */
     public function send(MessageInterface $message)
@@ -105,6 +113,7 @@ class KinesisService implements ServiceInterface
 
     /**
      * @param MessageInterface $message
+     *
      * @return array
      */
     private function createRequest(MessageInterface $message)
@@ -119,8 +128,10 @@ class KinesisService implements ServiceInterface
 
     /**
      * @param array $messages
-     * @return void
+     *
      * @throws Exception
+     *
+     * @return void
      */
     private function handleBatch(array $messages)
     {
@@ -182,7 +193,10 @@ class KinesisService implements ServiceInterface
      * Handle errors
      *
      * @param array $messages
+     *
      * @throws Exception
+     *
+     * @return void
      */
     private function handleErrors(array $messages)
     {
@@ -204,6 +218,7 @@ class KinesisService implements ServiceInterface
      * Format Kinesis error messages nicely
      *
      * @param array $messages
+     *
      * @return string
      */
     private function formatErrors(array $messages)

@@ -43,14 +43,16 @@ To put things simply, a `Renderer` renders a `Message` that is sent by a `Servic
 classes are also available to make connecting the pieces easier.
 
 *   [PSR-3 Compliant Logger](#psr-3)
-*   [Message Factory](#build-a-message-with-the-messagefactory)
+*   [Message Factory](##using-the-factory)
 
 ## Setup
 
 ```php
 use GuzzleHttp\Client;
+use MCP\Logger\Adapter\Psr\MessageFactory;
 use MCP\Logger\Renderer\XmlRenderer;
 use MCP\Logger\Service\Guzzle5Service;
+use MCP\Logger\Logger;
 use QL\UriTemplate\UriTemplate;
 
 $client = new Client;
@@ -58,6 +60,15 @@ $uri = new UriTemplate('http://sonic');
 
 // A service of your choice
 $service = new Guzzle5Service($client, new XmlRenderer, $uri);
+
+$logger = new Logger($service, new MessageFactory);
+
+// Send psr-3 logs
+$logger->info('Hello World!');
+
+$logger->error('Hello Major Tom, are you receiving me?', [
+    'errCode' => 42
+]);
 ```
 
 ## Creating a Message
@@ -139,12 +150,14 @@ $service->send($message);
 A number of services are available for you to select from. Not sure which one is right for your application? In general,
 you should follow these guidelines when selecting a service.
 
-1.  When your application is running on the Quicken Loans network, your log messages should be sent to the CORE logger
-    service using **http**. `HttpService` or `Guzzle5Service` are recommended. `Guzzle3Service` and `Guzzle4Service`
-    have been deprecated.
+- **On-premise**
+    - **HttpService** (uses mcp-http)
+    - **Guzzle5Service** (uses guzzlehttp/guzzle v5)
+    - **Guzzle3Service** and **Guzzle4Service** are also available but have been deprecated.
 
-2.  When your application is running in Amazon AWS, you should use `SyslogService`. `KinesisService` can also be
-    used but is not recommended because operations cannot be completed asynchronously.
+- **Cloud (aws)**
+    - **SyslogService**
+    - **KinesisService** can also be used but is not recommended because operations cannot be completed asynchronously.
 
 If you are still unsure what service to select, contact the Web Core team for guidance.
 
@@ -185,7 +198,7 @@ Property                           | Default                                    
 
 ### Guzzle Services
 
-Note: **Guzzle3Service** and **Guzzle4Service** have been **Deprecated** .
+Note: **Guzzle3Service** and **Guzzle4Service** have been **deprecated**.
 
 These services send messages to the CORE Logger service and can only be used when your application is being run on the
 Quicken Loans network.
@@ -219,10 +232,6 @@ usw Aws\Kinesis\KinesisClient;
 $client = new KinesisClient([
     'region' => 'replaceme',        // Amazon AWS Region (required)
     'version' => '2013-12-02',      // Amazon AWS Kinesis API Version (required)
-    'credentials' => [              // Amazon AWS Credentials
-        'key' => 'replaceme',
-        'secret' => 'replaceme'
-    ]
 ]);
 ```
 
@@ -238,14 +247,7 @@ In the above example, you'll need to provide the following configuration keys.
     The Amazon AWS Kinesis API version to use when communicating. At the moment, this library supports the `2013-12-02` 
     release. Do not change this to `latest` or any more recent release without speaking with the library maintainer 
     first as it could break the sending of log messages.
-    
-- `credentials`
 
-    This configuration value allows you to manually specify the credentials to use when communicating with the Amazon 
-    AWS Kinesis API. You probably won't need to provide this as an IAM Role will likely be used to provide credentials. 
-    For more details on how credentials work, review the [AWS SDK Credentials  Documentation](http://docs.aws.amazon.com/aws-sdk-php/v3/guide/guide/credentials.html) 
-    or speak with a Unix administrator.
-    
 For more details on the available configuration values, review the [AWS SDK Configuration  Documentation](http://docs.aws.amazon.com/aws-sdk-php/v3/guide/guide/configuration.html).
 
 Now, just instantiate an instance of the `MCP\Logger\Service\KinesisService`.
@@ -263,13 +265,13 @@ $service = new KinesisService(
 
 The service allows a number of configuration keys to be provided, depending on your needs.
 
-Key                                        | Type   | Default       | Explanation
+Property                                   | Type   | Default       | Explanation
 ------------------------------------------ | ------ | ------------- | ------------------------------------------
-`KinesisService::CONFIG_IS_SILENT`         | bool   | `true`       | When true, errors will be handled silently. If false, exceptions will be thrown instead.
-`KinesisService::CONFIG_BUFFER_LIMIT`      | int    | `0`          | Defines the maximum number of log messages that will be queued before they are sent. When set to `0`, messages are immediately sent. This value must be between 0 and 499.
-`KinesisService::CONFIG_KINESIS_ATTEMPTS`  | int    | `5`          | The number of attempts to make when sending log messages to Kinesis. This value must be at least 1. Because of the nature of Kinesis, it is likely that not all messages will be able to be sent on the first attempt. For this reason, it is suggested that this value be at least 5. The lower this value, the higher the liklihood that messages will be lost.
-`KinesisService::CONFIG_KINESIS_STREAM`    | string | `Logger`     | The name of the Kinesis stream that log messages should be sent to. If you are unsure of this value, then speak with Security or a Unix administrator.
-`KinesisService::CONFIG_REGISTER_SHUTDOWN` | bool   | `true`       | When using a buffer limit greater than zero, you must flush queued messages (`$service->flush()`) before your application shuts down to ensure that messages are not lost. When this value is true, that flushing is done automatically.
+`KinesisService::CONFIG_IS_SILENT`         | bool   | `true`        | When true, errors will be handled silently. If false, exceptions will be thrown instead.
+`KinesisService::CONFIG_BUFFER_LIMIT`      | int    | `0`           | Defines the maximum number of log messages that will be queued before they are sent. When set to `0`, messages are immediately sent. This value must be between 0 and 499.
+`KinesisService::CONFIG_KINESIS_ATTEMPTS`  | int    | `5`           | The number of attempts to make when sending log messages to Kinesis. This value must be at least 1. Because of the nature of Kinesis, it is likely that not all messages will be able to be sent on the first attempt. For this reason, it is suggested that this value be at least 5. The lower this value, the higher the liklihood that messages will be lost.
+`KinesisService::CONFIG_KINESIS_STREAM`    | string | `Logger`      | The name of the Kinesis stream that log messages should be sent to. If you are unsure of this value, then speak with Security or a Unix administrator.
+`KinesisService::CONFIG_REGISTER_SHUTDOWN` | bool   | `true`        | When using a buffer limit greater than zero, you must flush queued messages (`$service->flush()`) before your application shuts down to ensure that messages are not lost. When this value is true, that flushing is done automatically.
 
 ### Generic Services
 
@@ -299,9 +301,9 @@ The service allows a number of configuration keys to be provided, depending on y
 Property                          | Type   | Default       | Explanation
 --------------------------------- | ------ | ------------- | ------------------------------------------
 `SyslogService::CONFIG_SILENT`    | bool   | `true`        | When true, errors will be handled silently. If false, exceptions will be thrown instead.
-`SyslogService::CONFIG_IDENT`     | string | ``            | See PHP `openlog()` [documentation](http://php.net/manual/en/function.openlog.php).
-`SyslogService::CONFIG_FACILITY`  | string | `user`        | See PHP `openlog()` [documentation](http://php.net/manual/en/function.openlog.php).
-`SyslogService::CONFIG_OPTIONS`   | int    |               | See PHP `openlog()` [documentation](http://php.net/manual/en/function.openlog.php).
+`SyslogService::CONFIG_IDENT`     | string | blank         | See php.net `openlog()` [documentation](http://php.net/manual/en/function.openlog.php).
+`SyslogService::CONFIG_FACILITY`  | string | `user`        | See php.net `openlog()` [documentation](http://php.net/manual/en/function.openlog.php).
+`SyslogService::CONFIG_OPTIONS`   | int    |               | See php.net `openlog()` [documentation](http://php.net/manual/en/function.openlog.php).
 
 ## PSR-3
 
@@ -450,7 +452,15 @@ $isSilent = true;
 $useShutDownHandler = false;
 $batchLimit = 5;
 
-$service = new Guzzle5Service(new Client, $renderer, new UriTemplate('http://corelogger'), $isSilent, $useShutDownHandler, $batchLimit);
+$service = new Guzzle5Service(
+    new Client,
+    $renderer,
+    new UriTemplate('http://corelogger'),
+    $isSilent,
+    $useShutDownHandler,
+    $batchLimit
+);
+
 $service->send($message);
 $service->send($message);
 $service->send($message);
