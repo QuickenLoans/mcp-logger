@@ -1,8 +1,14 @@
 <?php
+/**
+ * @copyright ©2015 Quicken Loans Inc. All rights reserved. Trade Secret,
+ *    Confidential and Proprietary. Any dissemination outside of Quicken Loans
+ *    is strictly prohibited.
+ */
 
 namespace MCP\Logger\Service;
 
 use MCP\Logger\LogLevelInterface;
+use PHPUnit_Framework_TestCase;
 
 global $openlogError;
 global $syslogError;
@@ -29,7 +35,7 @@ function syslog($priority, $message)
     return \syslog($priority, $message);
 }
 
-class SyslogServiceTest extends \PHPUnit_Framework_TestCase
+class SyslogServiceTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
@@ -94,45 +100,8 @@ class SyslogServiceTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    public function testSendFailBackup()
-    {
-        global $syslogError;
-        $syslogError = true;
-
-        $message = $this->getMockBuilder('MCP\Logger\Message\Message')
-            ->disableOriginalConstructor()
-            ->setMethods(['level'])
-            ->getMock();
-
-        $message->expects($this->once())
-            ->method('level')
-            ->will($this->returnValue('Warn'));
-
-        $renderer = $this->getMockBuilder('MCP\Logger\RendererInterface')
-            ->disableOriginalConstructor()
-            ->setMethods(['__invoke', 'contentType'])
-            ->getMock();
-
-        $renderer->expects($this->once())
-            ->method('__invoke')
-            ->with($message)
-            ->will($this->returnValue(''));
-
-        $backup = $this->getMockBuilder('MCP\Logger\ServiceInterface')
-            ->disableOriginalConstructor()
-            ->setMethods(['send'])
-            ->getMock();
-
-        $backup->expects($this->once())
-            ->method('send')
-            ->with($message);
-
-        $service = new SyslogService($renderer, [], $backup);
-        $service->send($message);
-    }
-
     /**
-     * @expectedException \MCP\Logger\Exception
+     * @expectedException MCP\Logger\Exception
      */
     public function testSendFail()
     {

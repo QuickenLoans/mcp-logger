@@ -317,23 +317,20 @@ use MCP\Logger\Renderer\JsonRenderer;
 // A renderer instance
 $renderer = new JsonRenderer();
 
-// An optional backup service where messages should be written if syslog is not accessible
-$backup = null;
-
 // An array of configuration data
 $configuration = [];
 
-$service = new SyslogService($renderer, $configuration, $backup);
+$service = new SyslogService($renderer, $configuration);
 ```
 
 The service allows a number of configuration keys to be provided, depending on your needs.
 
-Key                               | Type   | Required      | Explanation
+Property                          | Type   | Default       | Explanation
 --------------------------------- | ------ | ------------- | ------------------------------------------
-`SyslogService::CONFIG_SILENT`    | bool   | no (`true`)   | When true, errors will be handled silently. If false, exceptions will be thrown instead.
-`SyslogService::CONFIG_IDENT`     | string | no            | See PHP `openlog()` [documentation](http://php.net/manual/en/function.openlog.php).
-`SyslogService::CONFIG_FACILITY`  | string | no            | See PHP `openlog()` [documentation](http://php.net/manual/en/function.openlog.php).
-`SyslogService::CONFIG_OPTIONS`   | int    | no            | See PHP `openlog()` [documentation](http://php.net/manual/en/function.openlog.php).
+`SyslogService::CONFIG_SILENT`    | bool   | `true`        | When true, errors will be handled silently. If false, exceptions will be thrown instead.
+`SyslogService::CONFIG_IDENT`     | string | ``            | See PHP `openlog()` [documentation](http://php.net/manual/en/function.openlog.php).
+`SyslogService::CONFIG_FACILITY`  | string | `user`        | See PHP `openlog()` [documentation](http://php.net/manual/en/function.openlog.php).
+`SyslogService::CONFIG_OPTIONS`   | int    |               | See PHP `openlog()` [documentation](http://php.net/manual/en/function.openlog.php).
 
 ## PSR-3
 

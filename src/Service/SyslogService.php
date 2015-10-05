@@ -1,4 +1,9 @@
 <?php
+/**
+ * @copyright ©2015 Quicken Loans Inc. All rights reserved. Trade Secret,
+ *    Confidential and Proprietary. Any dissemination outside of Quicken Loans
+ *    is strictly prohibited.
+ */
 
 namespace MCP\Logger\Service;
 
@@ -6,6 +11,7 @@ use MCP\Logger\Exception;
 use MCP\Logger\LogLevelInterface;
 use MCP\Logger\MessageInterface;
 use MCP\Logger\RendererInterface;
+use MCP\Logger\Renderer\JsonRenderer;
 use MCP\Logger\ServiceInterface;
 
 /**
@@ -39,21 +45,15 @@ class SyslogService implements ServiceInterface, LogLevelInterface
     private $configuration;
 
     /**
-     * @var ServiceInterface
-     */
-    private $backup;
-
-    /**
      * @var bool
      */
     private $status;
 
     /**
-     * @param RendererInterface $renderer
+     * @param RendererInterface|null $renderer
      * @param array $configuration
-     * @param ServiceInterface|null $backup
      */
-    public function __construct(RendererInterface $renderer, array $configuration = [], ServiceInterface $backup = null)
+    public function __construct(RendererInterface $renderer = null, array $configuration = [])
     {
         $this->configuration = array_merge([
             self::CONFIG_SILENT => self::DEFAULT_SILENT,
@@ -62,13 +62,13 @@ class SyslogService implements ServiceInterface, LogLevelInterface
             self::CONFIG_OPTIONS => LOG_ODELAY | LOG_CONS // for <5.6
         ], $configuration);
 
-        $this->renderer = $renderer;
-        $this->backup = $backup;
+        $this->renderer = $renderer ?: new JsonRenderer;
         $this->status = false;
     }
 
     /**
      * @param MessageInterface $message
+     *
      * @return void
      */
     public function send(MessageInterface $message)
@@ -81,16 +81,14 @@ class SyslogService implements ServiceInterface, LogLevelInterface
         $this->status = syslog($this->priority($message->level()), $data);
 
         if ($this->status === false) {
-            if ($this->backup instanceof ServiceInterface) {
-                $this->backup->send($message);
-            } else {
-                $this->error(sprintf(self::ERR_SEND, $data));
-            }
+            $this->error(sprintf(self::ERR_SEND, $message->message()));
         }
     }
 
     /**
      * Attempt to connect to open syslog connection
+     *
+     * @return void
      */
     private function connect()
     {
@@ -109,15 +107,15 @@ class SyslogService implements ServiceInterface, LogLevelInterface
      * Handle an error
      *
      * @param string $message
+     *
      * @throws Exception
+     *
      * @return bool
      */
     private function error($message)
     {
         if ($this->configuration[self::CONFIG_SILENT]) {
-            // @codeCoverageIgnoreStart
             return error_log($message);
-            // @codeCoverageIgnoreEnd
         }
 
         throw new Exception($message);
@@ -127,6 +125,7 @@ class SyslogService implements ServiceInterface, LogLevelInterface
      * Convert from Core error levels to Syslog priority
      *
      * @param $level
+     *
      * @return int
      */
     private function priority($level)
@@ -148,5 +147,4 @@ class SyslogService implements ServiceInterface, LogLevelInterface
                 return LOG_WARNING;
         }
     }
-
 }
