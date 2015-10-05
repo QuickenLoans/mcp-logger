@@ -50,18 +50,14 @@ classes are also available to make connecting the pieces easier.
 ```php
 use GuzzleHttp\Client;
 use MCP\Logger\Renderer\XmlRenderer;
-use MCP\Logger\Service\Guzzle4Service;
+use MCP\Logger\Service\Guzzle5Service;
 use QL\UriTemplate\UriTemplate;
-use XMLWriter;
 
 $client = new Client;
 $uri = new UriTemplate('http://sonic');
 
-// A renderer of your choice
-$renderer = new XmlRenderer(new XMLWriter);
-
 // A service of your choice
-$service = new Guzzle4Service($client, $renderer, $uri);
+$service = new Guzzle5Service($client, new XmlRenderer, $uri);
 ```
 
 ## Creating a Message
@@ -98,11 +94,9 @@ have to populate these fields every time a message is logged.
 The factory will add `createTime`, `message`, and `level` to the message payload.
 
 ```php
-use MCP\DataType\Time\Clock;
 use MCP\Logger\Message\MessageFactory;
 
-$clock = new Clock('now', 'UTC');
-$factory = new MessageFactory($clock);
+$factory = new MessageFactory;
 
 $message = $factory->buildMessage(MessageFactory::DEBUG, 'A debug message');
 ```
@@ -113,7 +107,7 @@ When using the factory, there are several ways for you to add data to a message.
 use MCP\DataType\IPv4Address;
 
 // In the constructor...
-$factory = new MessageFactory($clock, [
+$factory = new MessageFactory(null, [
     'applicationId' => '1',
     'machineIPAddress' => new IPv4Address(0)
 ]);
@@ -145,12 +139,13 @@ $service->send($message);
 A number of services are available for you to select from. Not sure which one is right for your application? In general,
 you should follow these guidelines when selecting a service.
 
-1.  When your application is running on the Quicken Loans network, your log messages should be sent to the CORE logging
-    service using the `HttpService` service. The `Guzzle3Service`, `Guzzle4Service`, and `Guzzle5Service` services have
-    been deprecated.
-2.  When your application is running in Amazon AWS, you should use the `SyslogService`. The `KinesisService` can also be
-    used but is not recommended because operations cannot be completed asynchronously. 
-    
+1.  When your application is running on the Quicken Loans network, your log messages should be sent to the CORE logger
+    service using **http**. `HttpService` or `Guzzle5Service` are recommended. `Guzzle3Service` and `Guzzle4Service`
+    have been deprecated.
+
+2.  When your application is running in Amazon AWS, you should use `SyslogService`. `KinesisService` can also be
+    used but is not recommended because operations cannot be completed asynchronously.
+
 If you are still unsure what service to select, contact the Web Core team for guidance.
 
 ### MCP Http Service
@@ -416,12 +411,12 @@ By default, the provided Http Services silently consumes exceptions if the http 
 
 ```php
 use GuzzleHttp\Client;
-use MCP\Logger\Service\Guzzle4Service;
+use MCP\Logger\Service\Guzzle5Service;
 use QL\UriTemplate\UriTemplate;
 
 $isSilent = true;
 
-$service = new Guzzle4Service(new Client, $renderer, new UriTemplate('http://corelogger'), $isSilent);
+$service = new Guzzle5Service(new Client, $renderer, new UriTemplate('http://corelogger'), $isSilent);
 $service->send($message);
 ```
 
@@ -430,7 +425,7 @@ See also:
 * [ServiceInterface.php](src/ServiceInterface.php)
 * [Guzzle3Service.php](src/Service/Guzzle3Service.php) (deprecated)
 * [Guzzle4Service.php](src/Service/Guzzle4Service.php) (deprecated)
-* [Guzzle5Service.php](src/Service/Guzzle5Service.php) (deprecated)
+* [Guzzle5Service.php](src/Service/Guzzle5Service.php)
 * [HttpService.php](src/Service/HttpService.php)
 * [KinesisService.php](src/Service/KinesisService.php)
 

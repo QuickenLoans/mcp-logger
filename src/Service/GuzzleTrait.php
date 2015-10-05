@@ -10,6 +10,7 @@ namespace MCP\Logger\Service;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Event\ErrorEvent;
 use GuzzleHttp\Message\RequestInterface;
+use GuzzleHttp\Pool;
 use MCP\Logger\Exception;
 use MCP\Logger\MessageInterface;
 use Exception as BaseException;
@@ -45,19 +46,17 @@ trait GuzzleTrait
      *
      * @param RequestInterface[] $requests
      *
-     * @return null
+     * @return void
      */
     protected function handleBatch(array $requests)
     {
         $errors = [];
 
-        foreach ($requests as $request) {
-            try {
-                $response = $this->guzzle->send($request);
-            } catch (BaseException $e) {
-                $errors[] = $e;
+        Pool::send($this->guzzle, $requests, [
+            'error' => function (ErrorEvent $event) use (&$errors) {
+                $errors[] = $event->getException();
             }
-        }
+        ]);
 
         $this->handleErrors($requests, $errors);
     }
@@ -70,7 +69,7 @@ trait GuzzleTrait
      *
      * @throws Exception
      *
-     * @return null
+     * @return void
      */
     protected function handleErrors(array $requests, array $errors)
     {

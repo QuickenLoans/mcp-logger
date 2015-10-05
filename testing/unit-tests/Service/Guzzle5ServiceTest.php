@@ -7,199 +7,163 @@
 
 namespace MCP\Logger\Service;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Message\Response;
+use GuzzleHttp\Subscriber\Mock;
+use MCP\Logger\MessageInterface;
+use MCP\Logger\RendererInterface;
 use Mockery;
 use PHPUnit_Framework_TestCase;
+use QL\UriTemplate\UriTemplate;
 
 class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
 {
+    public static $logSetting;
     public $uri;
-    private $log;
+    public $renderer;
+
+    public static function setUpBeforeClass()
+    {
+        self::$logSetting = ini_get('error_log');
+        ini_set('error_log', __DIR__ . '/errlog');
+    }
+
+    public static function tearDownAfterClass()
+    {
+        ini_set('error_log', self::$logSetting);
+    }
 
     public function setUp()
     {
-        $this->log = ini_get('error_log');
-        ini_set('error_log', __DIR__ . '/errlog');
-        touch(__DIR__ . '/errlog');
-
-        $this->uri = Mockery::mock('QL\UriTemplate\UriTemplate', [
+        $this->uri = Mockery::mock(UriTemplate::CLASS, [
             'expand' => 'http://corelogger'
         ]);
+
+        $this->renderer = Mockery::mock(RendererInterface::CLASS, ['contentType' => 'text/xml']);
+
+        touch(__DIR__ . '/errlog');
     }
 
     public function tearDown()
     {
-        ini_set('error_log', $this->log);
         unlink(__DIR__ . '/errlog');
     }
 
-    public function testSimple()
+    /**
+     * @expectedException MCP\Logger\Exception
+     * @expectedExceptionMessage Server error response [url] http://corelogger [status code] 500 [reason phrase] Internal Server Error
+     */
+    public function testServiceReceivesNon200ResponseThrowsException()
     {
-        $rendered = 'rendered message';
-        $contentType = 'text/xml';
+        $message = Mockery::mock(MessageInterface::CLASS);
 
-        $message = Mockery::mock('MCP\Logger\MessageInterface');
+        $mock = new Mock([
+            new Response(500),
+        ]);
 
-        $renderer = Mockery::mock('MCP\Logger\RendererInterface');
-        $client = Mockery::mock('overload:GuzzleHttp\ClientInterface');
-        $request = Mockery::mock('overload:GuzzleHttp\Message\Request');
+        $client = new Client;
+        $client->getEmitter()->attach($mock);
 
-        $renderer
-            ->shouldReceive('contentType')
-            ->andReturn($contentType);
-
-        $renderer
+        $this->renderer
             ->shouldReceive('__invoke')
             ->with($message)
-            ->andReturn($rendered);
+            ->andReturn('rendered message')
+            ->once();
 
-        $client
-            ->shouldReceive('createRequest')
-            ->with('POST', Mockery::any(), [
-                'body' => $rendered,
-                'headers' => ['Content-Type' => $contentType],
-                'exceptions' => true
-            ])
-            ->andReturn($request);
-
-        $client
-            ->shouldReceive('send')
-            ->with($request);
-
-        $service = new Guzzle5Service($client, $renderer, $this->uri, false, false);
+        $service = new Guzzle5Service($client, $this->renderer, $this->uri, false, false);
         $service->send($message);
     }
 
     /**
-     * @expectedException \MCP\Logger\Exception
+     * @expectedException MCP\Logger\Exception
+     * @expectedExceptionMessage 2 Errors occured while sending 2 messages
      */
-    public function testErrorNotSilent()
+    public function testMultipleErrorsWhenNotSilent()
     {
-        $rendered = 'rendered message';
-        $contentType = 'text/xml';
+        $message = Mockery::mock(MessageInterface::CLASS);
 
-        $message = Mockery::mock('MCP\Logger\MessageInterface');
+        $mock = new Mock([
+            new Response(500),
+            new Response(400),
+        ]);
 
-        $renderer = Mockery::mock('MCP\Logger\RendererInterface');
-        $client = Mockery::mock('overload:GuzzleHttp\ClientInterface');
-        $request = Mockery::mock('overload:GuzzleHttp\Message\Request');
-        $exception = Mockery::mock('GuzzleHttp\Exception\RequestException');
+        $client = new Client;
+        $client->getEmitter()->attach($mock);
 
-        $renderer
-            ->shouldReceive('contentType')
-            ->andReturn($contentType);
-
-        $renderer
+        $this->renderer
             ->shouldReceive('__invoke')
             ->with($message)
-            ->andReturn($rendered);
+            ->andReturn('rendered message')
+            ->twice();
 
-        $client
-            ->shouldReceive('createRequest')
-            ->with('POST', Mockery::any(), [
-                'body' => $rendered,
-                'headers' => ['Content-Type' => $contentType],
-                'exceptions' => true
-            ])
-            ->andReturn($request);
-
-        $client
-            ->shouldReceive('send')
-            ->with($request)
-            ->andThrow($exception);
-
-        $service = new Guzzle5Service($client, $renderer, $this->uri, false, false);
+        $service = new Guzzle5Service($client, $this->renderer, $this->uri, false, false, 1);
         $service->send($message);
+        $service->send($message);
+
+        // empty
+        $this->assertSame('', file_get_contents(__DIR__ . '/errlog'));
     }
 
-    public function testErrorSilent()
+    public function testServiceReceivesNon200ResponseSilentlyContinues()
     {
-        $rendered = 'rendered message';
-        $contentType = 'text/xml';
+        $message = Mockery::mock(MessageInterface::CLASS);
 
-        $message = Mockery::mock('MCP\Logger\MessageInterface');
+        $mock = new Mock([
+            new Response(500),
+            new Response(400),
+            new Response(503),
+            new Response(200),
+            new Response(200),
+        ]);
 
-        $renderer = Mockery::mock('MCP\Logger\RendererInterface');
-        $client = Mockery::mock('overload:GuzzleHttp\ClientInterface');
-        $request = Mockery::mock('overload:GuzzleHttp\Message\Request');
-        $exception = Mockery::mock('GuzzleHttp\Exception\RequestException');
+        $client = new Client;
+        $client->getEmitter()->attach($mock);
 
-        $renderer
-            ->shouldReceive('contentType')
-            ->andReturn($contentType);
-
-        $renderer
+        $this->renderer
             ->shouldReceive('__invoke')
             ->with($message)
-            ->andReturn($rendered);
+            ->andReturn('rendered message')
+            ->times(5);
 
-        $client
-            ->shouldReceive('createRequest')
-            ->with('POST', Mockery::any(), [
-                'body' => $rendered,
-                'headers' => ['Content-Type' => $contentType],
-                'exceptions' => true
-            ])
-            ->andReturn($request);
-
-        $client
-            ->shouldReceive('send')
-            ->with($request)
-            ->andThrow($exception);
-
-        $service = new Guzzle5Service($client, $renderer, $this->uri, true, false);
-        $service->send($message);
-    }
-
-    /**
-     * @expectedException \MCP\Logger\Exception
-     */
-    public function testMultipleErrorsNotSilent()
-    {
-        $rendered = 'rendered message';
-        $contentType = 'text/xml';
-
-        $message = Mockery::mock('MCP\Logger\MessageInterface');
-
-        $renderer = Mockery::mock('MCP\Logger\RendererInterface');
-        $client = Mockery::mock('overload:GuzzleHttp\ClientInterface');
-        $request = Mockery::mock('overload:GuzzleHttp\Message\Request');
-        $exception = Mockery::mock('GuzzleHttp\Exception\RequestException');
-
-        $renderer
-            ->shouldReceive('contentType')
-            ->andReturn($contentType);
-
-        $renderer
-            ->shouldReceive('__invoke')
-            ->with($message)
-            ->andReturn($rendered);
-
-        $client
-            ->shouldReceive('createRequest')
-            ->with('POST', Mockery::any(), [
-                'body' => $rendered,
-                'headers' => ['Content-Type' => $contentType],
-                'exceptions' => true
-            ])
-            ->andReturn($request);
-
-        $client
-            ->shouldReceive('send')
-            ->with($request)
-            ->andThrow($exception);
-
-        $service = new Guzzle5Service($client, $renderer, $this->uri, false, false, 5);
+        $service = new Guzzle5Service($client, $this->renderer, $this->uri, true, false, 10);
         $service->send($message);
         $service->send($message);
+        $service->send($message);
+        $service->send($message);
+        $service->send($message);
+
         $service->flush();
+
+        $this->assertContains('3 Errors occured while sending 5 messages', file_get_contents(__DIR__ . '/errlog'));
     }
 
-    public function testFlushNoneSent()
+    public function testSilentLoggingDoesNotUseIndividualErrorMessage()
     {
-        $renderer = Mockery::mock('MCP\Logger\RendererInterface');
-        $client = Mockery::mock('overload:GuzzleHttp\ClientInterface');
+        $message = Mockery::mock(MessageInterface::CLASS);
 
-        $service = new Guzzle5Service($client, $renderer, $this->uri, false, false, 5);
+        $mock = new Mock([
+            new Response(500),
+            new Response(200),
+            new Response(200),
+        ]);
+
+        $client = new Client;
+        $client->getEmitter()->attach($mock);
+
+        $this->renderer
+            ->shouldReceive('__invoke')
+            ->with($message)
+            ->andReturn('rendered message')
+            ->times(3);
+
+        $service = new Guzzle5Service($client, $this->renderer, $this->uri, true, false, 0);
+        $service->send($message);
+        $service->send($message);
+        $service->send($message);
+
         $service->flush();
+
+        $this->assertContains('1 Errors occured while sending 1 messages with mcp-logger', file_get_contents(__DIR__ . '/errlog'));
     }
 }
