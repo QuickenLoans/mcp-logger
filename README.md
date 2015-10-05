@@ -288,10 +288,12 @@ use MCP\Logger\Service\SyslogService;
 use MCP\Logger\Renderer\JsonRenderer;
 
 // A renderer instance
-$renderer = new JsonRenderer();
+$renderer = new JsonRenderer;
 
-// An array of configuration data
-$configuration = [];
+// Ident SHOULD always be provided, to allow log filtering.
+$configuration = [
+    'ident' => 'MyAppName'
+];
 
 $service = new SyslogService($renderer, $configuration);
 ```
@@ -413,12 +415,13 @@ By default, the provided Http Services silently consumes exceptions if the http 
 
 ```php
 use GuzzleHttp\Client;
+use MCP\Logger\Renderer\XmlRenderer;
 use MCP\Logger\Service\Guzzle5Service;
 use QL\UriTemplate\UriTemplate;
 
 $isSilent = true;
 
-$service = new Guzzle5Service(new Client, $renderer, new UriTemplate('http://corelogger'), $isSilent);
+$service = new Guzzle5Service(new Client, new XmlRenderer, new UriTemplate('http://corelogger'), $isSilent);
 $service->send($message);
 ```
 

@@ -15,5 +15,9 @@ $logger = new Logger($service, new MessageFactory);
 $logger->info('mcp-logger : syslog test 1');
 $logger->info('mcp-logger : syslog test 2');
 
-echo "\n<br>Sent 2 log messages.";
-echo "\nCheck <code>/var/log/messages</code> for your messages";
+echo <<<HTML
+
+<br>Sent 2 log messages.
+<br>Check <code>/var/log/messages</code> for your messages
+
+HTML;

@@ -20,4 +20,9 @@ $logger = new Logger($service, new MessageFactory);
 $logger->info('mcp-logger : guzzle 3 test 1');
 $logger->info('mcp-logger : guzzle 3 test 2');
 
-echo "\n<br>Sent 2 log messages.";
+echo <<<HTML
+
+<br>Sent 2 log messages.
+<br>Check <a href="http://core/app/200001?environment=Test">http://core/app/200001</a> for your messages
+
+HTML;

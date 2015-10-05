@@ -28,11 +28,18 @@ $list = implode($tests, "\n<br>");
 echo <<<HTML
 <h2>Tests</h2>
 <ul>$list</ul>
+
 HTML;
 
-if (!isset($_GET['test']) || preg_match('/[a-z0-9]{1,100}/i', $_GET['test']) !== 1) exit;
+if (php_sapi_name() === 'cli') {
+    $test = (count($argv) === 2) ? array_pop($argv) : '';
+} else {
+    $test = (isset($_GET['test']) && preg_match('/[a-z0-9]{1,100}/i', $_GET['test'])) ? $_GET['test'] : '';
+}
 
-$file = sprintf('%s/%s.php', __DIR__, $_GET['test']);
+if (!$test) exit;
+
+$file = sprintf('%s/%s.php', __DIR__, $test);
 if (!file_exists($file)) exit;
 
 echo <<<HTML

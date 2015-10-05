@@ -13,7 +13,7 @@ if (substr(Client::VERSION, 0, 1) !== '5') {
     exit;
 }
 
-$silent = true;
+$silent = false;
 $buffer = 3;
 
 $uri = new UriTemplate('http://qlsonictest:2581/web/core/logentries');
@@ -27,4 +27,9 @@ $logger->info('mcp-logger : guzzle 5 test 3');
 // The 4th message causes the buffer to hit the limit and flush
 $logger->info('mcp-logger : guzzle 5 test 4');
 
-echo "\n<br>Sent 4 log messages.";
+echo <<<HTML
+
+<br>Sent 4 log messages.
+<br>Check <a href="http://core/app/200001?environment=Test">http://core/app/200001</a> for your messages
+
+HTML;

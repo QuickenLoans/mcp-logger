@@ -35,7 +35,7 @@ class Guzzle3Service implements ServiceInterface
     /**
      * @type ClientInterface
      */
-    private $pecl;
+    private $service;
 
     /**
      * @type RendererInterface
@@ -53,18 +53,18 @@ class Guzzle3Service implements ServiceInterface
     private $isSilent;
 
     /**
-     * @param ClientInterface $pecl
+     * @param ClientInterface $service
      * @param RendererInterface $renderer
      * @param UriTemplate $uri
      * @param boolean $isSilent
      */
     public function __construct(
-        ClientInterface $pecl,
+        ClientInterface $service,
         RendererInterface $renderer,
         UriTemplate $uri,
         $isSilent = true
     ) {
-        $this->pecl = $pecl;
+        $this->service = $service;
         $this->renderer = $renderer;
         $this->uri = $uri;
         $this->isSilent = $isSilent;
@@ -72,13 +72,14 @@ class Guzzle3Service implements ServiceInterface
 
     /**
      * @param MessageInterface $message
-     * @return null
+     *
      * @throws Exception
-     * @throws \QL\UriTemplate\Exception
+     *
+     * @return void
      */
     public function send(MessageInterface $message)
     {
-        $request = $this->pecl->post(
+        $request = $this->service->post(
             $this->uri->expand([]),
             ['Content-Type' => 'text/xml'],
             call_user_func($this->renderer, $message)
@@ -97,7 +98,8 @@ class Guzzle3Service implements ServiceInterface
 
     /**
      * @param RequestInterface $request
-     * @return null
+     *
+     * @return void
      */
     private function fireAndForget(RequestInterface $request)
     {
