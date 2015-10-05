@@ -8,6 +8,7 @@
 namespace MCP\Logger\Message;
 
 use BadFunctionCallException;
+use JsonSerializable;
 use InvalidArgumentException;
 
 /**
@@ -148,7 +149,8 @@ trait MessageLoadingTrait
                     $value = var_export($value, true);
                 }
 
-                if (is_array($value)) {
+                // jsonify arrays and serializable classes
+                if (is_array($value) || $value instanceof JsonSerializable) {
                     $value = json_encode($value, JSON_PRETTY_PRINT);
                 }
 

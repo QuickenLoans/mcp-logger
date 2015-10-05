@@ -78,6 +78,7 @@ class MessageFactory implements LogLevelInterface, MessageFactoryInterface
             'affectedSystem',
             'applicationId',
             'categoryId',
+            'environment',
             'exceptionData',
             'isUserDisrupted',
             'machineIPAddress',
