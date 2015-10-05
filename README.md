@@ -169,65 +169,41 @@ $client = new Client(/* ... */);
 // Instance of the MCP Http Pool
 $pool = new Pool($client);
 
-// Instance of the MCP Logger XML Renderer
-$renderer = XmlRenderer();
-
-$service = new HttpService($pool, $renderer, [
+$service = new HttpService($pool, new XmlRenderer, [
     HttpService::CONFIG_HOSTNAME => 'replaceme'
 ]);
 ```
 
 The Http Service can accept a number of configuration keys and values.
 
-*   `HttpClient::CONFIG_HOSTNAME` (required)
-
-    The hostname to use when sending messages.
-
-*   `HttpClient::CONFIG_SILENT` (default: `true`)
-
-    Whether to silently fail or not. When set to false, exceptions will be thrown when an error occurs.
-
-*   `HttpClient::CONFIG_BUFFER_LIMIT` (default: `0`)
-
-    The number of messages to buffer before sending.
-
-*   `HttpClient::CONFIG_SHUTDOWN` (default: `true`)
-
-    Whether to register the shutdown handler or not. When set to true, the `flush()` method will be called when PHP is
-    shutting down so that you don't need to call it manually to clear the queue of messages.
-
-*   `HttpClient::CONFIG_TEMPLATE` (default: `{scheme}://{hostname}:{port}{/root}/{+resource}`)
-
-    The URI Template to use when sending messages. This can be a string or `QL\UriTemplate\UriTemplate` object.
-
-*   `HttpClient::CONFIG_SCHEME` (default: `http`)
-
-    The scheme to use when sending messages.
-
-*   `HttpClient::CONFIG_PORT` (default: `2581`)
-
-    The port to use when sending messages.
-
-*   `HttpClient::CONFIG_ROOT` (default: `web/core`)
-
-    The root URI path to use when sending messages.
-
-*   `HttpClient::CONFIG_RESOURCE` (default: `logentries`)
-
-    The URI resource to use when sending messages.
+Property                           | Default                                           | Description
+---------------------------------- | ------------------------------------------------- | -----------
+`HttpClient::CONFIG_HOSTNAME`      | N/A (Required)                                    | The hostname to use when sending messages.
+`HttpClient::CONFIG_SILENT`        | `true`                                            | Whether to silently fail or not. When set to false, exceptions will be thrown when an error occurs.
+`HttpClient::CONFIG_BUFFER_LIMIT`  | `0`                                               | The number of messages to buffer before sending.
+`HttpClient::CONFIG_SHUTDOWN`      | `true`                                            | Whether to register the shutdown handler or not. When set to true, the `flush()` method will be called automatically.
+`HttpClient::CONFIG_TEMPLATE`      | `{scheme}://{hostname}:{port}{/root}/{+resource}` | The URI Template to use when sending messages. This can be a string or `QL\UriTemplate\UriTemplate` object.
+`HttpClient::CONFIG_SCHEME`        | `http`                                            |
+`HttpClient::CONFIG_PORT`          | `2581`                                            |
+`HttpClient::CONFIG_ROOT`          | `web/core`                                        |
+`HttpClient::CONFIG_RESOURCE`      | `logentries`                                      |
 
 ### Guzzle Services
 
-**Deprecated** Use of these services has been deprecated. Please use the MCP Http Service instead.
+Note: **Guzzle3Service** and **Guzzle4Service** have been **Deprecated** .
 
 These services send messages to the CORE Logger service and can only be used when your application is being run on the
 Quicken Loans network.
 
-*   `Guzzle3Service`
-*   `Guzzle4Service`
-*   `Guzzle5Service`
+```php
+use GuzzleHttp\Client;
+use MCP\Logger\Renderer\XmlRenderer;
+use MCP\Logger\Service\Guzzle5Service;
+use QL\UriTemplate\UriTemplate;
 
-When sending to the CORE Logger service, you should use the `XmlRenderer` renderer class.
+$service = new Guzzle5Service(new Client, new XmlRenderer, new UriTemplate('http://corelogger'));
+$service->send($message);
+```
 
 ### Amazon AWS Services
 
@@ -292,13 +268,13 @@ $service = new KinesisService(
 
 The service allows a number of configuration keys to be provided, depending on your needs.
 
-Key                                        | Type   | Required      | Explanation
+Key                                        | Type   | Default       | Explanation
 ------------------------------------------ | ------ | ------------- | ------------------------------------------
-`KinesisService::CONFIG_IS_SILENT`         | bool   | no (`true`)   | When true, errors will be handled silently. If false, exceptions will be thrown instead.
-`KinesisService::CONFIG_BUFFER_LIMIT`      | int    | no (`0`)      | Defines the maximum number of log messages that will be queued before they are sent. When set to `0`, messages are immediately sent. This value must be between 0 and 499.
-`KinesisService::CONFIG_KINESIS_ATTEMPTS`  | int    | no (`5`)      | The number of attempts to make when sending log messages to Kinesis. This value must be at least 1. Because of the nature of Kinesis, it is likely that not all messages will be able to be sent on the first attempt. For this reason, it is suggested that this value be at least 5. The lower this value, the higher the liklihood that messages will be lost.
-`KinesisService::CONFIG_KINESIS_STREAM`    | string | no (`Logger`) | The name of the Kinesis stream that log messages should be sent to. If you are unsure of this value, then speak with Security or a Unix administrator.
-`KinesisService::CONFIG_REGISTER_SHUTDOWN` | bool   | no (`true`)   | When using a buffer limit greater than zero, you must flush queued messages (`$service->flush()`) before your application shuts down to ensure that messages are not lost. When this value is true, that flushing is done automatically.
+`KinesisService::CONFIG_IS_SILENT`         | bool   | `true`       | When true, errors will be handled silently. If false, exceptions will be thrown instead.
+`KinesisService::CONFIG_BUFFER_LIMIT`      | int    | `0`          | Defines the maximum number of log messages that will be queued before they are sent. When set to `0`, messages are immediately sent. This value must be between 0 and 499.
+`KinesisService::CONFIG_KINESIS_ATTEMPTS`  | int    | `5`          | The number of attempts to make when sending log messages to Kinesis. This value must be at least 1. Because of the nature of Kinesis, it is likely that not all messages will be able to be sent on the first attempt. For this reason, it is suggested that this value be at least 5. The lower this value, the higher the liklihood that messages will be lost.
+`KinesisService::CONFIG_KINESIS_STREAM`    | string | `Logger`     | The name of the Kinesis stream that log messages should be sent to. If you are unsure of this value, then speak with Security or a Unix administrator.
+`KinesisService::CONFIG_REGISTER_SHUTDOWN` | bool   | `true`       | When using a buffer limit greater than zero, you must flush queued messages (`$service->flush()`) before your application shuts down to ensure that messages are not lost. When this value is true, that flushing is done automatically.
 
 ### Generic Services
 
@@ -345,12 +321,10 @@ use MCP\DataType\IPv4Address;
 use MCP\Logger\Adapter\Psr\MessageFactory;
 use MCP\Logger\Service\HttpService;
 use MCP\Logger\Logger;
-use XMLWriter;
 
 $service = new HttpService(/* ... */);
 
-$clock = new Clock('now', 'UTC');
-$factory = new MessageFactory($clock);
+$factory = new MessageFactory;
 $logger = new Logger($service, $factory);
 
 // Do not forget to add the required properties!
@@ -377,6 +351,7 @@ $message->affectedSystem();
 $message->applicationId();
 $message->categoryId();
 $message->createTime();
+$message->environment();
 $message->exceptionData();
 $message->extendedProperties();
 $message->isUserDisrupted();

@@ -1,4 +1,9 @@
 <?php
+/**
+ * @copyright ©2015 Quicken Loans Inc. All rights reserved. Trade Secret,
+ *    Confidential and Proprietary. Any dissemination outside of Quicken Loans
+ *    is strictly prohibited.
+ */
 
 namespace MCP\Logger\Service;
 
@@ -6,6 +11,7 @@ use Exception as BaseException;
 use MCP\Logger\Exception;
 use MCP\Logger\MessageInterface;
 use MCP\Logger\RendererInterface;
+use MCP\Logger\Renderer\XmlRenderer;
 use MCP\Logger\ServiceInterface;
 use QL\MCP\Http\ClientInterface;
 use QL\MCP\Http\Pool;
@@ -63,7 +69,7 @@ class HttpService implements ServiceInterface
      * @param array $configuration
      * @throws Exception
      */
-    public function __construct(Pool $pool, RendererInterface $renderer, array $configuration = [])
+    public function __construct(Pool $pool, RendererInterface $renderer = null, array $configuration = [])
     {
         if (!array_key_exists(self::CONFIG_HOSTNAME, $configuration)) {
             throw new Exception(sprintf(self::ERR_CONFIG, self::CONFIG_HOSTNAME));
@@ -81,7 +87,7 @@ class HttpService implements ServiceInterface
         ], $configuration);
 
         $this->pool = $pool;
-        $this->renderer = $renderer;
+        $this->renderer = $renderer ?: new XmlRenderer;
 
         $this->initializeBuffer(
             $this->configuration[self::CONFIG_BUFFER_LIMIT],
@@ -107,7 +113,7 @@ class HttpService implements ServiceInterface
         return $this->pool->createRequest('POST', $this->configuration[self::CONFIG_TEMPLATE], [
             ClientInterface::BODY => call_user_func($this->renderer, $message),
             ClientInterface::HEADERS => [
-                'Content-Type' => call_user_func([$this->renderer, 'contentType'])
+                'Content-Type' => $this->renderer->contentType()
             ],
             ClientInterface::URI_VARIABLES => [
                 self::CONFIG_SCHEME => $this->configuration[self::CONFIG_SCHEME],
