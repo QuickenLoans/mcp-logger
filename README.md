@@ -81,8 +81,8 @@ There are 5 required fields to create a message. By default, the standard messag
 a different level, you must provide it in the message data.
 
 ```php
-use MCP\DataType\IPv4Address;
-use MCP\DataType\Time\TimePoint;
+use QL\MCP\Common\IPv4Address;
+use QL\MCP\Common\Time\TimePoint;
 use MCP\Logger\Message\Message;
 
 $message = new Message([
@@ -115,7 +115,7 @@ $message = $factory->buildMessage(MessageFactory::DEBUG, 'A debug message');
 When using the factory, there are several ways for you to add data to a message.
 
 ```php
-use MCP\DataType\IPv4Address;
+use QL\MCP\Common\IPv4Address;
 
 // In the constructor...
 $factory = new MessageFactory(null, [
@@ -316,7 +316,7 @@ MessageFactory that specifically converts a PSR-3 log level to a core log level.
 **Note**: You must still provide the required message properties to the factory.
 
 ```php
-use MCP\DataType\IPv4Address;
+use QL\MCP\Common\IPv4Address;
 use MCP\Logger\Adapter\Psr\MessageFactory;
 use MCP\Logger\Service\HttpService;
 use MCP\Logger\Logger;
