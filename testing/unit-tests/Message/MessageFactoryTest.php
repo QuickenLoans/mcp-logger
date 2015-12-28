@@ -10,6 +10,9 @@ namespace MCP\Logger\Message;
 use MCP\Logger\Testing\Mock\Stringable;
 use Mockery;
 use PHPUnit_Framework_TestCase;
+use QL\MCP\Common\IPv4Address;
+use QL\MCP\Common\Time\Clock;
+use QL\MCP\Common\Time\TimePoint;
 use stdClass;
 
 class MessageFactoryTest extends PHPUnit_Framework_TestCase
@@ -20,7 +23,7 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
      */
     public function testInvalidIpAddressThrowsException()
     {
-        $clock = Mockery::mock('MCP\DataType\Time\Clock');
+        $clock = Mockery::mock(Clock::class);
         $factory = new MessageFactory($clock);
         $factory->setDefaultProperty('machineIPAddress', new stdClass);
     }
@@ -31,15 +34,15 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
      */
     public function testInvalidPropertyThrowsException()
     {
-        $clock = Mockery::mock('MCP\DataType\Time\Clock');
+        $clock = Mockery::mock(Clock::class);
         $factory = new MessageFactory($clock);
         $factory->setDefaultProperty('userAgentBrowser', new stdClass);
     }
 
     public function testInvalidContextIsNotValidated()
     {
-        $time = Mockery::mock('MCP\DataType\Time\TimePoint');
-        $clock = Mockery::mock('MCP\DataType\Time\Clock');
+        $time = Mockery::mock(TimePoint::class);
+        $clock = Mockery::mock(Clock::class);
         $clock
             ->shouldReceive('read')
             ->once()
@@ -47,7 +50,7 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
 
         $defaults = array(
             'applicationId' => 10,
-            'machineIPAddress' => Mockery::mock('MCP\DataType\IPv4Address'),
+            'machineIPAddress' => Mockery::mock(IPv4Address::class),
             'machineName' => 'Test'
         );
 
@@ -61,8 +64,8 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
 
     public function testBuildingAMessageWithBareMinimumPropertiesThroughSetter()
     {
-        $time = Mockery::mock('MCP\DataType\Time\TimePoint');
-        $clock = Mockery::mock('MCP\DataType\Time\Clock');
+        $time = Mockery::mock(TimePoint::class);
+        $clock = Mockery::mock(Clock::class);
         $clock
             ->shouldReceive('read')
             ->once()
@@ -71,7 +74,7 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
         $expectedMessage = 'hello';
         $expectedDefaults = array(
             'applicationId' => 1,
-            'machineIPAddress' => Mockery::mock('MCP\DataType\IPv4Address'),
+            'machineIPAddress' => Mockery::mock(IPv4Address::class),
             'machineName' => 'Hank'
         );
 
@@ -94,8 +97,8 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
 
     public function testBuildingAMessageWithBareMinimumPropertiesThroughConstructor()
     {
-        $time = Mockery::mock('MCP\DataType\Time\TimePoint');
-        $clock = Mockery::mock('MCP\DataType\Time\Clock');
+        $time = Mockery::mock(TimePoint::class);
+        $clock = Mockery::mock(Clock::class);
         $clock
             ->shouldReceive('read')
             ->once()
@@ -104,7 +107,7 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
         $expectedMessage = 'there';
         $expectedDefaults = array(
             'applicationId' => 2,
-            'machineIPAddress' => Mockery::mock('MCP\DataType\IPv4Address'),
+            'machineIPAddress' => Mockery::mock(IPv4Address::class),
             'machineName' => 'Walt'
         );
 
@@ -124,8 +127,8 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
 
     public function testUnknownPropertiesAddedToExtendedProperties()
     {
-        $time = Mockery::mock('MCP\DataType\Time\TimePoint');
-        $clock = Mockery::mock('MCP\DataType\Time\Clock');
+        $time = Mockery::mock(TimePoint::class);
+        $clock = Mockery::mock(Clock::class);
         $clock
             ->shouldReceive('read')
             ->once()
@@ -133,7 +136,7 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
 
         $expectedDefaults = array(
             'applicationId' => 10,
-            'machineIPAddress' => Mockery::mock('MCP\DataType\IPv4Address'),
+            'machineIPAddress' => Mockery::mock(IPv4Address::class),
             'machineName' => 'TestMachine'
         );
         $expectedUnknownProperty = ['unknown' => new Stringable];

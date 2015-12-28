@@ -30,7 +30,7 @@ class MessageTest extends FixtureLoadingTestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage 'machineIPAddress' must be an instance of 'MCP\DataType\IPv4Address'
+     * @expectedExceptionMessage 'machineIPAddress' must be an instance of 'QL\MCP\Common\IPv4Address'
      */
     public function testInvalidClassTypeThrowsException()
     {

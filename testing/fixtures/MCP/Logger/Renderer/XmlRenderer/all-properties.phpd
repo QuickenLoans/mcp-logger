@@ -2,7 +2,7 @@
     'affectedSystem' => 'Empire',
     'applicationId' => '10',
     'categoryId' => '200',
-    'createTime' => new \MCP\DataType\Time\TimePoint(1977, 05, 25, 3, 0, 0, 'UTC'),
+    'createTime' => new \QL\MCP\Common\Time\TimePoint(1977, 05, 25, 3, 0, 0, 'UTC'),
     'environment' => 'PROD',
     'exceptionData' => 'beep boop',
     'extendedProperties' => array(
@@ -11,7 +11,7 @@
     ),
     'isUserDisrupted' => true,
     'level' => 'Fatal',
-    'machineIPAddress' => \MCP\DataType\IPv4Address::create('127.0.0.1'),
+    'machineIPAddress' => \QL\MCP\Common\IPv4Address::create('127.0.0.1'),
     'machineName' => 'Deathstar',
     'message' => 'I used to bullseye womp rats in my T-16',
     'referrer' => 'Uncle Ben',
@@ -20,7 +20,7 @@
     'userAgentBrowser' => 'X-Wing',
     'userCommonId' => 5,
     'userDisplayName' => 'Luke Skywalker',
-    'userIPAddress' => \MCP\DataType\IPv4Address::create('192.168.0.1'),
+    'userIPAddress' => \QL\MCP\Common\IPv4Address::create('192.168.0.1'),
     'userName' => 'lskywalker',
     'userScreenName' => 'Red 5'
 ]

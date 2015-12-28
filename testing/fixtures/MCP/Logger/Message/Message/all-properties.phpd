@@ -2,7 +2,7 @@ array(
     'affectedSystem' => 'Empire',
     'applicationId' => '10',
     'categoryId' => '200',
-    'createTime' => Mockery::mock('MCP\DataType\Time\TimePoint'),
+    'createTime' => Mockery::mock('QL\MCP\Common\Time\TimePoint'),
     'exceptionData' => 'beep boop',
     'extendedProperties' => array(
         'key' => 'value',
@@ -10,7 +10,7 @@ array(
     ),
     'isUserDisrupted' => true,
     'level' => 'Fatal',
-    'machineIPAddress' => Mockery::mock('MCP\DataType\IPv4Address'),
+    'machineIPAddress' => Mockery::mock('QL\MCP\Common\IPv4Address'),
     'machineName' => 'Deathstar',
     'message' => 'I used to bullseye womp rats in my T-16',
     'referrer' => 'Uncle Ben',
@@ -19,7 +19,7 @@ array(
     'userAgentBrowser' => 'X-Wing',
     'userCommonId' => 5,
     'userDisplayName' => 'Skywalker',
-    'userIPAddress' => Mockery::mock('MCP\DataType\IPv4Address'),
+    'userIPAddress' => Mockery::mock('QL\MCP\Common\IPv4Address'),
     'userName' => 'Luke',
     'userScreenName' => 'Red 5'
 )

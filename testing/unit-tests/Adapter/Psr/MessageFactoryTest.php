@@ -8,6 +8,9 @@
 namespace MCP\Logger\Adapter\Psr;
 
 use Mockery;
+use QL\MCP\Common\IPv4Address;
+use QL\MCP\Common\Time\Clock;
+use QL\MCP\Common\Time\TimePoint;
 use PHPUnit_Framework_TestCase;
 use Psr\Log\LogLevel;
 
@@ -15,8 +18,8 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
 {
     public function testUnknownLevelDefaultsToCoreErrorLevel()
     {
-        $time = Mockery::mock('MCP\DataType\Time\TimePoint');
-        $clock = Mockery::mock('MCP\DataType\Time\Clock');
+        $time = Mockery::mock(TimePoint::class);
+        $clock = Mockery::mock(Clock::class);
         $clock
             ->shouldReceive('read')
             ->once()
@@ -24,7 +27,7 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
 
         $defaults = array(
             'applicationId' => 1,
-            'machineIPAddress' => Mockery::mock('MCP\DataType\IPv4Address'),
+            'machineIPAddress' => Mockery::mock(IPv4Address::class),
             'machineName' => 'Test'
         );
 
@@ -36,8 +39,8 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
 
     public function testCoreLevelProvidedReturnsDefaultErrorLevel()
     {
-        $time = Mockery::mock('MCP\DataType\Time\TimePoint');
-        $clock = Mockery::mock('MCP\DataType\Time\Clock');
+        $time = Mockery::mock(TimePoint::class);
+        $clock = Mockery::mock(Clock::class);
         $clock
             ->shouldReceive('read')
             ->once()
@@ -45,7 +48,7 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
 
         $defaults = array(
             'applicationId' => 1,
-            'machineIPAddress' => Mockery::mock('MCP\DataType\IPv4Address'),
+            'machineIPAddress' => Mockery::mock(IPv4Address::class),
             'machineName' => 'Test'
         );
 
@@ -57,8 +60,8 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
 
     public function testPsr3LogLevelIsConvertedCorrectly()
     {
-        $time = Mockery::mock('MCP\DataType\Time\TimePoint');
-        $clock = Mockery::mock('MCP\DataType\Time\Clock');
+        $time = Mockery::mock(TimePoint::class);
+        $clock = Mockery::mock(Clock::class);
         $clock
             ->shouldReceive('read')
             ->once()
@@ -66,7 +69,7 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
 
         $defaults = array(
             'applicationId' => 1,
-            'machineIPAddress' => Mockery::mock('MCP\DataType\IPv4Address'),
+            'machineIPAddress' => Mockery::mock(IPv4Address::class),
             'machineName' => 'Test'
         );
 

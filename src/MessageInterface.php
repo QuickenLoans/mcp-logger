@@ -7,8 +7,8 @@
 
 namespace MCP\Logger;
 
-use MCP\DataType\IPv4Address;
-use MCP\DataType\Time\TimePoint;
+use QL\MCP\Common\IPv4Address;
+use QL\MCP\Common\Time\TimePoint;
 
 /**
  * @api

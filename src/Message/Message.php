@@ -7,8 +7,8 @@
 
 namespace MCP\Logger\Message;
 
-use MCP\DataType\IPv4Address;
-use MCP\DataType\Time\TimePoint;
+use QL\MCP\Common\IPv4Address;
+use QL\MCP\Common\Time\TimePoint;
 use MCP\Logger\LogLevelInterface;
 use MCP\Logger\MessageInterface;
 
@@ -66,8 +66,8 @@ class Message implements LogLevelInterface, MessageInterface
     public function __construct(array $data)
     {
         $this->applicationId = $this->parseValue('applicationId', $data, true);
-        $this->createTime = $this->parseClassType('createTime', $data, 'MCP\DataType\Time\TimePoint', true);
-        $this->machineIPAddress = $this->parseClassType('machineIPAddress', $data, 'MCP\DataType\IPv4Address', true);
+        $this->createTime = $this->parseClassType('createTime', $data, TimePoint::class, true);
+        $this->machineIPAddress = $this->parseClassType('machineIPAddress', $data, IPv4Address::class, true);
         $this->machineName = $this->parseValue('machineName', $data, true);
         $this->message = $this->parseValue('message', $data, true);
 
@@ -89,7 +89,7 @@ class Message implements LogLevelInterface, MessageInterface
         $this->userName = $this->parseValue('userName', $data);
         $this->userScreenName = $this->parseValue('userScreenName', $data);
 
-        $this->userIPAddress = $this->parseClassType('userIPAddress', $data, 'MCP\DataType\IPv4Address');
+        $this->userIPAddress = $this->parseClassType('userIPAddress', $data, IPv4Address::class);
     }
 
     /**

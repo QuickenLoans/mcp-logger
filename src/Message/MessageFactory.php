@@ -8,8 +8,8 @@
 namespace MCP\Logger\Message;
 
 use InvalidArgumentException;
-use MCP\DataType\Time\Clock;
-use MCP\DataType\IPv4Address;
+use QL\MCP\Common\Time\Clock;
+use QL\MCP\Common\IPv4Address;
 use MCP\Logger\LogLevelInterface;
 use MCP\Logger\MessageFactoryInterface;
 use MCP\Logger\MessageInterface;
