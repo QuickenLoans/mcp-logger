@@ -1,11 +1,21 @@
 <?php
+/**
+ * @copyright (c) 2015 Quicken Loans Inc.
+ *
+ * For full license information, please view the LICENSE distributed with this source code.
+ */
 
 namespace MCP\Logger\Service;
 
-class KinesisServiceTest extends \PHPUnit_Framework_TestCase
+use Aws\Kinesis\KinesisClient;
+use MCP\Logger\Message\Message;
+use MCP\Logger\Renderer\JsonRenderer;
+use PHPUnit_Framework_TestCase;
+
+class KinesisServiceTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @expectedException \MCP\Logger\Exception
+     * @expectedException MCP\Logger\Exception
      */
     public function testConstructAttemptsTooSmall()
     {
@@ -14,11 +24,11 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
         $attempts = -1;
         $shutdown = false;
 
-        $kinesis = $this->getMockBuilder('Aws\Kinesis\KinesisClient')
+        $kinesis = $this->getMockBuilder(KinesisClient::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $renderer = $this->getMockBuilder('MCP\Logger\Renderer\JsonRenderer')
+        $renderer = $this->getMockBuilder(JsonRenderer::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -31,7 +41,7 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MCP\Logger\Exception
+     * @expectedException MCP\Logger\Exception
      */
     public function testConstructBufferLimitSmall()
     {
@@ -40,11 +50,11 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
         $attempts = 1;
         $shutdown = false;
 
-        $kinesis = $this->getMockBuilder('Aws\Kinesis\KinesisClient')
+        $kinesis = $this->getMockBuilder(KinesisClient::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $renderer = $this->getMockBuilder('MCP\Logger\Renderer\JsonRenderer')
+        $renderer = $this->getMockBuilder(JsonRenderer::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -57,7 +67,7 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MCP\Logger\Exception
+     * @expectedException MCP\Logger\Exception
      */
     public function testSendTooLarge()
     {
@@ -68,15 +78,15 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
         $attempts = 1;
         $shutdown = false;
 
-        $message = $this->getMockBuilder('MCP\Logger\Message\Message')
+        $message = $this->getMockBuilder(Message::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $kinesis = $this->getMockBuilder('Aws\Kinesis\KinesisClient')
+        $kinesis = $this->getMockBuilder(KinesisClient::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $renderer = $this->getMockBuilder('MCP\Logger\Renderer\JsonRenderer')
+        $renderer = $this->getMockBuilder(JsonRenderer::class)
             ->disableOriginalConstructor()
             ->setMethods(['__invoke'])
             ->getMock();
@@ -104,14 +114,14 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
         $attempts = 1;
         $shutdown = false;
 
-        $message = $this->getMockBuilder('MCP\Logger\Message\Message')
+        $message = $this->getMockBuilder(Message::class)
             ->disableOriginalConstructor()
             ->setMethods([])
             ->getMock();
 
         $messages = array_fill(0, 1, $message);
 
-        $kinesis = $this->getMockBuilder('Aws\Kinesis\KinesisClient')
+        $kinesis = $this->getMockBuilder(KinesisClient::class)
             ->disableOriginalConstructor()
             ->setMethods(['putRecords'])
             ->getMock();
@@ -128,7 +138,7 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
                 ]
             ]));
 
-        $renderer = $this->getMockBuilder('MCP\Logger\Renderer\JsonRenderer')
+        $renderer = $this->getMockBuilder(JsonRenderer::class)
             ->disableOriginalConstructor()
             ->setMethods(['__invoke'])
             ->getMock();
@@ -151,7 +161,7 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MCP\Logger\Exception
+     * @expectedException MCP\Logger\Exception
      */
     public function testSendBadResponse()
     {
@@ -161,14 +171,14 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
         $attempts = 1;
         $shutdown = false;
 
-        $message = $this->getMockBuilder('MCP\Logger\Message\Message')
+        $message = $this->getMockBuilder(Message::class)
             ->disableOriginalConstructor()
             ->setMethods([])
             ->getMock();
 
         $messages = array_fill(0, 1, $message);
 
-        $kinesis = $this->getMockBuilder('Aws\Kinesis\KinesisClient')
+        $kinesis = $this->getMockBuilder(KinesisClient::class)
             ->disableOriginalConstructor()
             ->setMethods(['putRecords'])
             ->getMock();
@@ -178,7 +188,7 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
             ->with($this->anything())
             ->will($this->returnValue([]));
 
-        $renderer = $this->getMockBuilder('MCP\Logger\Renderer\JsonRenderer')
+        $renderer = $this->getMockBuilder(JsonRenderer::class)
             ->disableOriginalConstructor()
             ->setMethods(['__invoke'])
             ->getMock();
@@ -199,7 +209,7 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MCP\Logger\Exception
+     * @expectedException MCP\Logger\Exception
      */
     public function testSendLeftovers()
     {
@@ -209,14 +219,14 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
         $attempts = 1;
         $shutdown = false;
 
-        $message = $this->getMockBuilder('MCP\Logger\Message\Message')
+        $message = $this->getMockBuilder(Message::class)
             ->disableOriginalConstructor()
             ->setMethods([])
             ->getMock();
 
         $messages = array_fill(0, 1, $message);
 
-        $kinesis = $this->getMockBuilder('Aws\Kinesis\KinesisClient')
+        $kinesis = $this->getMockBuilder(KinesisClient::class)
             ->disableOriginalConstructor()
             ->setMethods(['putRecords'])
             ->getMock();
@@ -233,7 +243,7 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
                 ]
             ]));
 
-        $renderer = $this->getMockBuilder('MCP\Logger\Renderer\JsonRenderer')
+        $renderer = $this->getMockBuilder(JsonRenderer::class)
             ->disableOriginalConstructor()
             ->setMethods(['__invoke'])
             ->getMock();
@@ -254,7 +264,7 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MCP\Logger\Exception
+     * @expectedException MCP\Logger\Exception
      */
     public function testSendUnknownError()
     {
@@ -264,14 +274,14 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
         $attempts = 1;
         $shutdown = false;
 
-        $message = $this->getMockBuilder('MCP\Logger\Message\Message')
+        $message = $this->getMockBuilder(Message::class)
             ->disableOriginalConstructor()
             ->setMethods([])
             ->getMock();
 
         $messages = array_fill(0, 1, $message);
 
-        $kinesis = $this->getMockBuilder('Aws\Kinesis\KinesisClient')
+        $kinesis = $this->getMockBuilder(KinesisClient::class)
             ->disableOriginalConstructor()
             ->setMethods(['putRecords'])
             ->getMock();
@@ -285,7 +295,7 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
             ->with($this->anything())
             ->will($this->throwException($exception));
 
-        $renderer = $this->getMockBuilder('MCP\Logger\Renderer\JsonRenderer')
+        $renderer = $this->getMockBuilder(JsonRenderer::class)
             ->disableOriginalConstructor()
             ->setMethods(['__invoke'])
             ->getMock();
@@ -306,7 +316,7 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \MCP\Logger\Exception
+     * @expectedException MCP\Logger\Exception
      */
     public function testSendMultipleErrors()
     {
@@ -316,16 +326,16 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
         $attempts = 1;
         $shutdown = false;
 
-        $message = $this->getMockBuilder('MCP\Logger\Message\Message')
+        $message = $this->getMockBuilder(Message::class)
             ->disableOriginalConstructor()
             ->setMethods([])
             ->getMock();
 
-        $kinesis = $this->getMockBuilder('Aws\Kinesis\KinesisClient')
+        $kinesis = $this->getMockBuilder(KinesisClient::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $renderer = $this->getMockBuilder('MCP\Logger\Renderer\JsonRenderer')
+        $renderer = $this->getMockBuilder(JsonRenderer::class)
             ->disableOriginalConstructor()
             ->setMethods(['__invoke'])
             ->getMock();
@@ -362,15 +372,15 @@ class KinesisServiceTest extends \PHPUnit_Framework_TestCase
         $attempts = 1;
         $shutdown = false;
 
-        $message = $this->getMockBuilder('MCP\Logger\Message\Message')
+        $message = $this->getMockBuilder(Message::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $kinesis = $this->getMockBuilder('Aws\Kinesis\KinesisClient')
+        $kinesis = $this->getMockBuilder(KinesisClient::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $renderer = $this->getMockBuilder('MCP\Logger\Renderer\JsonRenderer')
+        $renderer = $this->getMockBuilder(JsonRenderer::class)
             ->disableOriginalConstructor()
             ->setMethods(['__invoke'])
             ->getMock();
