@@ -7,6 +7,7 @@
 
 namespace MCP\Logger;
 
+use QL\MCP\Common\GUID;
 use QL\MCP\Common\IPv4Address;
 use QL\MCP\Common\Time\TimePoint;
 
@@ -16,6 +17,11 @@ use QL\MCP\Common\Time\TimePoint;
  */
 interface MessageInterface
 {
+    /**
+     * @return GUID
+     */
+    public function messageId();
+
     /**
      * @return string|null
      */

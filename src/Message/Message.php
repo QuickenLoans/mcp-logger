@@ -7,6 +7,7 @@
 
 namespace MCP\Logger\Message;
 
+use QL\MCP\Common\GUID;
 use QL\MCP\Common\IPv4Address;
 use QL\MCP\Common\Time\TimePoint;
 use MCP\Logger\LogLevelInterface;
@@ -40,6 +41,11 @@ class Message implements LogLevelInterface, MessageInterface
     private $userScreenName;
 
     /**
+     * @var GUID
+     */
+    private $messageId;
+
+    /**
      * @type boolean
      */
     private $isUserDisrupted;
@@ -65,6 +71,8 @@ class Message implements LogLevelInterface, MessageInterface
      */
     public function __construct(array $data)
     {
+        $this->messageId = $this->parseClassType('messageId', $data, GUID::class, false, GUID::create());
+
         $this->applicationId = $this->parseValue('applicationId', $data, true);
         $this->createTime = $this->parseClassType('createTime', $data, TimePoint::class, true);
         $this->machineIPAddress = $this->parseClassType('machineIPAddress', $data, IPv4Address::class, true);
@@ -90,6 +98,14 @@ class Message implements LogLevelInterface, MessageInterface
         $this->userScreenName = $this->parseValue('userScreenName', $data);
 
         $this->userIPAddress = $this->parseClassType('userIPAddress', $data, IPv4Address::class);
+    }
+
+    /**
+     * @return GUID
+     */
+    public function messageId()
+    {
+        return $this->messageId;
     }
 
     /**

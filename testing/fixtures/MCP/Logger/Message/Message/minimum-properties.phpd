@@ -3,5 +3,6 @@ array(
     'createTime' => Mockery::mock('QL\MCP\Common\Time\TimePoint'),
     'machineIPAddress' => Mockery::mock('QL\MCP\Common\IPv4Address'),
     'machineName' => 'machine',
-    'message' => 'message'
+    'message' => 'message',
+    'messageId' => QL\MCP\Common\GUID::createFromHex('9E43E37AD36C4F88B142A417670C93CF'),
 )

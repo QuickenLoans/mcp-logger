@@ -13,6 +13,7 @@ array(
     'machineIPAddress' => Mockery::mock('QL\MCP\Common\IPv4Address'),
     'machineName' => 'Deathstar',
     'message' => 'I used to bullseye womp rats in my T-16',
+    'messageId' => \QL\MCP\Common\GUID::createFromHex('9E43E37AD36C4F88B142A417670C93CF'),
     'referrer' => 'Uncle Ben',
     'requestMethod' => 'DELETE',
     'url' => 'Spaaaaaace',
