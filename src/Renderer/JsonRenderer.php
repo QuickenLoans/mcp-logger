@@ -64,6 +64,8 @@ class JsonRenderer implements RendererInterface
 
         $this->addExtendedProperties($data, $message->extendedProperties());
 
+        $this->backloadLargeProperties($data);
+
         return json_encode($data);
     }
 
@@ -91,6 +93,8 @@ class JsonRenderer implements RendererInterface
         foreach ($properties as $k => $prop) {
             $extended[$k] = $this->sanitizeString($prop);
         }
+
+        $this->backloadLargeProperties($extended);
 
         if ($extended) {
             $this->addProperty($data, 'Properties', $extended);
@@ -183,5 +187,28 @@ class JsonRenderer implements RendererInterface
         }
 
         return null;
+    }
+
+    /**
+     * Back load large properties to the end of the array of data
+     *
+     * This method ensures that fields that cannot be indexed by Splunk will be encountered last by the parser
+     * therefore making all previously encountered data searchable.
+     *
+     * @param array $data
+     * @param int $limit
+     */
+    private function backloadLargeProperties(array &$data, $limit = 10000)
+    {
+        $large = [];
+
+        foreach ($data as $key => $value) {
+            if (is_string($value) && strlen($value) > $limit) {
+                $large[$key] = $value;
+                unset($data[$key]);
+            }
+        }
+
+        $data = $data + $large;
     }
 }

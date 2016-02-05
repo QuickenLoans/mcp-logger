@@ -42,7 +42,8 @@ class JsonRendererTest extends FixtureLoadingTestCase
     {
         return [
             ['minimum-properties'],
-            ['all-properties']
+            ['all-properties'],
+            ['large-properties']
         ];
     }
 }
