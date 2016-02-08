@@ -43,7 +43,7 @@ class Message implements LogLevelInterface, MessageInterface
     /**
      * @var GUID
      */
-    private $messageId;
+    private $id;
 
     /**
      * @type boolean
@@ -71,8 +71,7 @@ class Message implements LogLevelInterface, MessageInterface
      */
     public function __construct(array $data)
     {
-        $this->messageId = $this->parseClassType('messageId', $data, GUID::class, false, GUID::create());
-
+        $this->id = $this->parseClassType('id', $data, GUID::class, false, GUID::create());
         $this->applicationId = $this->parseValue('applicationId', $data, true);
         $this->createTime = $this->parseClassType('createTime', $data, TimePoint::class, true);
         $this->machineIPAddress = $this->parseClassType('machineIPAddress', $data, IPv4Address::class, true);
@@ -103,9 +102,9 @@ class Message implements LogLevelInterface, MessageInterface
     /**
      * @return GUID
      */
-    public function messageId()
+    public function id()
     {
-        return $this->messageId;
+        return $this->id;
     }
 
     /**

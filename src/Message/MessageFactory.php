@@ -60,7 +60,7 @@ class MessageFactory implements LogLevelInterface, MessageFactoryInterface
     private $knownProperties;
 
     /**
-     * @param Clock|nul $clock
+     * @param Clock|null $clock
      * @param mixed[] $defaultLogProperties
      */
     public function __construct(Clock $clock = null, array $defaultLogProperties = [])
@@ -80,6 +80,7 @@ class MessageFactory implements LogLevelInterface, MessageFactoryInterface
             'categoryId',
             'environment',
             'exceptionData',
+            'id',
             'isUserDisrupted',
             'machineIPAddress',
             'machineName',

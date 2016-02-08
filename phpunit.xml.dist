@@ -19,7 +19,6 @@
         beStrictAboutTestsThatDoNotTestAnything="false"
         beStrictAboutOutputDuringTests="true"
         beStrictAboutTestSize="true"
-        checkForUnintentionallyCoveredCode="true"
 
         timeoutForSmallTests="5"
         verbose="true">

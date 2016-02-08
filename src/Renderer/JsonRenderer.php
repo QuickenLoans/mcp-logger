@@ -31,10 +31,8 @@ class JsonRenderer implements RendererInterface
     {
         $data = [];
 
-        // Splunk Message ID
-        $this->addProperty($data, 'splunk_log_id', substr($message->messageId()->asHumanReadable(), 1, -1));
-
         // Required
+        $this->addProperty($data, 'ID', strtolower(substr($message->id()->asHumanReadable(), 1, -1)));
         $this->addProperty($data, 'AppID', $this->sanitizeInteger($message->applicationId()));
         $this->addProperty($data, 'Created', $this->sanitizeTime($message->createTime()));
         $this->addProperty($data, 'Environment', $this->sanitizeString(strtolower($message->environment())));

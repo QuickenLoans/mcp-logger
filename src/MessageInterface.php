@@ -20,7 +20,7 @@ interface MessageInterface
     /**
      * @return GUID
      */
-    public function messageId();
+    public function id();
 
     /**
      * @return string|null
