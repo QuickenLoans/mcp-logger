@@ -22,6 +22,27 @@ use MCP\Logger\RendererInterface;
  */
 class JsonRenderer implements RendererInterface
 {
+    // Config Keys
+    const CONFIG_BACKLOAD_LIMIT = 'backload_limit';
+
+    // Config Defaults
+    const DEFAULT_BACKLOAD_LIMIT = 10000;
+
+    /**
+     * @var array
+     */
+    private $config;
+
+    /**
+     * @param array $config
+     */
+    public function __construct(array $config = [])
+    {
+        $this->config = array_merge([
+            self::CONFIG_BACKLOAD_LIMIT => self::DEFAULT_BACKLOAD_LIMIT
+        ], $config);
+    }
+
     /**
      * @param MessageInterface $message
      *
@@ -188,20 +209,16 @@ class JsonRenderer implements RendererInterface
     }
 
     /**
-     * Back load large properties to the end of the array of data
-     *
-     * This method ensures that fields that cannot be indexed by Splunk will be encountered last by the parser
-     * therefore making all previously encountered data searchable.
+     * Ensures that all string fields with long values are placed at the end of the document
      *
      * @param array $data
-     * @param int $limit
      */
-    private function backloadLargeProperties(array &$data, $limit = 10000)
+    private function backloadLargeProperties(array &$data)
     {
         $large = [];
 
         foreach ($data as $key => $value) {
-            if (is_string($value) && strlen($value) > $limit) {
+            if (is_string($value) && strlen($value) > $this->config[self::CONFIG_BACKLOAD_LIMIT]) {
                 $large[$key] = $value;
                 unset($data[$key]);
             }
