@@ -66,6 +66,7 @@ class XmlRenderer implements RendererInterface
         $xml->endAttribute();
 
         // Required
+        $this->addNode($xml, 'LogEntryClientID', strtolower(substr($message->id()->asHumanReadable(), 1, -1)));
         $this->addNode($xml, 'ApplicationId', $this->sanitizeInteger($message->applicationId()));
         $this->addNode($xml, 'CreateTime', $this->sanitizeTime($message->createTime()));
 

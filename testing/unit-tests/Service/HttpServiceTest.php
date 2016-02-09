@@ -11,6 +11,7 @@ use Mockery;
 use PHPUnit_Framework_TestCase;
 use MCP\Logger\MessageInterface;
 use MCP\Logger\RendererInterface;
+use QL\MCP\Common\GUID;
 
 class HttpServiceTest extends PHPUnit_Framework_TestCase
 {
@@ -81,6 +82,7 @@ class HttpServiceTest extends PHPUnit_Framework_TestCase
     {
         $pool = Mockery::mock('QL\MCP\Http\Pool');
         $message = Mockery::mock(MessageInterface::CLASS);
+        $message->shouldReceive('id')->andReturn(GUID::create());
         $message->shouldIgnoreMissing();
 
         $request = Mockery::mock('Psr\Http\Message\RequestInterface');

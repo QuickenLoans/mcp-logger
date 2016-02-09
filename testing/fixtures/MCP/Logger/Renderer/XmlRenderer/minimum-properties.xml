@@ -1,4 +1,5 @@
 <LogEntry xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://rock/framework/logging">
+    <LogEntryClientID>9e43e37a-d36c-4f88-b142-a417670c93cf</LogEntryClientID>
     <ApplicationId>5</ApplicationId>
     <CreateTime>2015-10-15T12:00:00+00:00</CreateTime>
     <ExtendedProperties xmlns:d2p1="http://schemas.datacontract.org/2004/07/Rock.Framework.Logging"/>
