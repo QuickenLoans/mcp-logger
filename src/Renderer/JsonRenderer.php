@@ -202,7 +202,7 @@ class JsonRenderer implements RendererInterface
     protected function sanitizeTime($value)
     {
         if ($value instanceof TimePoint) {
-            return $value->format('Y-m-d\TH:i:s\Z', 'UTC');
+            return $value->format('Y-m-d\TH:i:s\.u\Z', 'UTC');
         }
 
         return null;

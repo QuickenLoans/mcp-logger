@@ -1,7 +1,7 @@
 {
     "ID": "9e43e37a-d36c-4f88-b142-a417670c93cf",
     "AppID": 5,
-    "Created": "2015-10-15T12:00:00Z",
+    "Created": "2015-10-15T12:00:00.000000Z",
     "Environment":"",
     "Level": "info",
     "Message": "message",
