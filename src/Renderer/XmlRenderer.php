@@ -223,7 +223,7 @@ class XmlRenderer implements RendererInterface
     protected function sanitizeTime($value)
     {
         if ($value instanceof TimePoint) {
-            return $value->format(DateTime::RFC3339, 'UTC');
+            return $value->format('Y-m-d\TH:i:s\.u\Z', 'UTC');
         }
 
         return null;
