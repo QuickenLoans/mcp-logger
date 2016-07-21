@@ -7,9 +7,6 @@
 
 namespace MCP\Logger;
 
-use MCP\Logger\Adapter\Psr\MessageFactory;
-use MCP\Logger\MessageInterface;
-use MCP\Logger\ServiceInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
 
@@ -26,15 +23,15 @@ class Logger implements LoggerInterface
     private $service;
 
     /**
-     * @var MessageFactory
+     * @var MessageFactoryInterface
      */
     private $factory;
 
     /**
      * @param ServiceInterface $service
-     * @param MessageFactory $factory
+     * @param MessageFactoryInterface $factory
      */
-    public function __construct(ServiceInterface $service, MessageFactory $factory)
+    public function __construct(ServiceInterface $service, MessageFactoryInterface $factory)
     {
         $this->service = $service;
         $this->factory = $factory;
@@ -46,9 +43,10 @@ class Logger implements LoggerInterface
      * @param mixed $level
      * @param string $message
      * @param array $context
+     *
      * @return null
      */
-    public function log($level, $message, array $context = array())
+    public function log($level, $message, array $context = [])
     {
         $message = $this->factory->buildMessage($level, $message, $context);
         $this->service->send($message);
