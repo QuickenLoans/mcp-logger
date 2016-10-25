@@ -7,9 +7,9 @@
 
 namespace MCP\Logger;
 
+use Psr\Log\LogLevel;
 use Psr\Log\LoggerTrait;
 use Psr\Log\LoggerInterface;
-use Psr\Log\LogLevel;
 
 /**
  * A logger that allows for setting a minimum logging level
@@ -17,7 +17,22 @@ use Psr\Log\LogLevel;
 class LoggerFiltered implements LoggerInterface
 {
     use LoggerTrait;
-    use LogLevelFilterTrait;
+
+    /**
+     * Allowed log levels
+     *
+     * @var array
+     */
+    private $levels = [
+        LogLevel::EMERGENCY => 7,
+        LogLevel::ALERT => 6,
+        LogLevel::CRITICAL => 5,
+        LogLevel::ERROR => 4,
+        LogLevel::WARNING => 3,
+        LogLevel::NOTICE => 2,
+        LogLevel::INFO => 1,
+        LogLevel::DEBUG => 0
+    ];
 
     /**
      * @var LoggerInterface
@@ -25,13 +40,42 @@ class LoggerFiltered implements LoggerInterface
     private $logger;
 
     /**
-     * @param LoggerInterface $logger
-     * @param string $minimum
+     * @var string
      */
-    public function __construct(LoggerInterface $logger, $minimum = null)
+    private $level;
+
+    /**
+     * @param LoggerInterface $logger
+     * @param string $level
+     */
+    public function __construct(LoggerInterface $logger, $level = null)
     {
         $this->logger = $logger;
-        $this->minimum = $minimum === null ? LogLevel::DEBUG : $minimum;
+        $this->setLevel($level);
+    }
+
+    /**
+     * Set the log level
+     *
+     * When passing this value, you must make sure that it is a valid level as defined by Psr\Log\LogLevel. Any
+     * other value will result in Psr\Log\LogLevel::DEBUG being set as the minimum value, and all messages will be
+     * logged.
+     *
+     * @param $level
+     */
+    public function setLevel($level)
+    {
+        $this->level = array_key_exists($level, $this->levels) ? $level : LogLevel::DEBUG;
+    }
+
+    /**
+     * Get the current log level
+     *
+     * @return string
+     */
+    public function getLevel()
+    {
+        return $this->level;
     }
 
     /**
@@ -50,5 +94,20 @@ class LoggerFiltered implements LoggerInterface
         if ($this->shouldLog($level)) {
             $this->logger->log($level, $message, $context);
         }
+    }
+
+    /**
+     * Return true if the provided log level meets or exceeds the minimum logging level.
+     *
+     * @param string $level
+     * @return bool
+     */
+    private function shouldLog($level)
+    {
+        if (array_key_exists($level, $this->levels) && $this->levels[$level] < $this->levels[$this->level]) {
+            return false;
+        }
+
+        return true;
     }
 }

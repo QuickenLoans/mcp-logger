@@ -61,12 +61,7 @@ $uri = new UriTemplate('http://sonic');
 // A service of your choice
 $service = new Guzzle5Service($client, new XmlRenderer, $uri);
 
-// An optional array of Logger configuration values
-$config = [
-    Logger::MINIMUM_LEVEL => LogLevelInterface::WARN
-];
-
-$logger = new Logger($service, new MessageFactory, $config);
+$logger = new Logger($service, new MessageFactory);
 
 // Send psr-3 logs
 $logger->info('Hello World!');
@@ -76,13 +71,21 @@ $logger->error('Hello Major Tom, are you receiving me?', [
 ]);
 ```
 
-### Logger Configuration
+## Filtered Logger
 
-The Logger accepts an optional array of configuration values.
+If you want to set a minimum logging level and only log message that meet or exceed that level, you may also want to use the `LoggerFiltered` class. This wraps the main logger and provides that filtering functionality.
 
-| Config Key                                | Default                              | Description 
-|-------------------------------------------|--------------------------------------|-----------------------------------
-| `Logger::MINIMUM_LEVEL` (`minimum.level`) | `LogLevelInterface::DEBUG` (`Debug`) | Sets the minimum log level of messages that should be sent. This must be a valid log level as defined by the `LogLevelInterface`. Messages received with a level below this value will not be logged. By default, all messages are logged.
+```php
+$logger = new LoggerFilter($logger, LogLevel::WARNING);
+
+// will not be logged because info < warning.
+$logger->info('Hello World!');
+
+// will be logged because error > warning.
+$logger->error('Got a big problem over here!');
+```
+
+This is useful for changing the type of messages you want logged between environments or using runtime configuration to change the level of detail in your logs on the fly.
 
 ## Creating a Message
 
