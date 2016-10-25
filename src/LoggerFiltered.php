@@ -37,7 +37,9 @@ class LoggerFiltered implements LoggerInterface
     /**
      * Logs with an arbitrary level.
      *
-     * @param mixed $level
+     * Note that the specified logging level must be a Psr\Log\LogLevel value.
+     *
+     * @param string $level
      * @param string $message
      * @param array $context
      *
