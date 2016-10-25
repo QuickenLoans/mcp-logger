@@ -20,10 +20,6 @@ class LoggerTest extends PHPUnit_Framework_TestCase
         $logContext = array('error' => 'context');
 
         $message = Mockery::mock('MCP\Logger\MessageInterface');
-        $message
-            ->shouldReceive('level')
-            ->once()
-            ->andReturn(LogLevel::ERROR);
         $factory = Mockery::mock('MCP\Logger\Adapter\Psr\MessageFactory');
         $factory
             ->shouldReceive('buildMessage')
@@ -46,13 +42,9 @@ class LoggerTest extends PHPUnit_Framework_TestCase
     public function testMessageFactoryIsCalledWithCorrectLevelWhenTraitLogMethodIsCalled()
     {
         $expectedMessage = 'Oops';
-        $logContext = array('error' => 'context');
+        $logContext = ['error' => 'context'];
 
         $message = Mockery::mock('MCP\Logger\MessageInterface');
-        $message
-            ->shouldReceive('level')
-            ->once()
-            ->andReturn(LogLevel::ERROR);
         $factory = Mockery::mock('MCP\Logger\Adapter\Psr\MessageFactory');
         $factory
             ->shouldReceive('buildMessage')
@@ -70,28 +62,5 @@ class LoggerTest extends PHPUnit_Framework_TestCase
         $logger->emergency($expectedMessage, $logContext);
 
         $this->assertNotContains('A good api', 'PHP Unit');
-    }
-
-    public function testMessageNotSentWhenMinimumLevelSet()
-    {
-        $message = Mockery::mock('MCP\Logger\MessageInterface');
-        $message
-            ->shouldReceive('level')
-            ->atLeast(1)
-            ->andReturn(LogLevelInterface::DEBUG);
-
-        $factory = Mockery::mock('MCP\Logger\Adapter\Psr\MessageFactory');
-        $factory
-            ->shouldReceive('buildMessage')
-            ->once()
-            ->andReturn($message);
-
-        $service = Mockery::mock('MCP\Logger\ServiceInterface');
-
-        $logger = new Logger($service, $factory, [
-            Logger::MINIMUM_LEVEL => LogLevelInterface::ERROR
-        ]);
-
-        $logger->debug('test');
     }
 }

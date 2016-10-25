@@ -8,6 +8,7 @@
 namespace MCP\Logger;
 
 use PHPUnit_Framework_TestCase;
+use Psr\Log\LogLevel;
 
 class LogLevelFilter
 {
@@ -24,15 +25,15 @@ class LogLevelFilterTraitTest extends PHPUnit_Framework_TestCase
     {
         $filter = new LogLevelFilter();
 
-        $this->assertEquals(LogLevelInterface::DEBUG, $filter->getMinimumLevel());
+        $this->assertEquals(LogLevel::DEBUG, $filter->getMinimumLevel());
     }
 
     public function testSetValidLevel()
     {
         $filter = new LogLevelFilter();
-        $filter->setMinimumLevel(LogLevelInterface::WARN);
+        $filter->setMinimumLevel(LogLevel::WARNING);
 
-        $this->assertEquals(LogLevelInterface::WARN, $filter->getMinimumLevel());
+        $this->assertEquals(LogLevel::WARNING, $filter->getMinimumLevel());
     }
 
     public function testSetInvalidLevel()
@@ -40,13 +41,13 @@ class LogLevelFilterTraitTest extends PHPUnit_Framework_TestCase
         $filter = new LogLevelFilter();
         $filter->setMinimumLevel('foo');
 
-        $this->assertEquals(LogLevelInterface::DEBUG, $filter->getMinimumLevel());
+        $this->assertEquals(LogLevel::DEBUG, $filter->getMinimumLevel());
     }
 
     public function testShouldLogInvalidLevel()
     {
         $filter = new LogLevelFilter();
-        $filter->setMinimumLevel(LogLevelInterface::WARN);
+        $filter->setMinimumLevel(LogLevel::WARNING);
 
         $this->assertTrue($filter->shouldLog('foo'));
     }
@@ -54,24 +55,24 @@ class LogLevelFilterTraitTest extends PHPUnit_Framework_TestCase
     public function testShouldLogAboveLevel()
     {
         $filter = new LogLevelFilter();
-        $filter->setMinimumLevel(LogLevelInterface::WARN);
+        $filter->setMinimumLevel(LogLevel::WARNING);
 
-        $this->assertTrue($filter->shouldLog(LogLevelInterface::ERROR));
+        $this->assertTrue($filter->shouldLog(LogLevel::ERROR));
     }
 
     public function testShouldLogAtLevel()
     {
         $filter = new LogLevelFilter();
-        $filter->setMinimumLevel(LogLevelInterface::WARN);
+        $filter->setMinimumLevel(LogLevel::WARNING);
 
-        $this->assertTrue($filter->shouldLog(LogLevelInterface::WARN));
+        $this->assertTrue($filter->shouldLog(LogLevel::WARNING));
     }
 
     public function testShouldLogBelowLevel()
     {
         $filter = new LogLevelFilter();
-        $filter->setMinimumLevel(LogLevelInterface::WARN);
+        $filter->setMinimumLevel(LogLevel::WARNING);
 
-        $this->assertFalse($filter->shouldLog(LogLevelInterface::DEBUG));
+        $this->assertFalse($filter->shouldLog(LogLevel::DEBUG));
     }
 }

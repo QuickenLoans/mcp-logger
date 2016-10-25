@@ -16,12 +16,6 @@ use Psr\Log\LoggerTrait;
 class Logger implements LoggerInterface
 {
     use LoggerTrait;
-    use LogLevelFilterTrait;
-
-    /**
-     * Configuration key names
-     */
-    const MINIMUM_LEVEL = 'minimum.level';
 
     /**
      * @var ServiceInterface
@@ -34,25 +28,13 @@ class Logger implements LoggerInterface
     private $factory;
 
     /**
-     * @var array
-     */
-    private $config;
-
-    /**
      * @param ServiceInterface $service
      * @param MessageFactoryInterface $factory
-     * @param array $config
      */
-    public function __construct(ServiceInterface $service, MessageFactoryInterface $factory, $config = [])
+    public function __construct(ServiceInterface $service, MessageFactoryInterface $factory)
     {
         $this->service = $service;
         $this->factory = $factory;
-
-        $this->config = array_merge([
-            self::MINIMUM_LEVEL => LogLevelInterface::DEBUG
-        ], $config);
-
-        $this->setMinimumLevel($this->config[self::MINIMUM_LEVEL]);
     }
 
     /**
@@ -62,14 +44,11 @@ class Logger implements LoggerInterface
      * @param string $message
      * @param array $context
      *
-     * @return void
+     * @return null
      */
     public function log($level, $message, array $context = [])
     {
         $message = $this->factory->buildMessage($level, $message, $context);
-
-        if ($this->shouldLog($message->level())) {
-            $this->service->send($message);
-        }
+        $this->service->send($message);
     }
 }
