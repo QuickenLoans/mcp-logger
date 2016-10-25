@@ -20,6 +20,10 @@ class LoggerTest extends PHPUnit_Framework_TestCase
         $logContext = array('error' => 'context');
 
         $message = Mockery::mock('MCP\Logger\MessageInterface');
+        $message
+            ->shouldReceive('level')
+            ->once()
+            ->andReturn(LogLevel::ERROR);
         $factory = Mockery::mock('MCP\Logger\Adapter\Psr\MessageFactory');
         $factory
             ->shouldReceive('buildMessage')
@@ -45,6 +49,10 @@ class LoggerTest extends PHPUnit_Framework_TestCase
         $logContext = array('error' => 'context');
 
         $message = Mockery::mock('MCP\Logger\MessageInterface');
+        $message
+            ->shouldReceive('level')
+            ->once()
+            ->andReturn(LogLevel::ERROR);
         $factory = Mockery::mock('MCP\Logger\Adapter\Psr\MessageFactory');
         $factory
             ->shouldReceive('buildMessage')

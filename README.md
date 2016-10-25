@@ -61,7 +61,12 @@ $uri = new UriTemplate('http://sonic');
 // A service of your choice
 $service = new Guzzle5Service($client, new XmlRenderer, $uri);
 
-$logger = new Logger($service, new MessageFactory);
+// An optional array of Logger configuration values
+$config = [
+    Logger::MINIMUM_LEVEL => LogLevelInterface::WARN
+];
+
+$logger = new Logger($service, new MessageFactory, $config);
 
 // Send psr-3 logs
 $logger->info('Hello World!');
@@ -70,6 +75,14 @@ $logger->error('Hello Major Tom, are you receiving me?', [
     'errCode' => 42
 ]);
 ```
+
+### Logger Configuration
+
+The Logger accepts an optional array of configuration values.
+
+| Config Key                                | Default                              | Description 
+|-------------------------------------------|--------------------------------------|-----------------------------------
+| `Logger::MINIMUM_LEVEL` (`minimum.level`) | `LogLevelInterface::DEBUG` (`Debug`) | Sets the minimum log level of messages that should be sent. This must be a valid log level as defined by the `LogLevelInterface`. Messages received with a level below this value will not be logged. By default, all messages are logged.
 
 ## Creating a Message
 
@@ -158,6 +171,8 @@ you should follow these guidelines when selecting a service.
 - **Cloud (aws)**
     - **SyslogService**
     - **KinesisService** can also be used but is not recommended because operations cannot be completed asynchronously.
+    
+- **Null Service** The Null Service, also known as a "black hole" service, will ignore all log messages. This is useful in environments where you don't want any logs to be sent.
 
 If you are still unsure what service to select, contact the Web Core team for guidance.
 
