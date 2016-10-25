@@ -71,4 +71,27 @@ class LoggerTest extends PHPUnit_Framework_TestCase
 
         $this->assertNotContains('A good api', 'PHP Unit');
     }
+
+    public function testMessageNotSentWhenMinimumLevelSet()
+    {
+        $message = Mockery::mock('MCP\Logger\MessageInterface');
+        $message
+            ->shouldReceive('level')
+            ->atLeast(1)
+            ->andReturn(LogLevelInterface::DEBUG);
+
+        $factory = Mockery::mock('MCP\Logger\Adapter\Psr\MessageFactory');
+        $factory
+            ->shouldReceive('buildMessage')
+            ->once()
+            ->andReturn($message);
+
+        $service = Mockery::mock('MCP\Logger\ServiceInterface');
+
+        $logger = new Logger($service, $factory, [
+            Logger::MINIMUM_LEVEL => LogLevelInterface::ERROR
+        ]);
+
+        $logger->debug('test');
+    }
 }
