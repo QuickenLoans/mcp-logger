@@ -7,7 +7,10 @@
 
 namespace MCP\Logger\Service;
 
+use MCP\Logger\Exception;
 use MCP\Logger\LogLevelInterface;
+use MCP\Logger\MessageInterface;
+use Mockery;
 use PHPUnit_Framework_TestCase;
 
 global $openlogError;
@@ -50,24 +53,14 @@ class SyslogServiceTest extends PHPUnit_Framework_TestCase
      */
     public function testSend($level)
     {
-        $message = $this->getMockBuilder('MCP\Logger\Message\Message')
-            ->disableOriginalConstructor()
-            ->setMethods(['level'])
-            ->getMock();
+        $message = Mockery::mock(MessageInterface::class, ['level' => $level]);
 
-        $message->expects($this->once())
-            ->method('level')
-            ->will($this->returnValue($level));
-
-        $renderer = $this->getMockBuilder('MCP\Logger\RendererInterface')
-            ->disableOriginalConstructor()
-            ->setMethods(['__invoke', 'contentType'])
-            ->getMock();
-
-        $renderer->expects($this->once())
-            ->method('__invoke')
+        $renderer = Mockery::mock(RendererInterface::class, ['contentType' => 'application/json']);
+        $renderer
+            ->shouldReceive('__invoke')
             ->with($message)
-            ->will($this->returnValue(''));
+            ->andReturn('')
+            ->once();
 
         $service = new SyslogService($renderer);
         $service->send($message);
@@ -100,59 +93,45 @@ class SyslogServiceTest extends PHPUnit_Framework_TestCase
         ];
     }
 
-    /**
-     * @expectedException MCP\Logger\Exception
-     */
-    public function testSendFail()
+    public function testSendFailThrowsException()
     {
+
         global $syslogError;
         $syslogError = true;
 
-        $message = $this->getMockBuilder('MCP\Logger\Message\Message')
-            ->disableOriginalConstructor()
-            ->setMethods(['level'])
-            ->getMock();
+        $message = Mockery::mock(MessageInterface::class, ['level' => 'Warn'])
+            ->shouldIgnoreMissing();
 
-        $message->expects($this->once())
-            ->method('level')
-            ->will($this->returnValue('Warn'));
-
-        $renderer = $this->getMockBuilder('MCP\Logger\RendererInterface')
-            ->disableOriginalConstructor()
-            ->setMethods(['__invoke', 'contentType'])
-            ->getMock();
-
-        $renderer->expects($this->once())
-            ->method('__invoke')
+        $renderer = Mockery::mock(RendererInterface::class, ['contentType' => 'application/json']);
+        $renderer
+            ->shouldReceive('__invoke')
             ->with($message)
-            ->will($this->returnValue(''));
+            ->andReturn('')
+            ->once();
+
+        $this->setExpectedException(Exception::class);
 
         $service = new SyslogService($renderer, [
             SyslogService::CONFIG_SILENT => false
         ]);
+
         $service->send($message);
     }
 
-    /**
-     * @expectedException \MCP\Logger\Exception
-     */
-    public function testConnectError()
+    public function testConnectErrorThrowsException()
     {
         global $openlogError;
         $openlogError = true;
 
-        $message = $this->getMockBuilder('MCP\Logger\Message\Message')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $message = Mockery::mock(MessageInterface::class);
+        $renderer = Mockery::mock(RendererInterface::class);
 
-        $renderer = $this->getMockBuilder('MCP\Logger\RendererInterface')
-            ->disableOriginalConstructor()
-            ->setMethods(['__invoke', 'contentType'])
-            ->getMock();
+        $this->setExpectedException(Exception::class);
 
         $service = new SyslogService($renderer, [
             SyslogService::CONFIG_SILENT => false
         ]);
+
         $service->send($message);
     }
 }

@@ -12,7 +12,6 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Message\Response;
 use GuzzleHttp\Subscriber\Mock;
 use MCP\Logger\MessageInterface;
-use MCP\Logger\RendererInterface;
 use Mockery;
 use PHPUnit_Framework_TestCase;
 use QL\UriTemplate\UriTemplate;
@@ -36,11 +35,11 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->uri = Mockery::mock(UriTemplate::CLASS, [
+        $this->uri = Mockery::mock(UriTemplate::class, [
             'expand' => 'http://corelogger'
         ]);
 
-        $this->renderer = Mockery::mock(RendererInterface::CLASS, ['contentType' => 'text/xml']);
+        $this->renderer = Mockery::mock(RendererInterface::class, ['contentType' => 'text/xml']);
 
         touch(__DIR__ . '/errlog');
     }
@@ -56,7 +55,7 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
      */
     public function testServiceReceivesNon200ResponseThrowsException()
     {
-        $message = Mockery::mock(MessageInterface::CLASS);
+        $message = Mockery::mock(MessageInterface::class);
 
         $mock = new Mock([
             new Response(500),
@@ -81,7 +80,7 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
      */
     public function testMultipleErrorsWhenNotSilent()
     {
-        $message = Mockery::mock(MessageInterface::CLASS);
+        $message = Mockery::mock(MessageInterface::class);
 
         $mock = new Mock([
             new Response(500),
@@ -107,7 +106,7 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
 
     public function testServiceReceivesNon200ResponseSilentlyContinues()
     {
-        $message = Mockery::mock(MessageInterface::CLASS);
+        $message = Mockery::mock(MessageInterface::class);
 
         $mock = new Mock([
             new Response(500),
@@ -140,7 +139,7 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
 
     public function testSilentLoggingDoesNotUseIndividualErrorMessage()
     {
-        $message = Mockery::mock(MessageInterface::CLASS);
+        $message = Mockery::mock(MessageInterface::class);
 
         $mock = new Mock([
             new Response(500),

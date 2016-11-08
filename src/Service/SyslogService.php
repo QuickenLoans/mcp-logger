@@ -10,8 +10,7 @@ namespace MCP\Logger\Service;
 use MCP\Logger\Exception;
 use MCP\Logger\LogLevelInterface;
 use MCP\Logger\MessageInterface;
-use MCP\Logger\RendererInterface;
-use MCP\Logger\Renderer\JsonRenderer;
+use MCP\Logger\Service\Renderer\JsonRenderer;
 use MCP\Logger\ServiceInterface;
 
 /**

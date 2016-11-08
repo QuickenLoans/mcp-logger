@@ -10,7 +10,6 @@ namespace MCP\Logger\Service;
 use GuzzleHttp\ClientInterface;
 use MCP\Logger\Exception;
 use MCP\Logger\MessageInterface;
-use MCP\Logger\RendererInterface;
 use MCP\Logger\ServiceInterface;
 use QL\UriTemplate\UriTemplate;
 

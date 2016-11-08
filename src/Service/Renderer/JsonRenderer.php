@@ -5,13 +5,13 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Renderer;
+namespace MCP\Logger\Service\Renderer;
 
 use DateTime;
 use QL\MCP\Common\IPv4Address;
 use QL\MCP\Common\Time\TimePoint;
 use MCP\Logger\MessageInterface;
-use MCP\Logger\RendererInterface;
+use MCP\Logger\Service\RendererInterface;
 
 /**
  * Data is formatted differently for JSON, which is meant to be sent to splunk.

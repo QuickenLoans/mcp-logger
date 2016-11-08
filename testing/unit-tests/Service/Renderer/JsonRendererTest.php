@@ -5,42 +5,45 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Renderer;
+namespace MCP\Logger\Service\Renderer;
 
 use MCP\Logger\Message\Message;
 use MCP\Logger\Testing\FixtureLoadingTestCase;
-use XMLWriter;
 
-class XmlRendererTest extends FixtureLoadingTestCase
+class JsonRendererTest extends FixtureLoadingTestCase
 {
     /**
      * @dataProvider providerFixtureNames
      */
     public function test($fixtureName)
     {
-        $writer = new XMLWriter;
-
         $messageFixture = $this->loadPhpFixture(sprintf('%s.phpd', $fixtureName));
         $message = new Message($messageFixture);
 
-        $renderer = new XmlRenderer($writer);
+        $fixture = $this->loadRawFixture(sprintf('%s.json', $fixtureName));
+
+        // because I'd like to be able to read the fixtures thank you very much
+        $fixture = json_encode(json_decode($fixture, true));
+
+        $renderer = new JsonRenderer;
         $this->assertSame(
-            $this->loadRawFixture(sprintf('%s.xml', $fixtureName)),
+            $fixture,
             $renderer($message)
         );
     }
 
     public function testContentType()
     {
-        $renderer = new XmlRenderer;
-        $this->assertEquals('text/xml', $renderer->contentType());
+        $renderer = new JsonRenderer;
+        $this->assertEquals('application/json', $renderer->contentType());
     }
 
     public function providerFixtureNames()
     {
-        return array(
-            array('minimum-properties'),
-            array('all-properties')
-        );
+        return [
+            ['minimum-properties'],
+            ['all-properties'],
+            ['large-properties']
+        ];
     }
 }

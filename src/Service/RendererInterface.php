@@ -5,7 +5,9 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger;
+namespace MCP\Logger\Service;
+
+use MCP\Logger\MessageInterface;
 
 /**
  * @api
