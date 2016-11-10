@@ -9,10 +9,9 @@ namespace MCP\Logger;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
+use MCP\Logger\Message\MessageFactory;
+use MCP\Logger\Service\SyslogService;
 
-/**
- * @api
- */
 class Logger implements LoggerInterface
 {
     use LoggerTrait;
@@ -31,10 +30,10 @@ class Logger implements LoggerInterface
      * @param ServiceInterface $service
      * @param MessageFactoryInterface $factory
      */
-    public function __construct(ServiceInterface $service, MessageFactoryInterface $factory)
+    public function __construct(ServiceInterface $service = null, MessageFactoryInterface $factory = null)
     {
-        $this->service = $service;
-        $this->factory = $factory;
+        $this->service = $service ?: $this->buildDefaultService();
+        $this->factory = $factory ?: $this->buildDefaultFactory();
     }
 
     /**
@@ -44,11 +43,27 @@ class Logger implements LoggerInterface
      * @param string $message
      * @param array $context
      *
-     * @return null
+     * @return void
      */
     public function log($level, $message, array $context = [])
     {
         $message = $this->factory->buildMessage($level, $message, $context);
         $this->service->send($message);
+    }
+
+    /**
+     * @return ServiceInterface
+     */
+    protected function buildDefaultService()
+    {
+        return new SyslogService;
+    }
+
+    /**
+     * @return MessageFactoryInterface
+     */
+    protected function buildDefaultFactory()
+    {
+        return new MessageFactory;
     }
 }

@@ -8,14 +8,14 @@
 namespace MCP\Logger;
 
 /**
- * @api
+ * Valid log severities for the QL structured log message standard.
  */
 interface LogLevelInterface
 {
-    const DEBUG = 'Debug';
-    const INFO = 'Info';
-    const WARN = 'Warn';
-    const ERROR = 'Error';
-    const FATAL = 'Fatal';
-    const AUDIT = 'Audit';
+    const DEBUG = 'debug';
+    const INFO = 'info';
+    const WARNING = 'warn';
+    const ERROR = 'error';
+    const FATAL = 'fatal';
+    const AUDIT = 'audit';
 }

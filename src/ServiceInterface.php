@@ -9,14 +9,12 @@ namespace MCP\Logger;
 
 use MCP\Logger\MessageInterface;
 
-/**
- * @api
- */
 interface ServiceInterface
 {
     /**
      * @param MessageInterface $message
-     * @return null
+     *
+     * @return void
      */
     public function send(MessageInterface $message);
 }

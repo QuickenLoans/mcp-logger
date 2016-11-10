@@ -10,6 +10,9 @@ namespace MCP\Logger;
 use Mockery;
 use PHPUnit_Framework_TestCase;
 use Psr\Log\LogLevel;
+use ReflectionClass;
+use MCP\Logger\Message\MessageFactory;
+use MCP\Logger\Service\SyslogService;
 
 class LoggerTest extends PHPUnit_Framework_TestCase
 {
@@ -17,17 +20,17 @@ class LoggerTest extends PHPUnit_Framework_TestCase
     {
         $expectedLevel = 'DOES_NOT_MATTER';
         $expectedMessage = 'Oops';
-        $logContext = array('error' => 'context');
+        $logContext = ['error' => 'context'];
 
-        $message = Mockery::mock('MCP\Logger\MessageInterface');
-        $factory = Mockery::mock('MCP\Logger\Adapter\Psr\MessageFactory');
+        $message = Mockery::mock(MessageInterface::class);
+        $factory = Mockery::mock(MessageFactoryInterface::class);
         $factory
             ->shouldReceive('buildMessage')
             ->once()
             ->with($expectedLevel, $expectedMessage, $logContext)
             ->andReturn($message);
 
-        $service = Mockery::mock('MCP\Logger\ServiceInterface');
+        $service = Mockery::mock(ServiceInterface::class);
         $service
             ->shouldReceive('send')
             ->once()
@@ -44,15 +47,15 @@ class LoggerTest extends PHPUnit_Framework_TestCase
         $expectedMessage = 'Oops';
         $logContext = ['error' => 'context'];
 
-        $message = Mockery::mock('MCP\Logger\MessageInterface');
-        $factory = Mockery::mock('MCP\Logger\Adapter\Psr\MessageFactory');
+        $message = Mockery::mock(MessageInterface::class);
+        $factory = Mockery::mock(MessageFactoryInterface::class);
         $factory
             ->shouldReceive('buildMessage')
             ->once()
             ->with(LogLevel::EMERGENCY, $expectedMessage, $logContext)
             ->andReturn($message);
 
-        $service = Mockery::mock('MCP\Logger\ServiceInterface');
+        $service = Mockery::mock(ServiceInterface::class);
         $service
             ->shouldReceive('send')
             ->once()
@@ -62,5 +65,21 @@ class LoggerTest extends PHPUnit_Framework_TestCase
         $logger->emergency($expectedMessage, $logContext);
 
         $this->assertNotContains('A good api', 'PHP Unit');
+    }
+
+    public function testMessageFactoryIsConstructedWithDefaults()
+    {
+        $logger = new Logger;
+
+        $reflected = new ReflectionClass($logger);
+
+        $service = $reflected->getProperty('service');
+        $service->setAccessible(true);
+
+        $factory = $reflected->getProperty('factory');
+        $factory->setAccessible(true);
+
+        $this->assertInstanceOf(SyslogService::class, $service->getValue($logger));
+        $this->assertInstanceOf(MessageFactory::class, $factory->getValue($logger));
     }
 }
