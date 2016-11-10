@@ -7,9 +7,6 @@
 
 namespace MCP\Logger;
 
-/**
- * @api
- */
 interface MessageFactoryInterface
 {
     /**
@@ -17,7 +14,8 @@ interface MessageFactoryInterface
      *
      * @param string $name
      * @param mixed $value
-     * @return null
+     *
+     * @return void
      */
     public function setDefaultProperty($name, $value);
 
@@ -27,6 +25,7 @@ interface MessageFactoryInterface
      * @param mixed $level
      * @param string $message
      * @param array $context
+     *
      * @return MessageInterface
      */
     public function buildMessage($level, $message, array $context = []);

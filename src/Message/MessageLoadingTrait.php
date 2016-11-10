@@ -7,77 +7,69 @@
 
 namespace MCP\Logger\Message;
 
-use BadFunctionCallException;
 use JsonSerializable;
-use InvalidArgumentException;
+use MCP\Logger\Exception;
+use Psr\Log\LogLevel;
 
-/**
- * @internal
- */
 trait MessageLoadingTrait
 {
     /**
      * @param string $name
-     * @param array $inputData
-     * @param boolean $isRequired
+     * @param array $input
      * @param mixed $default
      *
-     * @throws InvalidArgumentException
+     * @throws Exception
      *
      * @return mixed
      */
-    private function parseLevel($name, array $inputData, $isRequired = false, $default = null)
+    private function parseLevel($name, array $input, $default = null)
     {
-        if (isset($inputData[$name])) {
-            $level = ucfirst(strtolower($inputData[$name]));
+        if (isset($input[$name])) {
+            $level = strtolower($input[$name]);
             if ($this->isValidLevel($level)) {
                 return $level;
             }
 
-            throw new InvalidArgumentException(sprintf("'%s' is not a valid log level.", $inputData[$name]));
+            throw new Exception(sprintf("'%s' is not a valid log message severity.", $input[$name]));
         }
 
-        return $this->parseValue($name, $inputData, $isRequired, $default);
+        return $this->isValidLevel($default) ? $default : LogLevel::ERROR;
     }
 
     /**
      * @param string $level
      *
-     * @return boolean
+     * @return bool
      */
     private function isValidLevel($level)
     {
         return in_array(
             $level,
-            array(
-                static::DEBUG,
-                static::INFO,
-                static::WARN,
-                static::ERROR,
-                static::FATAL,
-                static::AUDIT
-            ),
+            [
+                LogLevel::EMERGENCY,
+                LogLevel::ALERT,
+                LogLevel::CRITICAL,
+                LogLevel::ERROR,
+                LogLevel::WARNING,
+                LogLevel::NOTICE,
+                LogLevel::INFO,
+                LogLevel::DEBUG
+            ],
             true
         );
     }
 
     /**
      * @param string $name
-     * @param array $inputData
-     * @param boolean $isRequired
+     * @param array $input
      * @param mixed $default
-     *
-     * @throws BadFunctionCallException
      *
      * @return mixed
      */
-    private function parseValue($name, array $inputData, $isRequired = false, $default = null)
+    private function parseValue($name, array $input, $default = null)
     {
-        if (isset($inputData[$name])) {
-            return $inputData[$name];
-
-        } elseif ($isRequired) {
-            throw new BadFunctionCallException(sprintf("'%s' is required.", $name));
+        if (isset($input[$name])) {
+            return $input[$name];
         }
 
         return $default;
@@ -85,63 +77,83 @@ trait MessageLoadingTrait
 
     /**
      * @param string $name
-     * @param array $inputData
-     * @param boolean $isRequired
-     * @param boolean $default
+     * @param array $input
      *
-     * @return boolean
+     * @throws Exception
+     *
+     * @return mixed
      */
-    private function parseBoolean($name, array $inputData, $isRequired = false, $default = false)
+    private function parseRequiredValue($name, array $input)
     {
-        if (isset($inputData[$name])) {
-            return (bool) $inputData[$name];
+        if (isset($input[$name])) {
+            return $input[$name];
         }
 
-        return $this->parseValue($name, $inputData, $isRequired, (bool) $default);
+        throw new Exception(sprintf("'%s' is required.", $name));
     }
 
     /**
      * @param string $name
-     * @param array $inputData
+     * @param array $input
      * @param string $type
-     * @param boolean $isRequired
-     * @param mixed|null $default
+     * @param callable|mixed|null $default
      *
-     * @throws InvalidArgumentException
-     *
-     * @return mixed
-     */
-    private function parseClassType($name, array $inputData, $type, $isRequired = false, $default = null)
-    {
-        if (isset($inputData[$name]) && !$inputData[$name] instanceof $type) {
-            throw new InvalidArgumentException(sprintf("'%s' must be an instance of '%s'.", $name, $type));
-        }
-
-        return $this->parseValue($name, $inputData, $isRequired, $default);
-    }
-
-    /**
-     * @param string $name
-     * @param array $inputData
-     * @param boolean $isRequired
-     * @param array $default
-     *
-     * @throws InvalidArgumentException
+     * @throws Exception
      *
      * @return mixed
      */
-    private function parseProperties($name, array $inputData, $isRequired = false, $default = null)
+    private function parseClass($name, array $input, $type, $default = null)
     {
-        if (isset($inputData[$name])) {
-            if (!is_array($inputData[$name])) {
-                throw new InvalidArgumentException(sprintf("'%s' must be an instance of '%s'.", $name, 'array'));
+        if (isset($input[$name])) {
+            if (!$input[$name] instanceof $type) {
+                throw new Exception(sprintf("'%s' must be an instance of '%s'.", $name, $type));
             }
 
-            foreach ($inputData[$name] as $key => &$value) {
+            return $input[$name];
+        }
+
+        return is_callable($default) ? $default() : $default;
+    }
+
+    /**
+     * @param string $name
+     * @param array $input
+     * @param string $type
+     *
+     * @throws Exception
+     *
+     * @return mixed
+     */
+    private function parseRequiredClass($name, array $input, $type)
+    {
+        if (isset($input[$name]) && $input[$name] instanceof $type) {
+            return $input[$name];
+        }
+
+        throw new Exception(sprintf("'%s' must be an instance of '%s'.", $name, $type));
+    }
+
+    /**
+     * @param string $name
+     * @param array $input
+     * @param array $default
+     *
+     * @throws Exception
+     *
+     * @return mixed
+     */
+    private function parseContext($name, array $input, $default = [])
+    {
+        if (isset($input[$name])) {
+            if (!is_array($input[$name])) {
+                throw new Exception(sprintf("'%s' must be an instance of '%s'.", $name, 'array'));
+            }
+
+            foreach ($input[$name] as $key => &$value) {
                 if (is_int($key)) {
                     // Remove the data if it has no property name.
                     // If you try to pass a non-associative array as context, this will wipe that data.
-                    unset($inputData[$name][$key]);
+                    unset($input[$name][$key]);
                     continue;
                 }
 
@@ -166,8 +178,10 @@ trait MessageLoadingTrait
                     $value = '[resource]';
                 }
             }
+
+            return $input[$name];
         }
 
-        return $this->parseValue($name, $inputData, $isRequired, $default);
+        return $default;
     }
 }

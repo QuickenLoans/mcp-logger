@@ -7,9 +7,11 @@
 
 namespace MCP\Logger\Message;
 
+use MCP\Logger\Exception;
 use MCP\Logger\Testing\Mock\Stringable;
 use Mockery;
 use PHPUnit_Framework_TestCase;
+use Psr\Log\LogLevel;
 use QL\MCP\Common\IPv4Address;
 use QL\MCP\Common\Time\Clock;
 use QL\MCP\Common\Time\TimePoint;
@@ -17,26 +19,24 @@ use stdClass;
 
 class MessageFactoryTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage 'machineIPAddress' must be an instance of IPv4Address
-     */
     public function testInvalidIpAddressThrowsException()
     {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("'serverIP' must be an instance of IPv4Address");
+
         $clock = Mockery::mock(Clock::class);
         $factory = new MessageFactory($clock);
-        $factory->setDefaultProperty('machineIPAddress', new stdClass);
+        $factory->setDefaultProperty('serverIP', new stdClass);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Log Properties must be scalars or objects that implement __toString
-     */
     public function testInvalidPropertyThrowsException()
     {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Invalid property: "userAgent". Log properties must be scalars or objects that implement __toString');
+
         $clock = Mockery::mock(Clock::class);
         $factory = new MessageFactory($clock);
-        $factory->setDefaultProperty('userAgentBrowser', new stdClass);
+        $factory->setDefaultProperty('userAgent', new stdClass);
     }
 
     public function testInvalidContextIsNotValidated()
@@ -49,17 +49,17 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
             ->andReturn($time);
 
         $defaults = array(
-            'applicationId' => 10,
-            'machineIPAddress' => Mockery::mock(IPv4Address::class),
-            'machineName' => 'Test'
+            'applicationID' => 10,
+            'serverIP' => Mockery::mock(IPv4Address::class),
+            'serverHostname' => 'Test'
         );
 
-        $badContext = array('userAgentBrowser' => new stdClass);
+        $badContext = array('userAgent' => new stdClass);
 
         $factory = new MessageFactory($clock, $defaults);
         $actual = $factory->buildMessage('', 'message', $badContext);
 
-        $this->assertSame($badContext['userAgentBrowser'], $actual->userAgentBrowser());
+        $this->assertSame($badContext['userAgent'], $actual->userAgent());
     }
 
     public function testBuildingAMessageWithBareMinimumPropertiesThroughSetter()
@@ -73,9 +73,9 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
 
         $expectedMessage = 'hello';
         $expectedDefaults = array(
-            'applicationId' => 1,
-            'machineIPAddress' => Mockery::mock(IPv4Address::class),
-            'machineName' => 'Hank'
+            'applicationID' => 1,
+            'serverIP' => Mockery::mock(IPv4Address::class),
+            'serverHostname' => 'Hank'
         );
 
         $factory = new MessageFactory($clock);
@@ -89,9 +89,8 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
             $this->assertSame($expectedValue, $actual->$accessor());
         }
 
-        $this->assertSame($time, $actual->createTime());
-        $this->assertSame(MessageFactory::ERROR, $actual->level());
-        $this->assertTrue($actual->isUserDisrupted());
+        $this->assertSame($time, $actual->created());
+        $this->assertSame(LogLevel::ERROR, $actual->severity());
         $this->assertSame($expectedMessage, $actual->message());
     }
 
@@ -106,9 +105,9 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
 
         $expectedMessage = 'there';
         $expectedDefaults = array(
-            'applicationId' => 2,
-            'machineIPAddress' => Mockery::mock(IPv4Address::class),
-            'machineName' => 'Walt'
+            'applicationID' => 2,
+            'serverIP' => Mockery::mock(IPv4Address::class),
+            'serverHostname' => 'Walt'
         );
 
         $factory = new MessageFactory($clock, $expectedDefaults);
@@ -119,9 +118,8 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
             $this->assertSame($expectedValue, $actual->$accessor());
         }
 
-        $this->assertSame($time, $actual->createTime());
-        $this->assertSame(MessageFactory::ERROR, $actual->level());
-        $this->assertTrue($actual->isUserDisrupted());
+        $this->assertSame($time, $actual->created());
+        $this->assertSame(LogLevel::ERROR, $actual->severity());
         $this->assertSame($expectedMessage, $actual->message());
     }
 
@@ -135,15 +133,15 @@ class MessageFactoryTest extends PHPUnit_Framework_TestCase
             ->andReturn($time);
 
         $expectedDefaults = array(
-            'applicationId' => 10,
-            'machineIPAddress' => Mockery::mock(IPv4Address::class),
-            'machineName' => 'TestMachine'
+            'applicationID' => 10,
+            'serverIP' => Mockery::mock(IPv4Address::class),
+            'serverHostname' => 'TestMachine'
         );
         $expectedUnknownProperty = ['unknown' => new Stringable];
 
         $factory = new MessageFactory($clock, array_merge($expectedDefaults, $expectedUnknownProperty));
         $actual = $factory->buildMessage('', 'message');
 
-        $this->assertSame(['unknown' => ''], $actual->extendedProperties());
+        $this->assertSame(['unknown' => ''], $actual->context());
     }
 }

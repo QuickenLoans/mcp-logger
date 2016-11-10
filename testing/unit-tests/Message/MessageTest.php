@@ -7,6 +7,7 @@
 
 namespace MCP\Logger\Message;
 
+use MCP\Logger\Exception;
 use MCP\Logger\Testing\FixtureLoadingTestCase;
 use stdClass;
 
@@ -19,52 +20,52 @@ class MessageTest extends FixtureLoadingTestCase
     /**
      * @dataProvider providerMissingRequiredFields
      */
-    public function testMissingParameterThrowsException($missingField)
+    public function testMissingParameterThrowsException($missingField, $expectedError)
     {
-        $this->setExpectedException('BadFunctionCallException', sprintf("'%s' is required", $missingField));
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage($expectedError);
+
         $fixture = $this->loadPhpFixture('minimum-properties.phpd');
         $fixture[$missingField] = null;
 
         $message = new Message($fixture);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage 'machineIPAddress' must be an instance of 'QL\MCP\Common\IPv4Address'
-     */
-    public function testInvalidClassTypeThrowsException()
+    public function testInvalidClassThrowsException()
     {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("'serverIP' must be an instance of 'QL\MCP\Common\IPv4Address'");
+
         $fixture = $this->loadPhpFixture('minimum-properties.phpd');
-        $fixture['machineIPAddress'] = 'tacos';
+        $fixture['serverIP'] = 'tacos';
 
         $message = new Message($fixture);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage 'extendedProperties' must be an instance of 'array'
-     */
     public function testInvalidExtendedPropertiesThrowsException()
     {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("'context' must be an instance of 'array'");
+
         $fixture = $this->loadPhpFixture('minimum-properties.phpd');
-        $fixture['extendedProperties'] = 'tacos';
+        $fixture['context'] = 'tacos';
 
         $message = new Message($fixture);
     }
 
-    public function testIndexedExtendedPropertiesAreSkipped()
+    public function testIndexedContextIsSkipped()
     {
         $fixture = $this->loadPhpFixture('minimum-properties.phpd');
-        $fixture['extendedProperties'] = array('tacos');
+        $fixture['context'] = array('tacos');
 
         $message = new Message($fixture);
-        $this->assertSame([], $message->extendedProperties());
+        $this->assertSame([], $message->context());
     }
 
     public function testNestedArrayInExtendedPropertiesIsJsonified()
     {
         $fixture = $this->loadPhpFixture('minimum-properties.phpd');
-        $fixture['extendedProperties'] = ['key' => ['tacos']];
+        $fixture['context'] = ['key' => ['tacos']];
 
         $expected = <<<'JSON'
 [
@@ -73,53 +74,52 @@ class MessageTest extends FixtureLoadingTestCase
 JSON;
 
         $message = new Message($fixture);
-        $this->assertSame(['key' => $expected], $message->extendedProperties());
+        $this->assertSame(['key' => $expected], $message->context());
     }
 
     public function testNonAssociativeArrayValuesAreSkipped()
     {
         $fixture = $this->loadPhpFixture('minimum-properties.phpd');
-        $fixture['extendedProperties'] = ['this', 'that'];
+        $fixture['context'] = ['this', 'that'];
 
         $message = new Message($fixture);
-        $this->assertSame([], $message->extendedProperties());
+        $this->assertSame([], $message->context());
     }
 
     public function testUnstringableObjectIsTypeChecked()
     {
         $fixture = $this->loadPhpFixture('minimum-properties.phpd');
-        $fixture['extendedProperties'] = ['key' => new stdClass];
+        $fixture['context'] = ['key' => new stdClass];
 
         $message = new Message($fixture);
-        $this->assertSame(['key' => '[object] stdClass'], $message->extendedProperties());
+        $this->assertSame(['key' => '[object] stdClass'], $message->context());
     }
 
     public function testResourcePropertyIsHandled()
     {
         $fixture = $this->loadPhpFixture('minimum-properties.phpd');
-        $fixture['extendedProperties'] = ['key' => fopen('php://stdout', 'r')];
+        $fixture['context'] = ['key' => fopen('php://stdout', 'r')];
 
         $message = new Message($fixture);
-        $this->assertSame(['key' => '[resource]'], $message->extendedProperties());
+        $this->assertSame(['key' => '[resource]'], $message->context());
     }
 
     public function testBooleanIsHandled()
     {
         $fixture = $this->loadPhpFixture('minimum-properties.phpd');
-        $fixture['extendedProperties'] = ['key' => false];
+        $fixture['context'] = ['key' => false];
 
         $message = new Message($fixture);
-        $this->assertSame(['key' => 'false'], $message->extendedProperties());
+        $this->assertSame(['key' => 'false'], $message->context());
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage 'doritos locos' is not a valid log level.
-     */
     public function testInvalidLevelThrowsException()
     {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("'doritos locos' is not a valid log message severity.");
+
         $fixture = $this->loadPhpFixture('minimum-properties.phpd');
-        $fixture['level'] = 'doritos locos';
+        $fixture['severity'] = 'doritos locos';
 
         $message = new Message($fixture);
     }
@@ -157,11 +157,12 @@ JSON;
 
     public function providerMissingRequiredFields()
     {
-        return array(
-            array('applicationId'),
-            array('createTime'),
-            array('machineName'),
-            array('message')
-        );
+        return [
+            ['message',         "'message' is required."],
+            ['created',         "'created' must be an instance of 'QL\MCP\Common\Time\TimePoint'."],
+            ['applicationID',   "'applicationID' is required."],
+            ['serverIP',        "'serverIP' must be an instance of 'QL\MCP\Common\IPv4Address'."],
+            ['serverHostname',  "'serverHostname' is required."]
+        ];
     }
 }

@@ -7,55 +7,62 @@
 
 namespace MCP\Logger\Message;
 
-use InvalidArgumentException;
-use QL\MCP\Common\Time\Clock;
-use QL\MCP\Common\IPv4Address;
-use MCP\Logger\LogLevelInterface;
+use MCP\Logger\Exception;
 use MCP\Logger\MessageFactoryInterface;
 use MCP\Logger\MessageInterface;
+use Psr\Log\LogLevel;
+use QL\MCP\Common\Time\Clock;
+use QL\MCP\Common\IPv4Address;
 
 /**
  * This factory builds a message that can be sent through the logger service.
  *
  * NOTE:
- * There are several required properties. These MUST be set in the log defaults (RECOMMENDED) or log context data.
+ * QL structured log messages have several required properties. These MUST be set
+ * in the log message defaults (RECOMMENDED) or message context.
+ *
+ * This factory will set default values for the following properties to ensure
+ * any message constructed through this factory is valid.
  *
  * Required properties:
- * - applicationId
- * - machineIPAddress
- * - machineName
+ * - message
+ * - severity
+ * - context
  *
- * All unknown properties will be automatically added to the Extended Properties.
+ * - created
+ * - applicationID
+ * - serverIP
+ * - serverHostname
  *
- * @internal
+ * All unknown properties will be automatically added to context.
  */
-class MessageFactory implements LogLevelInterface, MessageFactoryInterface
+class MessageFactory implements MessageFactoryInterface
 {
     /**
-     * @type string
+     * @var string
      */
-    const ERR_UNRENDERABLE = 'Invalid property: "%s". Log Properties must be scalars or objects that implement __toString.';
+    const ERR_UNRENDERABLE = 'Invalid property: "%s". Log properties must be scalars or objects that implement __toString.';
     const ERR_INVALID_IP = "'%s' must be an instance of IPv4Address.";
 
     /**
-     * @type string
+     * @var string
      */
     const DEFAULT_APPLICATION_ID = '200001';
-    const DEFAULT_MACHINE_NAME = 'unknown';
-    const DEFAULT_MACHINE_IP = '0.0.0.0';
+    const DEFAULT_SERVER_IP = '0.0.0.0';
+    const DEFAULT_SERVER_NAME = 'unknown';
 
     /**
-     * @type Clock
+     * @var Clock
      */
     private $clock;
 
     /**
-     * @type string[]
+     * @var string[]
      */
     private $logProperties;
 
     /**
-     * @type string[]
+     * @var string[]
      */
     private $knownProperties;
 
@@ -75,33 +82,35 @@ class MessageFactory implements LogLevelInterface, MessageFactoryInterface
         }
 
         $this->knownProperties = [
-            'affectedSystem',
-            'applicationId',
-            'categoryId',
-            'environment',
-            'exceptionData',
-            'id',
-            'isUserDisrupted',
-            'machineIPAddress',
-            'machineName',
-            'referrer',
-            'requestMethod',
-            'url',
-            'userAgentBrowser',
-            'userCommonId',
-            'userDisplayName',
-            'userIPAddress',
-            'userName',
-            'userScreenName'
+            MessageInterface::ID,
+            MessageInterface::MESSAGE,
+            MessageInterface::SEVERITY,
+            MessageInterface::CONTEXT,
+            MessageInterface::ERROR_DETAILS,
+            MessageInterface::CREATED,
+
+            MessageInterface::APPLICATION_ID,
+
+            MessageInterface::SERVER_ENVIRONMENT,
+            MessageInterface::SERVER_IP,
+            MessageInterface::SERVER_HOSTNAME,
+
+            MessageInterface::REQUEST_METHOD,
+            MessageInterface::REQUEST_URL,
+
+            MessageInterface::USER_AGENT,
+            MessageInterface::USER_IP,
+            MessageInterface::USER_NAME
         ];
     }
 
     /**
-     * Set a property that will be attached to all logs.
+     * Set a property that will be attached to all log messages.
      *
      * @param string $name
      * @param mixed $value
-     * @return null
+     *
+     * @return void
      */
     public function setDefaultProperty($name, $value)
     {
@@ -113,92 +122,109 @@ class MessageFactory implements LogLevelInterface, MessageFactoryInterface
     /**
      * @param string $name
      * @param mixed $value
-     * @throws InvalidArgumentException
-     * @return null
+     *
+     * @throws Exception
+     *
+     * @return void
      */
     private function validateProperty($name, $value)
     {
-        if (is_scalar($value) || is_null($value)) {
-            return;
-        }
-
-        if (in_array($name, array('machineIPAddress', 'userIPAddress'), true)) {
-            if ($value instanceof IPv4Address) {
+        if (in_array($name, [MessageInterface::SERVER_IP, MessageInterface::USER_IP], true)) {
+            if (is_null($value) || $value instanceof IPv4Address) {
                 return;
             }
 
-            throw new InvalidArgumentException(sprintf(self::ERR_INVALID_IP, $name));
+            throw new Exception(sprintf(self::ERR_INVALID_IP, $name));
+        }
+
+        if (is_scalar($value) || is_null($value)) {
+            return;
         }
 
         if (is_object($value) && is_callable([$value, '__toString'])) {
             return;
         }
 
-        throw new InvalidArgumentException(sprintf(self::ERR_UNRENDERABLE, $name));
+        throw new Exception(sprintf(self::ERR_UNRENDERABLE, $name));
     }
 
     /**
      * Sanitize and instantiate a Message
      *
-     * @param mixed $level A valid core log level
+     * @param mixed $level
      * @param string $message
      * @param array $context
+     *
      * @return Message
      */
     public function buildMessage($level, $message, array $context = [])
     {
-        if (!$level) {
-            $level = static::ERROR;
-        }
-
-        $messageData = [
-            'createTime' => $this->clock->read(),
-            'extendedProperties' => array(),
-            'level' => $level,
-            'message' => $message
+        $data = [
+            MessageInterface::CREATED => $this->clock->read(),
+            MessageInterface::SEVERITY => $this->validateSeverity($level),
+            MessageInterface::CONTEXT => [],
+            MessageInterface::MESSAGE => (string) $message
         ];
 
-        $messageData = $this->consume($messageData, $this->logProperties);
+        // Append message defaults to this payload
+        $data = $this->consume($data, $this->logProperties);
 
-        // Log context data will supercede the defaults
-        $messageData = $this->consume($messageData, $context);
+        // Append message context to this payload
+        $data = $this->consume($data, $context);
 
-        // We probably shouldn't do this
-        if (!isset($messageData['isUserDisrupted'])) {
-            $messageData['isUserDisrupted'] = (in_array($level, [static::ERROR, static::FATAL], true));
-        }
-
-        return new Message($messageData);
+        return new Message($data);
     }
 
     /**
-     * @return null
+     * @return void
      */
     protected function addDefaultDefaultProperties()
     {
-        $this->setDefaultProperty('applicationId', static::DEFAULT_APPLICATION_ID);
-        $this->setDefaultProperty('machineIPAddress', IPv4Address::create(static::DEFAULT_MACHINE_IP));
-        $this->setDefaultProperty('machineName', static::DEFAULT_MACHINE_NAME);
+        $this->setDefaultProperty(MessageInterface::APPLICATION_ID, static::DEFAULT_APPLICATION_ID);
+        $this->setDefaultProperty(MessageInterface::SERVER_IP, IPv4Address::create(static::DEFAULT_SERVER_IP));
+        $this->setDefaultProperty(MessageInterface::SERVER_HOSTNAME, static::DEFAULT_SERVER_NAME);
     }
 
     /**
-     * Parse the provided context data and add it to the core message payload
+     * Parse the provided context data and add it to the message payload
      *
-     * @param mixed[] $messageData
+     * @param mixed[] $data
      * @param mixed[] $context
+     *
      * @return mixed[]
      */
-    private function consume(array $messageData, array $context)
+    private function consume(array $data, array $context)
     {
         foreach ($context as $property => $value) {
             if (in_array($property, $this->knownProperties, true)) {
-                $messageData[$property] = $value;
+                $data[$property] = $value;
 
             } else {
-                $messageData['extendedProperties'][$property] = $value;
+                $data[MessageInterface::CONTEXT][$property] = $value;
             }
         }
 
-        return $messageData;
+        return $data;
+    }
+
+    /**
+     * @param string $level
+     *
+     * @return string
+     */
+    private function validateSeverity($level)
+    {
+        $validLevels = [
+            LogLevel::EMERGENCY,
+            LogLevel::ALERT,
+            LogLevel::CRITICAL,
+            LogLevel::ERROR,
+            LogLevel::WARNING,
+            LogLevel::NOTICE,
+            LogLevel::INFO,
+            LogLevel::DEBUG
+        ];
+
+        return in_array($level, $validLevels, true) ? $level : LogLevel::ERROR;
     }
 }

@@ -7,38 +7,43 @@
 
 namespace MCP\Logger\Message;
 
+use MCP\Logger\MessageInterface;
+use Psr\Log\LogLevel;
 use QL\MCP\Common\GUID;
 use QL\MCP\Common\IPv4Address;
 use QL\MCP\Common\Time\TimePoint;
-use MCP\Logger\LogLevelInterface;
-use MCP\Logger\MessageInterface;
 
 /**
- * @internal
+ * This class represents a basic structured log message.
+ *
+ * The following properties are required, but will be populated with defaults if missing:
+ *
+ * - id             : Random GUID
+ * - severity       : info
+ * - context        : []
+ *
+ * The following properties are required:
+ *
+ * - message
+ * - created        : TimePoint (from MessageFactory)
+ * - applicationID  : (from MessageFactory)
+ * - serverIP       : IPv4Address (from MessageFactory)
+ * - serverHostname : (from MessageFactory)
+ *
+ * The following properties are not required:
+ *
+ * - errorDetails
+ * - serverEnvironment
+ * - requestMethod
+ * - requestURL
+ * - userAgent
+ * - userIP
+ * - userName
  */
-class Message implements LogLevelInterface, MessageInterface
+
+class Message implements MessageInterface
 {
     use MessageLoadingTrait;
-
-    /**
-     * @type string|null
-     */
-    private $affectedSystem;
-    private $applicationId;
-    private $categoryId;
-    private $environment;
-    private $exceptionData;
-    private $level;
-    private $machineName;
-    private $message;
-    private $referrer;
-    private $requestMethod;
-    private $url;
-    private $userAgentBrowser;
-    private $userCommonId;
-    private $userDisplayName;
-    private $userName;
-    private $userScreenName;
 
     /**
      * @var GUID
@@ -46,57 +51,88 @@ class Message implements LogLevelInterface, MessageInterface
     private $id;
 
     /**
-     * @type boolean
+     * @var string
      */
-    private $isUserDisrupted;
+    private $message;
+    private $severity;
+    private $errorDetails;
 
     /**
-     * @type TimePoint|null
+     * @var array
      */
-    private $createTime;
+    private $context;
 
     /**
-     * @type IPv4Address|null
+     * @var TimePoint
      */
-    private $machineIPAddress;
-    private $userIPAddress;
+    private $created;
 
     /**
-     * @type mixed[]
+     * @var string
      */
-    private $extendedProperties;
+    private $applicationID;
+
+    /**
+     * @var string
+     */
+    private $serverEnvironment;
+    private $serverHostname;
+
+    /**
+     * @var IPv4Address|null
+     */
+    private $serverIP;
+
+    /**
+     * @var string|null
+     */
+    private $requestMethod;
+    private $requestURL;
+
+    /**
+     * @var string|null
+     */
+    private $userAgent;
+    private $userName;
+
+    /**
+     * @var IPv4Address|null
+     */
+    private $userIP;
 
     /**
      * @param mixed[] $data
      */
     public function __construct(array $data)
     {
-        $this->id = $this->parseClassType('id', $data, GUID::class, false, GUID::create());
-        $this->applicationId = $this->parseValue('applicationId', $data, true);
-        $this->createTime = $this->parseClassType('createTime', $data, TimePoint::class, true);
-        $this->machineIPAddress = $this->parseClassType('machineIPAddress', $data, IPv4Address::class, true);
-        $this->machineName = $this->parseValue('machineName', $data, true);
-        $this->message = $this->parseValue('message', $data, true);
+        // Required, will get a default value if not provided.
+        $this->id = $this->parseClass(MessageInterface::ID, $data, GUID::class, function() {
+            return GUID::create();
+        });
 
-        $this->environment = $this->parseValue('environment', $data, false);
+        $this->severity = $this->parseLevel(MessageInterface::SEVERITY, $data, LogLevel::INFO);
+        $this->context = $this->parseContext(MessageInterface::CONTEXT, $data, []);
 
-        $this->extendedProperties = $this->parseProperties('extendedProperties', $data, false, []);
-        $this->level = $this->parseLevel('level', $data, false, static::INFO);
-        $this->isUserDisrupted = $this->parseBoolean('isUserDisrupted', $data, false);
+        // Required, no default provided
+        $this->message = $this->parseRequiredValue(MessageInterface::MESSAGE, $data);
+        $this->created = $this->parseRequiredClass(MessageInterface::CREATED, $data, TimePoint::class);
 
-        $this->affectedSystem = $this->parseValue('affectedSystem', $data);
-        $this->categoryId = $this->parseValue('categoryId', $data);
-        $this->exceptionData = $this->parseValue('exceptionData', $data);
-        $this->referrer = $this->parseValue('referrer', $data);
-        $this->requestMethod = $this->parseValue('requestMethod', $data);
-        $this->url = $this->parseValue('url', $data);
-        $this->userAgentBrowser = $this->parseValue('userAgentBrowser', $data);
-        $this->userCommonId = $this->parseValue('userCommonId', $data, false, null);
-        $this->userDisplayName = $this->parseValue('userDisplayName', $data);
-        $this->userName = $this->parseValue('userName', $data);
-        $this->userScreenName = $this->parseValue('userScreenName', $data);
+        $this->applicationID = $this->parseRequiredValue(MessageInterface::APPLICATION_ID, $data);
 
-        $this->userIPAddress = $this->parseClassType('userIPAddress', $data, IPv4Address::class);
+        $this->serverIP = $this->parseRequiredClass(MessageInterface::SERVER_IP, $data, IPv4Address::class);
+        $this->serverHostname = $this->parseRequiredValue(MessageInterface::SERVER_HOSTNAME, $data);
+
+        // Not required
+        $this->errorDetails = $this->parseValue(MessageInterface::ERROR_DETAILS, $data);
+
+        $this->serverEnvironment = $this->parseValue(MessageInterface::SERVER_ENVIRONMENT, $data);
+
+        $this->requestMethod = $this->parseValue(MessageInterface::REQUEST_METHOD, $data);
+        $this->requestURL = $this->parseValue(MessageInterface::REQUEST_URL, $data);
+
+        $this->userAgent = $this->parseValue(MessageInterface::USER_AGENT, $data);
+        $this->userName = $this->parseValue(MessageInterface::USER_NAME, $data);
+        $this->userIP = $this->parseClass(MessageInterface::USER_IP, $data, IPv4Address::class);
     }
 
     /**
@@ -108,95 +144,7 @@ class Message implements LogLevelInterface, MessageInterface
     }
 
     /**
-     * @return string|null
-     */
-    public function affectedSystem()
-    {
-        return $this->affectedSystem;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function applicationId()
-    {
-        return $this->applicationId;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function categoryId()
-    {
-        return $this->categoryId;
-    }
-
-    /**
-     * @return TimePoint|null
-     */
-    public function createTime()
-    {
-        return $this->createTime;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function environment()
-    {
-        return $this->environment;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function exceptionData()
-    {
-        return $this->exceptionData;
-    }
-
-    /**
-     * @return array|null
-     */
-    public function extendedProperties()
-    {
-        return $this->extendedProperties;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function isUserDisrupted()
-    {
-        return $this->isUserDisrupted;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function level()
-    {
-        return $this->level;
-    }
-
-    /**
-     * @return IPv4Address|null
-     */
-    public function machineIPAddress()
-    {
-        return $this->machineIPAddress;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function machineName()
-    {
-        return $this->machineName;
-    }
-
-    /**
-     * @return string|null
+     * @return string
      */
     public function message()
     {
@@ -204,11 +152,67 @@ class Message implements LogLevelInterface, MessageInterface
     }
 
     /**
+     * @return string
+     */
+    public function severity()
+    {
+        return $this->severity;
+    }
+
+    /**
+     * @return array
+     */
+    public function context()
+    {
+        return $this->context;
+    }
+
+    /**
      * @return string|null
      */
-    public function referrer()
+    public function errorDetails()
     {
-        return $this->referrer;
+        return $this->errorDetails;
+    }
+
+    /**
+     * @return TimePoint
+     */
+    public function created()
+    {
+        return $this->created;
+    }
+
+    /**
+     * @return string
+     */
+    public function applicationID()
+    {
+        return $this->applicationID;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function serverEnvironment()
+    {
+        return $this->serverEnvironment;
+    }
+
+    /**
+     * @return string
+     */
+    public function serverHostname()
+    {
+        return $this->serverHostname;
+    }
+
+    /**
+     * @return IPv4Address
+     */
+    public function serverIP()
+    {
+        return $this->serverIP;
     }
 
     /**
@@ -222,41 +226,25 @@ class Message implements LogLevelInterface, MessageInterface
     /**
      * @return string|null
      */
-    public function url()
+    public function requestURL()
     {
-        return $this->url;
+        return $this->requestURL;
     }
 
     /**
      * @return string|null
      */
-    public function userAgentBrowser()
+    public function userAgent()
     {
-        return $this->userAgentBrowser;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function userCommonId()
-    {
-        return $this->userCommonId;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function userDisplayName()
-    {
-        return $this->userDisplayName;
+        return $this->userAgent;
     }
 
     /**
      * @return IPv4Address|null
      */
-    public function userIPAddress()
+    public function userIP()
     {
-        return $this->userIPAddress;
+        return $this->userIP;
     }
 
     /**
@@ -265,13 +253,5 @@ class Message implements LogLevelInterface, MessageInterface
     public function userName()
     {
         return $this->userName;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function userScreenName()
-    {
-        return $this->userScreenName;
     }
 }
