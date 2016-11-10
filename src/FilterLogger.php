@@ -12,26 +12,28 @@ use Psr\Log\LoggerTrait;
 use Psr\Log\LoggerInterface;
 
 /**
- * A logger that allows for setting a minimum logging level
+ * A logger that allows for setting a minimum logging level.
+ *
+ * You must provide another PSR-3 Logger that this logger wraps.
  */
-class LoggerFiltered implements LoggerInterface
+class FilterLogger implements LoggerInterface
 {
     use LoggerTrait;
 
     /**
-     * Allowed log levels
+     * Log severities in ranked priority.
      *
      * @var array
      */
-    private $levels = [
-        LogLevel::EMERGENCY => 7,
-        LogLevel::ALERT => 6,
-        LogLevel::CRITICAL => 5,
-        LogLevel::ERROR => 4,
-        LogLevel::WARNING => 3,
-        LogLevel::NOTICE => 2,
-        LogLevel::INFO => 1,
-        LogLevel::DEBUG => 0
+    const LEVEL_PRIORITIES = [
+        LogLevel::EMERGENCY => 0,
+        LogLevel::ALERT => 1,
+        LogLevel::CRITICAL => 2,
+        LogLevel::ERROR => 3,
+        LogLevel::WARNING => 4,
+        LogLevel::NOTICE => 5,
+        LogLevel::INFO => 6,
+        LogLevel::DEBUG => 7
     ];
 
     /**
@@ -55,21 +57,23 @@ class LoggerFiltered implements LoggerInterface
     }
 
     /**
-     * Set the log level
+     * Set the minimum log level
      *
      * When passing this value, you must make sure that it is a valid level as defined by Psr\Log\LogLevel. Any
      * other value will result in Psr\Log\LogLevel::DEBUG being set as the minimum value, and all messages will be
      * logged.
      *
      * @param $level
+     *
+     * @return void
      */
     public function setLevel($level)
     {
-        $this->level = array_key_exists($level, $this->levels) ? $level : LogLevel::DEBUG;
+        $this->level = array_key_exists($level, self::LEVEL_PRIORITIES) ? $level : LogLevel::DEBUG;
     }
 
     /**
-     * Get the current log level
+     * Get the current minimum log level
      *
      * @return string
      */
@@ -100,11 +104,16 @@ class LoggerFiltered implements LoggerInterface
      * Return true if the provided log level meets or exceeds the minimum logging level.
      *
      * @param string $level
+     *
      * @return bool
      */
     private function shouldLog($level)
     {
-        if (array_key_exists($level, $this->levels) && $this->levels[$level] < $this->levels[$this->level]) {
+        if (!array_key_exists($level, self::LEVEL_PRIORITIES)) {
+            return true;
+        }
+
+        if (self::LEVEL_PRIORITIES[$level] > self::LEVEL_PRIORITIES[$this->level]) {
             return false;
         }
 

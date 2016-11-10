@@ -12,13 +12,13 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Mockery;
 
-class LoggerFilteredTest extends PHPUnit_Framework_TestCase
+class FilterLoggerTest extends PHPUnit_Framework_TestCase
 {
     public function testMessageNotSentWhenMinimumLevelSet()
     {
         $logger = Mockery::mock(LoggerInterface::class);
 
-        $filter = new LoggerFiltered($logger, LogLevel::ERROR);
+        $filter = new FilterLogger($logger, LogLevel::ERROR);
 
         $filter->debug('test');
     }
@@ -35,7 +35,7 @@ class LoggerFilteredTest extends PHPUnit_Framework_TestCase
             ->once()
             ->with($level, $message, []);
 
-        $filter = new LoggerFiltered($logger, LogLevel::DEBUG);
+        $filter = new FilterLogger($logger, LogLevel::DEBUG);
 
         $filter->log($level, $message);
     }
@@ -43,7 +43,7 @@ class LoggerFilteredTest extends PHPUnit_Framework_TestCase
     public function testSetGetMinimumLevel()
     {
         $logger = Mockery::mock(LoggerInterface::class);
-        $filter = new LoggerFiltered($logger, LogLevel::DEBUG);
+        $filter = new FilterLogger($logger, LogLevel::DEBUG);
 
         $this->assertEquals(LogLevel::DEBUG, $filter->getLevel());
 
@@ -55,7 +55,7 @@ class LoggerFilteredTest extends PHPUnit_Framework_TestCase
     public function testGetDefaultLevel()
     {
         $logger = Mockery::mock(LoggerInterface::class);
-        $filter = new LoggerFiltered($logger);
+        $filter = new FilterLogger($logger);
 
         $this->assertEquals(LogLevel::DEBUG, $filter->getLevel());
     }
@@ -63,7 +63,7 @@ class LoggerFilteredTest extends PHPUnit_Framework_TestCase
     public function testSetValidLevel()
     {
         $logger = Mockery::mock(LoggerInterface::class);
-        $filter = new LoggerFiltered($logger);
+        $filter = new FilterLogger($logger);
         $filter->setLevel(LogLevel::WARNING);
 
         $this->assertEquals(LogLevel::WARNING, $filter->getLevel());
@@ -72,7 +72,7 @@ class LoggerFilteredTest extends PHPUnit_Framework_TestCase
     public function testSetInvalidLevel()
     {
         $logger = Mockery::mock(LoggerInterface::class);
-        $filter = new LoggerFiltered($logger);
+        $filter = new FilterLogger($logger);
         $filter->setLevel('foo');
 
         $this->assertEquals(LogLevel::DEBUG, $filter->getLevel());
@@ -90,7 +90,7 @@ class LoggerFilteredTest extends PHPUnit_Framework_TestCase
             ->once()
             ->with($level, $message, []);
 
-        $filter = new LoggerFiltered($logger);
+        $filter = new FilterLogger($logger);
         $filter->setLevel(LogLevel::WARNING);
 
         $filter->log($level, $message);
@@ -99,7 +99,7 @@ class LoggerFilteredTest extends PHPUnit_Framework_TestCase
     public function testShouldLogAboveLevel()
     {
         $logger = Mockery::mock(LoggerInterface::class);
-        $filter = new LoggerFiltered($logger);
+        $filter = new FilterLogger($logger);
         $filter->setLevel(LogLevel::WARNING);
 
         $level = LogLevel::ERROR;
@@ -116,7 +116,7 @@ class LoggerFilteredTest extends PHPUnit_Framework_TestCase
     public function testShouldLogAtLevel()
     {
         $logger = Mockery::mock(LoggerInterface::class);
-        $filter = new LoggerFiltered($logger);
+        $filter = new FilterLogger($logger);
         $filter->setLevel(LogLevel::WARNING);
 
         $level = LogLevel::WARNING;
@@ -133,7 +133,7 @@ class LoggerFilteredTest extends PHPUnit_Framework_TestCase
     public function testShouldLogBelowLevel()
     {
         $logger = Mockery::mock(LoggerInterface::class);
-        $filter = new LoggerFiltered($logger);
+        $filter = new FilterLogger($logger);
         $filter->setLevel(LogLevel::WARNING);
 
         $level = LogLevel::DEBUG;
