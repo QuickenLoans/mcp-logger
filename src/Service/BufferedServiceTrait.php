@@ -13,18 +13,16 @@ use MCP\Logger\MessageInterface;
  * Requires the following methods to be provided:
  * - createRequest($message)
  * - handleBatch($requests)
- *
- * @internal
  */
 trait BufferedServiceTrait
 {
     /**
-     * @type int
+     * @var int
      */
     private $bufferLimit;
 
     /**
-     * @type MessageInterface[]
+     * @var MessageInterface[]
      */
     private $buffer;
 

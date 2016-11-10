@@ -33,8 +33,8 @@ trait GuzzleTrait
     protected function createRequest(MessageInterface $message)
     {
         $options = [
-            'body' => call_user_func($this->renderer, $message),
-            'headers' => ['Content-Type' => $this->renderer->contentType()],
+            'body' => call_user_func($this->serializer, $message),
+            'headers' => ['Content-Type' => $this->serializer->contentType()],
             'exceptions' => true
         ];
 

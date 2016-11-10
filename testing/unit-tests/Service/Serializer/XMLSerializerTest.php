@@ -5,25 +5,22 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Service\Renderer;
+namespace MCP\Logger\Service\Serializer;
 
 use MCP\Logger\Message\Message;
 use MCP\Logger\Testing\FixtureLoadingTestCase;
-use XMLWriter;
 
-class XmlRendererTest extends FixtureLoadingTestCase
+class XMLSerializerTest extends FixtureLoadingTestCase
 {
     /**
      * @dataProvider providerFixtureNames
      */
     public function test($fixtureName)
     {
-        $writer = new XMLWriter;
-
         $messageFixture = $this->loadPhpFixture(sprintf('%s.phpd', $fixtureName));
         $message = new Message($messageFixture);
 
-        $renderer = new XmlRenderer($writer);
+        $renderer = new XMLSerializer;
         $this->assertSame(
             $this->loadRawFixture(sprintf('%s.xml', $fixtureName)),
             $renderer($message)
@@ -32,7 +29,7 @@ class XmlRendererTest extends FixtureLoadingTestCase
 
     public function testContentType()
     {
-        $renderer = new XmlRenderer;
+        $renderer = new XMLSerializer;
         $this->assertEquals('text/xml', $renderer->contentType());
     }
 

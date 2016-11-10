@@ -1,8 +1,0 @@
-[
-    'applicationId' => '5',
-    'createTime' => new \QL\MCP\Common\Time\TimePoint(2015, 10, 15, 12, 0, 0, 'UTC'),
-    'id' => QL\MCP\Common\GUID::createFromHex('9E43E37AD36C4F88B142A417670C93CF'),
-    'machineIPAddress' => \QL\MCP\Common\IPv4Address::create('127.0.0.1'),
-    'machineName' => 'machine',
-    'message' => 'message'
-]

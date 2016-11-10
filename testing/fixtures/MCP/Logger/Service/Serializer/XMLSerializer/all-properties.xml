@@ -1,9 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <LogEntry xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://rock/framework/logging">
-    <LogEntryClientID>9e43e37a-d36c-4f88-b142-a417670c93cf</LogEntryClientID>
     <ApplicationId>10</ApplicationId>
-    <CreateTime>1977-05-25T03:00:00.000000Z</CreateTime>
-    <ExceptionData>beep boop</ExceptionData>
-    <ExtendedProperties xmlns:d2p1="http://schemas.datacontract.org/2004/07/Rock.Framework.Logging">
+    <CreateTime>2016-11-08T16:00:00.000000Z</CreateTime>
+    <ExtendedProperties>
         <d2p1:Entry>
             <d2p1:Key>key</d2p1:Key>
             <d2p1:Value>value</d2p1:Value>
@@ -12,21 +11,21 @@
             <d2p1:Key>key2</d2p1:Key>
             <d2p1:Value>value2</d2p1:Value>
         </d2p1:Entry>
+        <d2p1:Entry>
+            <d2p1:Key>LogEntryClientID</d2p1:Key>
+            <d2p1:Value>9e43e37a-d36c-4f88-b142-a417670c93cf</d2p1:Value>
+        </d2p1:Entry>
     </ExtendedProperties>
     <IsUserDisrupted>true</IsUserDisrupted>
-    <Level>Fatal</Level>
+    <Level>fatal</Level>
     <MachineIPAddress>127.0.0.1</MachineIPAddress>
     <MachineName>Deathstar</MachineName>
     <Message>I used to bullseye womp rats in my T-16</Message>
-    <AffectedSystem>Empire</AffectedSystem>
-    <CategoryId>200</CategoryId>
-    <Referrer>Uncle Ben</Referrer>
+    <Environment>test</Environment>
+    <ExceptionData>beep boop</ExceptionData>
     <RequestMethod>DELETE</RequestMethod>
-    <Url>Spaaaaaace</Url>
+    <Url>http://localhost/spaaaaaace</Url>
     <UserAgentBrowser>X-Wing</UserAgentBrowser>
-    <UserCommonId>5</UserCommonId>
-    <UserDisplayName>Luke Skywalker</UserDisplayName>
-    <UserIPAddress>192.168.0.1</UserIPAddress>
-    <UserName>lskywalker</UserName>
-    <UserScreenName>Red 5</UserScreenName>
+    <UserIPAddress>192.168.0.100</UserIPAddress>
+    <UserName>Luke</UserName>
 </LogEntry>

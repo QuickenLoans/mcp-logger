@@ -69,27 +69,13 @@ class SyslogServiceTest extends PHPUnit_Framework_TestCase
     public function sendData()
     {
         return [
-            [
-                LogLevelInterface::DEBUG
-            ],
-            [
-                LogLevelInterface::INFO
-            ],
-            [
-                LogLevelInterface::WARN
-            ],
-            [
-                LogLevelInterface::ERROR
-            ],
-            [
-                LogLevelInterface::FATAL
-            ],
-            [
-                LogLevelInterface::AUDIT
-            ],
-            [
-                'random_crap'
-            ]
+            [LogLevelInterface::DEBUG],
+            [LogLevelInterface::INFO],
+            [LogLevelInterface::WARNING],
+            [LogLevelInterface::ERROR],
+            [LogLevelInterface::FATAL],
+            [LogLevelInterface::AUDIT],
+            ['random_crap'],
         ];
     }
 

@@ -9,13 +9,11 @@ namespace MCP\Logger\Service;
 
 use MCP\Logger\MessageInterface;
 
-/**
- * @api
- */
-interface RendererInterface
+interface SerializerInterface
 {
     /**
      * @param MessageInterface $message
+     *
      * @return string
      */
     public function __invoke(MessageInterface $message);

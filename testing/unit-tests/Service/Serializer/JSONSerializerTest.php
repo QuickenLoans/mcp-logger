@@ -5,37 +5,34 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Service\Renderer;
+namespace MCP\Logger\Service\Serializer;
 
 use MCP\Logger\Message\Message;
 use MCP\Logger\Testing\FixtureLoadingTestCase;
 
-class JsonRendererTest extends FixtureLoadingTestCase
+class JSONSerializerTest extends FixtureLoadingTestCase
 {
     /**
      * @dataProvider providerFixtureNames
      */
     public function test($fixtureName)
     {
+        $options = JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT;
+
         $messageFixture = $this->loadPhpFixture(sprintf('%s.phpd', $fixtureName));
         $message = new Message($messageFixture);
 
         $fixture = $this->loadRawFixture(sprintf('%s.json', $fixtureName));
+        $fixture = trim($fixture);
 
-        // because I'd like to be able to read the fixtures thank you very much
-        $fixture = json_encode(json_decode($fixture, true));
-
-        $renderer = new JsonRenderer;
-        $this->assertSame(
-            $fixture,
-            $renderer($message)
-        );
+        $serializer = new JSONSerializer(['json_options' => $options]);
+        $this->assertSame($fixture, $serializer($message));
     }
 
     public function testContentType()
     {
-        $renderer = new JsonRenderer;
-        $this->assertEquals('application/json', $renderer->contentType());
+        $serializer = new JSONSerializer;
+        $this->assertEquals('application/json', $serializer->contentType());
     }
 
     public function providerFixtureNames()

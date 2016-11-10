@@ -17,8 +17,6 @@ use QL\UriTemplate\UriTemplate;
  * Http Service for Guzzle 5.
  *
  * This service is capable of buffering messages and sending them all at once at the end of a request.
- *
- * @internal
  */
 class Guzzle5Service implements ServiceInterface
 {
@@ -26,29 +24,29 @@ class Guzzle5Service implements ServiceInterface
     use GuzzleTrait;
 
     /**
-     * @type string
+     * @var string
      */
     const ERR_GUZZLE_5_REQUIRED = 'Guzzle 5 and GuzzleHttp\Pool are required to use this service.';
     const ERR_BATCH = '%d Errors occured while sending %d messages with mcp-logger';
 
     /**
-     * @type RendererInterface
+     * @var SerializerInterface
      */
-    private $renderer;
+    private $serializer;
 
     /**
-     * @type UriTemplate
+     * @var UriTemplate
      */
     private $uri;
 
     /**
-     * @type boolean
+     * @var boolean
      */
     private $isSilent;
 
     /**
      * @param ClientInterface $guzzle
-     * @param RendererInterface $renderer
+     * @param SerializerInterface $serializer
      * @param UriTemplate $uri
      * @param bool|true $isSilent
      * @param bool|true $enableshutDownHandler
@@ -58,14 +56,14 @@ class Guzzle5Service implements ServiceInterface
      */
     public function __construct(
         ClientInterface $guzzle,
-        RendererInterface $renderer,
+        SerializerInterface $serializer,
         UriTemplate $uri,
         $isSilent = true,
         $enableshutDownHandler = true,
         $bufferLimit = 0
     ) {
         $this->guzzle = $guzzle;
-        $this->renderer = $renderer;
+        $this->serializer = $serializer;
         $this->uri = $uri;
 
         $this->isSilent = (bool) $isSilent;

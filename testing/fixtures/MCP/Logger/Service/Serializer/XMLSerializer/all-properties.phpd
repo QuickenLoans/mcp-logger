@@ -7,7 +7,7 @@
     ],
 
     'message' => 'I used to bullseye womp rats in my T-16',
-    'created' => new \QL\MCP\Common\Time\TimePoint(1977, 05, 25, 3, 0, 0, 'UTC'),
+    'created' => (new \QL\MCP\Common\Time\Clock('2016-11-08 16:00:00', 'UTC'))->read(),
 
     'applicationID' => '10',
     'serverIP' => \QL\MCP\Common\IPv4Address::create('127.0.0.1'),

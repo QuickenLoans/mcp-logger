@@ -20,7 +20,7 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
 {
     public static $logSetting;
     public $uri;
-    public $renderer;
+    public $serializer;
 
     public static function setUpBeforeClass()
     {
@@ -39,7 +39,7 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
             'expand' => 'http://corelogger'
         ]);
 
-        $this->renderer = Mockery::mock(RendererInterface::class, ['contentType' => 'text/xml']);
+        $this->serializer = Mockery::mock(SerializerInterface::class, ['contentType' => 'text/xml']);
 
         touch(__DIR__ . '/errlog');
     }
@@ -64,13 +64,13 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
         $client = new Client;
         $client->getEmitter()->attach($mock);
 
-        $this->renderer
+        $this->serializer
             ->shouldReceive('__invoke')
             ->with($message)
             ->andReturn('rendered message')
             ->once();
 
-        $service = new Guzzle5Service($client, $this->renderer, $this->uri, false, false);
+        $service = new Guzzle5Service($client, $this->serializer, $this->uri, false, false);
         $service->send($message);
     }
 
@@ -90,13 +90,13 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
         $client = new Client;
         $client->getEmitter()->attach($mock);
 
-        $this->renderer
+        $this->serializer
             ->shouldReceive('__invoke')
             ->with($message)
             ->andReturn('rendered message')
             ->twice();
 
-        $service = new Guzzle5Service($client, $this->renderer, $this->uri, false, false, 1);
+        $service = new Guzzle5Service($client, $this->serializer, $this->uri, false, false, 1);
         $service->send($message);
         $service->send($message);
 
@@ -119,13 +119,13 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
         $client = new Client;
         $client->getEmitter()->attach($mock);
 
-        $this->renderer
+        $this->serializer
             ->shouldReceive('__invoke')
             ->with($message)
             ->andReturn('rendered message')
             ->times(5);
 
-        $service = new Guzzle5Service($client, $this->renderer, $this->uri, true, false, 10);
+        $service = new Guzzle5Service($client, $this->serializer, $this->uri, true, false, 10);
         $service->send($message);
         $service->send($message);
         $service->send($message);
@@ -150,13 +150,13 @@ class Guzzle5ServiceTest extends PHPUnit_Framework_TestCase
         $client = new Client;
         $client->getEmitter()->attach($mock);
 
-        $this->renderer
+        $this->serializer
             ->shouldReceive('__invoke')
             ->with($message)
             ->andReturn('rendered message')
             ->times(3);
 
-        $service = new Guzzle5Service($client, $this->renderer, $this->uri, true, false, 0);
+        $service = new Guzzle5Service($client, $this->serializer, $this->uri, true, false, 0);
         $service->send($message);
         $service->send($message);
         $service->send($message);
