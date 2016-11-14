@@ -7,16 +7,15 @@
 
 namespace MCP\Logger\Service;
 
-use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Event\ErrorEvent;
-use GuzzleHttp\Message\RequestInterface;
-use GuzzleHttp\Pool;
-use MCP\Logger\Exception;
-use MCP\Logger\MessageInterface;
 use Exception as BaseException;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Message\ResponseInterface as Guzzle5ResponseInterface;
+use MCP\Logger\Exception;
+use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 
 /**
- * @internal
+ * Helper to allow GuzzleService to support both Guzzle 5 and Guzzle 6 APIs.
  */
 trait GuzzleTrait
 {
@@ -26,74 +25,95 @@ trait GuzzleTrait
     private $guzzle;
 
     /**
-     * @param MessageInterface $message
-     *
-     * @return RequestInterface
+     * @var int
      */
-    protected function createRequest(MessageInterface $message)
+    private $version;
+
+    /**
+     * @param ClientInterface $guzzle
+     *
+     * @return void
+     */
+    private function setGuzzleClient(ClientInterface $guzzle)
     {
-        $options = [
-            'body' => call_user_func($this->serializer, $message),
-            'headers' => ['Content-Type' => $this->serializer->contentType()],
+        $this->guzzle = $guzzle;
+    }
+
+    /**
+     * @throws Exception
+     *
+     * @return int
+     */
+    private function validateVersion()
+    {
+        $version = defined('GuzzleHttp\ClientInterface::VERSION') ? (int) substr(ClientInterface::VERSION, 0, 1) : 0;
+        if ($version === 5 || $version === 6) {
+            $this->version = $version;
+            return $this->version;
+        }
+
+        throw new Exception('Guzzle 5 or Guzzle 6 are required to use this service.');
+    }
+
+    /**
+     * @param string $method
+     * @param string $uri
+     * @param array $options
+     *
+     * @return Guzzle5ResponseInterface|ResponseInterface|BaseException
+     */
+    private function requestGuzzle($method, $uri, array $options)
+    {
+        if ($this->version < 6) {
+            return $this->requestGuzzle5($method, $uri, $options);
+        }
+
+        return $this->requestGuzzle6($method, $uri, $options);
+    }
+
+    /**
+     * @param string $method
+     * @param string $uri
+     * @param array $options
+     *
+     * @return Guzzle5ResponseInterface|BaseException
+     */
+    private function requestGuzzle5($method, $uri, array $options)
+    {
+        $options = $options + [
             'exceptions' => true
         ];
 
-        return $this->guzzle->createRequest('POST', $this->uri->expand([]), $options);
+        $request = $this->guzzle->createRequest($method, $uri, $options);
+
+        try {
+            $response = $this->guzzle->send($request);
+        } catch(RuntimeException $e) {
+            return $e;
+        }
+
+        return $response;
     }
 
     /**
-     * Requires Guzzle 5
+     * @param string $method
+     * @param string $uri
+     * @param array $options
      *
-     * @param RequestInterface[] $requests
-     *
-     * @return void
+     * @return ResponseInterface|BaseException
      */
-    protected function handleBatch(array $requests)
+    private function requestGuzzle6($method, $uri, array $options)
     {
-        $errors = [];
+        $options = $options + [
+            'http_errors' => true
+        ];
 
-        Pool::send($this->guzzle, $requests, [
-            'error' => function (ErrorEvent $event) use (&$errors) {
-                $errors[] = $event->getException();
-            }
-        ]);
-
-        $this->handleErrors($requests, $errors);
-    }
-
-    /**
-     * Requires Guzzle 5
-     *
-     * @param RequestInterface[] $requests
-     * @param ErrorEvent[] $errors
-     *
-     * @throws Exception
-     *
-     * @return void
-     */
-    protected function handleErrors(array $requests, array $errors)
-    {
-        if (!$errors) {
-            return;
+        try {
+            $response = $this->guzzle->request($method, $uri, $options);
+        } catch(RuntimeException $e) {
+            return $e;
         }
 
-        $batchSize = count($requests);
-
-        $template = defined('static::ERR_BATCH') ? static::ERR_BATCH : '%d errors occured while sending %d messages with mcp-logger';
-        $msg = sprintf($template, count($errors), $batchSize);
-
-        // Silent handling
-        if (property_exists($this, 'isSilent') && $this->isSilent) {
-            error_log($msg);
-            return;
-        }
-
-        // Send a more specific message if only one error
-        if ($batchSize === 1) {
-            $e = reset($errors);
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
-        }
-
-        throw new Exception($msg);
+        return $response;
     }
 }

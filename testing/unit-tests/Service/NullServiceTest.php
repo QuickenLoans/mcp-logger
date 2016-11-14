@@ -15,7 +15,7 @@ class NullServiceTest extends PHPUnit_Framework_TestCase
 {
     public function testNothing()
     {
-        $service = new NullService();
+        $service = new NullService;
 
         $message = Mockery::mock(MessageInterface::class);
 

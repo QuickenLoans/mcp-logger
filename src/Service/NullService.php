@@ -7,17 +7,17 @@
 
 namespace MCP\Logger\Service;
 
-use MCP\Logger\LogLevelInterface;
 use MCP\Logger\MessageInterface;
 use MCP\Logger\ServiceInterface;
 
 /**
- * The null logging service ignores all messages
+ * The null logging service silently consumes all messages
  */
-class NullService implements ServiceInterface, LogLevelInterface
+class NullService implements ServiceInterface
 {
     /**
      * @param MessageInterface $message
+     *
      * @return null
      */
     public function send(MessageInterface $message)
