@@ -8,96 +8,123 @@
 namespace MCP\Logger\Service;
 
 use MCP\Logger\Exception;
-use MCP\Logger\LogLevelInterface;
+use Psr\Log\LogLevel;
 use MCP\Logger\MessageInterface;
+use MCP\Logger\Message\Message;
+use MCP\Logger\Service\Serializer\JSONSerializer;
+use MCP\Logger\Service\Serializer\LineSerializer;
 use Mockery;
 use PHPUnit_Framework_TestCase;
+use QL\MCP\Common\GUID;
+use QL\MCP\Common\IPv4Address;
+use QL\MCP\Common\Time\TimePoint;
+use ReflectionClass;
 
-global $openlogError;
-global $syslogError;
-
-function openlog($ident, $options, $facility)
+function openlog()
 {
-    global $openlogError;
+    if (SyslogServiceTest::$openlogError === true) return false;
 
-    if (isset($openlogError) && $openlogError === true) {
-        return false;
-    }
-
-    return \openlog($ident, $options, $facility);
+    SyslogServiceTest::$logs[] = ['openlog', func_get_args()];
+    return true;
 }
 
-function syslog($priority, $message)
+function syslog()
 {
-    global $syslogError;
+    if (SyslogServiceTest::$syslogError === true) return false;
 
-    if (isset($syslogError) && $syslogError === true) {
-        return false;
-    }
-
-    return \syslog($priority, $message);
+    SyslogServiceTest::$logs[] = ['syslog', func_get_args()];
+    return true;
 }
 
 class SyslogServiceTest extends PHPUnit_Framework_TestCase
 {
+    public static $openlogError;
+    public static $syslogError;
+    public static $logs;
+
     public function setUp()
     {
-        global $openlogError;
-        global $syslogError;
+        self::$openlogError = self::$syslogError = false;
+        self::$logs = [];
+    }
 
-        $openlogError = $syslogError = false;
+    public function testDefaultSettings()
+    {
+        $guid = GUID::create();
+        $formattedGUID = strtolower(substr($guid->asHumanReadable(), 1, -1));
+        $message = new Message([
+            'id' => $guid,
+            'message' => 'taco tuesdays',
+            'created' => new TimePoint(2016, 11, 15, 12, 0, 0, 'UTC'),
+            'applicationID' => '12345',
+            'serverIP' => IPv4Address::create('127.0.0.1'),
+            'serverHostname' => 'localhost'
+        ]);
+
+        $service = new SyslogService;
+        $service->send($message);
+
+        $expected = <<<LOG
+{"ID":"$formattedGUID","AppID":"12345","Created":"2016-11-15T12:00:00.000000Z","UserIsDisrupted":false,"Level":"info","ServerIP":"127.0.0.1","ServerHostname":"localhost","Message":"taco tuesdays"}
+LOG;
+
+        $this->assertSame('openlog', self::$logs[0][0]);
+        $this->assertSame(['', 6, 8], self::$logs[0][1]);
+
+        $this->assertSame('syslog', self::$logs[1][0]);
+        $this->assertSame([6, $expected], self::$logs[1][1]);
     }
 
     /**
-     * @dataProvider sendData
+     * @dataProvider messageSeverities
      */
-    public function testSend($level)
+    public function testSendWithVariousSeverities($severity, $expectedSyslogPriority)
     {
-        $message = Mockery::mock(MessageInterface::class, ['level' => $level]);
+        $guid = GUID::create();
 
-        $renderer = Mockery::mock(RendererInterface::class, ['contentType' => 'application/json']);
-        $renderer
-            ->shouldReceive('__invoke')
-            ->with($message)
-            ->andReturn('')
-            ->once();
+        $message = new Message([
+            'message' => 'taco tuesdays',
+            'severity' => $severity,
+            'created' => new TimePoint(2016, 11, 15, 12, 0, 0, 'UTC'),
+            'applicationID' => '12345',
+            'serverIP' => IPv4Address::create('127.0.0.1'),
+            'serverHostname' => 'localhost'
+        ]);
 
-        $service = new SyslogService($renderer);
+        $service = new SyslogService;
         $service->send($message);
+
+        $syslog = self::$logs[1][1];
+
+        $this->assertSame($expectedSyslogPriority, $syslog[0]);
     }
 
-    public function sendData()
+    public function messageSeverities()
     {
         return [
-            [LogLevelInterface::DEBUG],
-            [LogLevelInterface::INFO],
-            [LogLevelInterface::WARNING],
-            [LogLevelInterface::ERROR],
-            [LogLevelInterface::FATAL],
-            [LogLevelInterface::AUDIT],
-            ['random_crap'],
+            [LogLevel::DEBUG, LOG_DEBUG],
+            [LogLevel::WARNING, LOG_WARNING],
+            [LogLevel::ERROR, LOG_ERR],
+            [LogLevel::CRITICAL, LOG_CRIT],
+            [LogLevel::EMERGENCY, LOG_EMERG]
         ];
     }
 
     public function testSendFailThrowsException()
     {
+        self::$syslogError = true;
 
-        global $syslogError;
-        $syslogError = true;
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Unable to send message to syslog connection. derp doooooo');
 
-        $message = Mockery::mock(MessageInterface::class, ['level' => 'Warn'])
-            ->shouldIgnoreMissing();
+        $message = Mockery::mock(MessageInterface::class, [
+            'severity' => LogLevel::CRITICAL,
+            'message' => 'derp doooooo'
+        ]);
 
-        $renderer = Mockery::mock(RendererInterface::class, ['contentType' => 'application/json']);
-        $renderer
-            ->shouldReceive('__invoke')
-            ->with($message)
-            ->andReturn('')
-            ->once();
+        $serializer = Mockery::mock(SerializerInterface::class, ['__invoke' => null]);
 
-        $this->setExpectedException(Exception::class);
-
-        $service = new SyslogService($renderer, [
+        $service = new SyslogService($serializer, [
             SyslogService::CONFIG_SILENT => false
         ]);
 
@@ -106,18 +133,35 @@ class SyslogServiceTest extends PHPUnit_Framework_TestCase
 
     public function testConnectErrorThrowsException()
     {
-        global $openlogError;
-        $openlogError = true;
+        self::$openlogError = true;
 
-        $message = Mockery::mock(MessageInterface::class);
-        $renderer = Mockery::mock(RendererInterface::class);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Unable to open syslog connection.');
 
-        $this->setExpectedException(Exception::class);
+        $message = Mockery::mock(MessageInterface::class, [
+            'severity' => LogLevel::CRITICAL,
+            'message' => 'herp hoooooo'
+        ]);
 
-        $service = new SyslogService($renderer, [
+        $serializer = Mockery::mock(SerializerInterface::class, ['__invoke' => null]);
+
+
+        $service = new SyslogService($serializer, [
             SyslogService::CONFIG_SILENT => false
         ]);
 
         $service->send($message);
+    }
+
+    public function testDefaultDependencies()
+    {
+        $service = new SyslogService;
+
+        $reflected = new ReflectionClass($service);
+
+        $serializer = $reflected->getProperty('serializer');
+        $serializer->setAccessible(true);
+
+        $this->assertInstanceOf(JSONSerializer::class, $serializer->getValue($service));
     }
 }

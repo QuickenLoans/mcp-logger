@@ -8,16 +8,18 @@
 namespace MCP\Logger\Service;
 
 use MCP\Logger\Exception;
-use MCP\Logger\LogLevelInterface;
 use MCP\Logger\MessageInterface;
 use MCP\Logger\Service\Serializer\JSONSerializer;
+use MCP\Logger\Service\Serializer\LogLevelTrait;
 use MCP\Logger\ServiceInterface;
 
 /**
  * Logging service for sending logs to Syslog
  */
-class SyslogService implements ServiceInterface, LogLevelInterface
+class SyslogService implements ServiceInterface
 {
+    use LogLevelTrait;
+
     // Configuration Keys
     const CONFIG_SILENT = 'silent';
     const CONFIG_IDENT = 'ident';
@@ -35,9 +37,9 @@ class SyslogService implements ServiceInterface, LogLevelInterface
     const ERR_SEND = 'Unable to send message to syslog connection. %s';
 
     /**
-     * @var RendererInterface
+     * @var SerializerInterface
      */
-    private $renderer;
+    private $serializer;
 
     /**
      * @var array
@@ -50,10 +52,10 @@ class SyslogService implements ServiceInterface, LogLevelInterface
     private $status;
 
     /**
-     * @param RendererInterface|null $renderer
+     * @param SerializerInterface|null $serializer
      * @param array $configuration
      */
-    public function __construct(RendererInterface $renderer = null, array $configuration = [])
+    public function __construct(SerializerInterface $serializer = null, array $configuration = [])
     {
         $this->configuration = array_merge([
             self::CONFIG_SILENT => self::DEFAULT_SILENT,
@@ -62,7 +64,7 @@ class SyslogService implements ServiceInterface, LogLevelInterface
             self::CONFIG_OPTIONS =>  self::DEFAULT_OPTIONS
         ], $configuration);
 
-        $this->renderer = $renderer ?: new JSONSerializer;
+        $this->serializer = $serializer ?: $this->buildDefaultSerializer();
         $this->status = false;
     }
 
@@ -77,8 +79,9 @@ class SyslogService implements ServiceInterface, LogLevelInterface
             $this->connect();
         }
 
-        $data = call_user_func($this->renderer, $message);
-        $this->status = syslog($this->priority($message->level()), $data);
+        $data = call_user_func($this->serializer, $message);
+        $priority = $this->convertLogLevelFromPSRToSyslog($message->severity());
+        $this->status = syslog($priority, $data);
 
         if ($this->status === false) {
             $this->error(sprintf(self::ERR_SEND, $message->message()));
@@ -122,29 +125,10 @@ class SyslogService implements ServiceInterface, LogLevelInterface
     }
 
     /**
-     * Convert from Core error levels to Syslog priority
-     *
-     * @param $level
-     *
-     * @return int
+     * @return SerializerInterface
      */
-    private function priority($level)
+    protected function buildDefaultSerializer()
     {
-        switch ($level) {
-            case self::DEBUG:
-                return LOG_DEBUG;
-            case self::INFO:
-                return LOG_INFO;
-            case self::WARN:
-                return LOG_WARNING;
-            case self::ERROR:
-                return LOG_ERR;
-            case self::FATAL:
-                return LOG_CRIT;
-            case self::AUDIT:
-                return LOG_NOTICE;
-            default:
-                return LOG_WARNING;
-        }
+        return new JSONSerializer;
     }
 }
