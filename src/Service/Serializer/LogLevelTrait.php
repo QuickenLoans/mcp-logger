@@ -5,10 +5,10 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Service\Serializer;
+namespace QL\MCP\Logger\Service\Serializer;
 
-use MCP\Logger\QLLogLevel;
 use Psr\Log\LogLevel as PSRLogLevel;
+use QL\MCP\Logger\QLLogLevel;
 
 /**
  * Utility for:

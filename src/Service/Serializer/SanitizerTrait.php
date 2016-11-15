@@ -5,7 +5,7 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Service\Serializer;
+namespace QL\MCP\Logger\Service\Serializer;
 
 use QL\MCP\Common\GUID;
 use QL\MCP\Common\IPv4Address;

@@ -5,19 +5,19 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Service;
+namespace QL\MCP\Logger\Service;
 
-use MCP\Logger\Exception;
-use Psr\Log\LogLevel;
-use MCP\Logger\MessageInterface;
-use MCP\Logger\Message\Message;
-use MCP\Logger\Service\Serializer\JSONSerializer;
-use MCP\Logger\Service\Serializer\LineSerializer;
 use Mockery;
+use Psr\Log\LogLevel;
 use PHPUnit_Framework_TestCase;
 use QL\MCP\Common\GUID;
 use QL\MCP\Common\IPv4Address;
 use QL\MCP\Common\Time\TimePoint;
+use QL\MCP\Logger\Exception;
+use QL\MCP\Logger\MessageInterface;
+use QL\MCP\Logger\Message\Message;
+use QL\MCP\Logger\Service\Serializer\JSONSerializer;
+use QL\MCP\Logger\Service\Serializer\LineSerializer;
 use ReflectionClass;
 
 function openlog()

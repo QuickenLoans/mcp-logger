@@ -5,7 +5,7 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger;
+namespace QL\MCP\Logger;
 
 use PHPUnit_Framework_TestCase;
 use Psr\Log\LoggerInterface;

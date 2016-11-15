@@ -5,13 +5,13 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Service;
+namespace QL\MCP\Logger\Service;
 
-use MCP\Logger\Exception;
-use MCP\Logger\MessageInterface;
-use MCP\Logger\Service\Serializer\JSONSerializer;
-use MCP\Logger\Service\Serializer\LogLevelTrait;
-use MCP\Logger\ServiceInterface;
+use QL\MCP\Logger\Exception;
+use QL\MCP\Logger\MessageInterface;
+use QL\MCP\Logger\Service\Serializer\JSONSerializer;
+use QL\MCP\Logger\Service\Serializer\LogLevelTrait;
+use QL\MCP\Logger\ServiceInterface;
 
 /**
  * Logging service for sending logs to Syslog

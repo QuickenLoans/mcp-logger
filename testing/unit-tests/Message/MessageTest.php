@@ -5,15 +5,15 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Message;
+namespace QL\MCP\Logger\Message;
 
-use MCP\Logger\Exception;
-use MCP\Logger\Testing\FixtureLoadingTestCase;
+use QL\MCP\Logger\Exception;
+use QL\MCP\Logger\Testing\FixtureLoadingTestCase;
 use stdClass;
 
 /**
- * @covers MCP\Logger\Message\Message
- * @covers MCP\Logger\Message\MessageLoadingTrait
+ * @covers QL\MCP\Logger\Message\Message
+ * @covers QL\MCP\Logger\Message\MessageLoadingTrait
  */
 class MessageTest extends FixtureLoadingTestCase
 {

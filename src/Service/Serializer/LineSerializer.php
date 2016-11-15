@@ -5,10 +5,10 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Service\Serializer;
+namespace QL\MCP\Logger\Service\Serializer;
 
-use MCP\Logger\MessageInterface;
-use MCP\Logger\Service\SerializerInterface;
+use QL\MCP\Logger\MessageInterface;
+use QL\MCP\Logger\Service\SerializerInterface;
 
 /**
  * Serializer for formatting messages into a single line.

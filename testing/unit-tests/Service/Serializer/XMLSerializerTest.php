@@ -5,10 +5,10 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Service\Serializer;
+namespace QL\MCP\Logger\Service\Serializer;
 
-use MCP\Logger\Message\Message;
-use MCP\Logger\Testing\FixtureLoadingTestCase;
+use QL\MCP\Logger\Message\Message;
+use QL\MCP\Logger\Testing\FixtureLoadingTestCase;
 
 class XMLSerializerTest extends FixtureLoadingTestCase
 {

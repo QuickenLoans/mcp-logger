@@ -5,14 +5,14 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger;
+namespace QL\MCP\Logger;
 
 use Mockery;
 use PHPUnit_Framework_TestCase;
 use Psr\Log\LogLevel;
+use QL\MCP\Logger\Message\MessageFactory;
+use QL\MCP\Logger\Service\SyslogService;
 use ReflectionClass;
-use MCP\Logger\Message\MessageFactory;
-use MCP\Logger\Service\SyslogService;
 
 class LoggerTest extends PHPUnit_Framework_TestCase
 {

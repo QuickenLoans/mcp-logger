@@ -25,7 +25,7 @@
         ]
     },
     "autoload": {
-        "psr-4": { "MCP\\Logger\\": "src" }
+        "psr-4": { "QL\\MCP\\Logger\\": "src" }
     },
 
     "require": {

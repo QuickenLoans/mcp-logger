@@ -5,13 +5,13 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Message;
+namespace QL\MCP\Logger\Message;
 
-use MCP\Logger\MessageInterface;
 use Psr\Log\LogLevel;
 use QL\MCP\Common\GUID;
 use QL\MCP\Common\IPv4Address;
 use QL\MCP\Common\Time\TimePoint;
+use QL\MCP\Logger\MessageInterface;
 
 /**
  * This class represents a basic structured log message.

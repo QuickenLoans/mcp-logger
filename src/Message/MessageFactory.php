@@ -5,14 +5,14 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Message;
+namespace QL\MCP\Logger\Message;
 
-use MCP\Logger\Exception;
-use MCP\Logger\MessageFactoryInterface;
-use MCP\Logger\MessageInterface;
 use Psr\Log\LogLevel;
 use QL\MCP\Common\Time\Clock;
 use QL\MCP\Common\IPv4Address;
+use QL\MCP\Logger\Exception;
+use QL\MCP\Logger\MessageFactoryInterface;
+use QL\MCP\Logger\MessageInterface;
 
 /**
  * This factory builds a message that can be sent through the logger service.

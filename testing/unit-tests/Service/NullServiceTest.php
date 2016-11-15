@@ -5,11 +5,11 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Service;
+namespace QL\MCP\Logger\Service;
 
-use MCP\Logger\MessageInterface;
 use Mockery;
 use PHPUnit_Framework_TestCase;
+use QL\MCP\Logger\MessageInterface;
 
 class NullServiceTest extends PHPUnit_Framework_TestCase
 {

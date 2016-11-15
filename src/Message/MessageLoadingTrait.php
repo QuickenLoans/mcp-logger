@@ -5,11 +5,11 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Message;
+namespace QL\MCP\Logger\Message;
 
 use JsonSerializable;
-use MCP\Logger\Exception;
 use Psr\Log\LogLevel;
+use QL\MCP\Logger\Exception;
 
 trait MessageLoadingTrait
 {

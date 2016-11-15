@@ -5,16 +5,16 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Message;
+namespace QL\MCP\Logger\Message;
 
-use MCP\Logger\Exception;
-use MCP\Logger\Testing\Stringable;
 use Mockery;
 use PHPUnit_Framework_TestCase;
 use Psr\Log\LogLevel;
 use QL\MCP\Common\IPv4Address;
 use QL\MCP\Common\Time\Clock;
 use QL\MCP\Common\Time\TimePoint;
+use QL\MCP\Logger\Exception;
+use QL\MCP\Logger\Testing\Stringable;
 use stdClass;
 
 class MessageFactoryTest extends PHPUnit_Framework_TestCase

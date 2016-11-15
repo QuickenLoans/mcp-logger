@@ -5,7 +5,7 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Testing;
+namespace QL\MCP\Logger\Testing;
 
 /**
  * @codeCoverageIgnore

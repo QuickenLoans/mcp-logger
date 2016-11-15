@@ -5,13 +5,13 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Service;
+namespace QL\MCP\Logger\Service;
 
 use Exception as BaseException;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Message\ResponseInterface as Guzzle5ResponseInterface;
-use MCP\Logger\Exception;
 use Psr\Http\Message\ResponseInterface;
+use QL\MCP\Logger\Exception;
 use RuntimeException;
 
 /**

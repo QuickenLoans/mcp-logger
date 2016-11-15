@@ -14,6 +14,7 @@ This package follows [semver](http://semver.org/) versioning.
 - Added constants to **MessageInterface** to easily allow setting properties consistently.
 
 ### Changed
+- Changed namespace from `MCP\Logger\*` to `QL\MCP\Logger\*`.
 - **LoggerFiltered** renamed to **FilterLogger** to match Monolog naming convention.
 - **LogLevelInterface** renamed to **QLLogLevel**.
 - Most services or other classes now have defaults for several dependencies.

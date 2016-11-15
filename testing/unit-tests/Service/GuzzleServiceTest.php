@@ -5,17 +5,17 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Service;
+namespace QL\MCP\Logger\Service;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Message\Response;
 use GuzzleHttp\Subscriber\Mock;
-use MCP\Logger\Exception;
-use MCP\Logger\MessageInterface;
-use MCP\Logger\Service\Serializer\XMLSerializer;
 use Mockery;
 use PHPUnit_Framework_TestCase;
+use QL\MCP\Logger\Exception;
+use QL\MCP\Logger\MessageInterface;
+use QL\MCP\Logger\Service\Serializer\XMLSerializer;
 use ReflectionClass;
 
 class GuzzleServiceTest extends PHPUnit_Framework_TestCase

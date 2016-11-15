@@ -5,7 +5,7 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger;
+namespace QL\MCP\Logger;
 
 /**
  * Valid log severities for the QL structured log message standard.

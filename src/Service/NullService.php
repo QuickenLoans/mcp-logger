@@ -5,10 +5,10 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Service;
+namespace QL\MCP\Logger\Service;
 
-use MCP\Logger\MessageInterface;
-use MCP\Logger\ServiceInterface;
+use QL\MCP\Logger\MessageInterface;
+use QL\MCP\Logger\ServiceInterface;
 
 /**
  * The null logging service silently consumes all messages

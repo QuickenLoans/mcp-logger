@@ -5,16 +5,16 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace MCP\Logger\Service;
+namespace QL\MCP\Logger\Service;
 
 use Exception as BaseException;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Message\ResponseInterface as Guzzle5ResponseInterface;
-use MCP\Logger\Exception;
-use MCP\Logger\MessageInterface;
-use MCP\Logger\ServiceInterface;
-use MCP\Logger\Service\Serializer\XMLSerializer;
+use QL\MCP\Logger\Exception;
+use QL\MCP\Logger\MessageInterface;
+use QL\MCP\Logger\ServiceInterface;
+use QL\MCP\Logger\Service\Serializer\XMLSerializer;
 use Psr\Http\Message\ResponseInterface;
 
 /**
