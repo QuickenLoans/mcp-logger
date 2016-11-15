@@ -10,7 +10,7 @@ namespace MCP\Logger;
 /**
  * Valid log severities for the QL structured log message standard.
  */
-interface LogLevelInterface
+interface QLLogLevel
 {
     const DEBUG = 'debug';
     const INFO = 'info';

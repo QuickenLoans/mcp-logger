@@ -7,8 +7,8 @@
 
 namespace MCP\Logger\Service\Serializer;
 
-use MCP\Logger\LogLevelInterface as QLLogLevel;
 use MCP\Logger\MessageInterface;
+use MCP\Logger\QLLogLevel;
 use MCP\Logger\Service\SerializerInterface;
 
 /**
