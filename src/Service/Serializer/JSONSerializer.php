@@ -50,15 +50,13 @@ class JSONSerializer implements SerializerInterface
      */
     public function __invoke(MessageInterface $message)
     {
-        // GUID formatted as "74EC705A-AD08-42A6-BCC5-5B9F93FAB0F4"
-        $guid = strtolower(substr($message->id()->asHumanReadable(), 1, -1));
         $severity = $this->convertLogLevelFromPSRToQL($message->severity());
         $isDisrupted = in_array($severity, [QLLogLevel::ERROR, QLLogLevel::FATAL]);
 
         $context = $message->context();
 
         $data = [
-            'ID' => $guid,
+            'ID' => $this->sanitizeGUID($message->id()),
             'AppID' => $this->sanitizeInteger($message->applicationID()),
             'Created' => $this->sanitizeTime($message->created()),
 

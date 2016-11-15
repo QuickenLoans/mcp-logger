@@ -7,6 +7,7 @@
 
 namespace MCP\Logger\Service\Serializer;
 
+use QL\MCP\Common\GUID;
 use QL\MCP\Common\IPv4Address;
 use QL\MCP\Common\Time\TimePoint;
 
@@ -30,6 +31,16 @@ trait SanitizerTrait
     protected function sanitizeInteger($value)
     {
         return filter_var($value, FILTER_SANITIZE_NUMBER_INT);
+    }
+
+    /**
+     * @param GUID $value
+     *
+     * @return string
+     */
+    protected function sanitizeGUID(GUID $value)
+    {
+        return strtolower(substr($value->asHumanReadable(), 1, -1));
     }
 
     /**

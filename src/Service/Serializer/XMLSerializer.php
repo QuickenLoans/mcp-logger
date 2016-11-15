@@ -47,13 +47,11 @@ class XMLSerializer implements SerializerInterface
     {
         $xml = $this->generator;
 
-        // GUID formatted as "74EC705A-AD08-42A6-BCC5-5B9F93FAB0F4"
-        $guid = strtolower(substr($message->id()->asHumanReadable(), 1, -1));
         $severity = $this->convertLogLevelFromPSRToQL($message->severity());
         $isDisrupted = in_array($severity, [QLLogLevel::ERROR, QLLogLevel::FATAL]);
 
         $context = $message->context();
-        $context['LogEntryClientID'] = $guid;
+        $context['LogEntryClientID'] = $this->sanitizeGUID($message->id());
 
         $entry = [
             '@xmlns:i' => self::XMLNS_SCHEMA,
