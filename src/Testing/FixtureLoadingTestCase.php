@@ -85,6 +85,6 @@ class FixtureLoadingTestCase extends PHPUnit_Framework_TestCase
      */
     protected static function getFixturesDir()
     {
-        return realpath(__DIR__ . '/../fixtures');
+        return realpath(__DIR__ . '/../../testing/fixtures');
     }
 }

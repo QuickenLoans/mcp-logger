@@ -25,27 +25,23 @@
         ]
     },
     "autoload": {
-        "psr-4": {
-            "MCP\\Logger\\": "src",
-            "MCP\\Logger\\Testing\\": "testing/src"
-        }
+        "psr-4": { "MCP\\Logger\\": "src" }
     },
 
     "require": {
         "php": "~5.6 || ~7.0",
 
         "ql/mcp-common": "~1.0",
-        "ql/uri-template": "~1.0",
         "paragonie/random_compat": "^1.1",
         "psr/log": "*"
     },
     "require-dev": {
-        "guzzlehttp/guzzle": "^5.0",
+        "guzzlehttp/guzzle": "~5.0.0",
         "mockery/mockery": "~0.9",
         "phpunit/phpunit": "~5.6"
 
     },
     "suggest": {
-        "guzzlehttp/guzzle": "Required when using the Guzzle 5, Guzzle 6 services."
+        "guzzlehttp/guzzle": "Required when using the Guzzle logger service."
     }
 }

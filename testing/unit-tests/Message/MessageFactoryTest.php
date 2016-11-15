@@ -8,7 +8,7 @@
 namespace MCP\Logger\Message;
 
 use MCP\Logger\Exception;
-use MCP\Logger\Testing\Mock\Stringable;
+use MCP\Logger\Testing\Stringable;
 use Mockery;
 use PHPUnit_Framework_TestCase;
 use Psr\Log\LogLevel;
