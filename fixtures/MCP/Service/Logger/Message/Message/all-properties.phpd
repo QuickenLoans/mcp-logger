@@ -1,0 +1,25 @@
+array(
+    'affectedSystem' => 'Empire',
+    'applicationId' => '10',
+    'categoryId' => '200',
+    'createTime' => Mockery::mock('MCP\DataType\Time\TimePoint'),
+    'exceptionData' => 'beep boop',
+    'extendedProperties' => array(
+        'key' => 'value',
+        'key2' => 'value2'
+    ),
+    'isUserDisrupted' => true,
+    'level' => 'Fatal',
+    'machineIPAddress' => Mockery::mock('MCP\DataType\IPv4Address'),
+    'machineName' => 'Deathstar',
+    'message' => 'I used to bullseye womp rats in my T-16',
+    'referrer' => 'Uncle Ben',
+    'requestMethod' => 'DELETE',
+    'url' => 'Spaaaaaace',
+    'userAgentBrowser' => 'X-Wing',
+    'userCommonId' => 5,
+    'userDisplayName' => 'Skywalker',
+    'userIPAddress' => Mockery::mock('MCP\DataType\IPv4Address'),
+    'userName' => 'Luke',
+    'userScreenName' => 'Red 5'
+)

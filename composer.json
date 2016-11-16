@@ -1,0 +1,60 @@
+{
+    "name": "ql/mcp-logger",
+    "description": "Libraries for handing Core Logger within Quicken Loans.",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Matt Nagi",
+            "email": "mattnagi@quickenloans.com",
+            "role": "Tech Lead"
+        },
+        {
+            "name": "Steven Snider",
+            "email": "stevensnider@quickenloans.com",
+            "role": "Contributor"
+        },
+        {
+            "name": "Steve Kluck",
+            "email": "stevekluck@quickenloans.com",
+            "role": "Contributor"
+        }
+    ],
+    "support": {
+        "email": "stevekluck@quickenloans.com",
+        "issues": "http://git/mnagi/mcp-logger/issues",
+        "source": "http://git/mnagi/mcp-logger"
+    },
+
+    "autoload": {
+        "psr-0": {
+            "MCP\\Service\\Logger\\": "src",
+            "MCP\\Testing\\": "src"
+        }
+    },
+    "conflict": {
+        "ql/mcp": "*"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "http://composer/"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "ext-http": "*",
+        "ext-date": "*",
+        "ext-xmlwriter": "*",
+        "ql/mcp-core": "1.0.*@RC"
+    },
+    "require-dev": {
+        "mockery/mockery": ">=0.8",
+        "phpunit/phpunit": "*",
+        "phpunit/php-invoker": "*",
+
+        "psr/log": "*"
+    },
+    "suggest": {
+        "psr/log": "Required to use the included PSR-3 logger"
+    }
+}

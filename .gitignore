@@ -1,3 +1,14 @@
-/vendor/
-/build/
+# miscellaneous
+/phpmd.xml
 /phpunit.xml
+
+# ide specific configuration
+*.swo
+*.swp
+/nbproject/
+
+# build directory
+/build/
+
+# package installation
+/vendor/

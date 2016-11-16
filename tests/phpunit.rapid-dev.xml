@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<phpunit
+    backupGlobals="false"
+    backupStaticAttributes="false"
+    bootstrap="../tests/bootstrap.php"
+    cacheTokens="true"
+    colors="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    forceCoversAnnotation="true"
+    mapTestClassNameToCoveredClassName="true"
+    processIsolation="false"
+    stopOnError="false"
+    stopOnFailure="false"
+    stopOnIncomplete="false"
+    stopOnSkipped="false"
+    strict="true"
+    timeoutForSmallTests="2"
+    verbose="true">
+
+  <filter>
+    <whitelist processUncoveredFilesFromWhitelist="true">
+      <directory>../src/</directory>
+    </whitelist>
+  </filter>
+
+  <groups>
+    <exclude>
+      <group>integration</group>
+    </exclude>
+  </groups>
+
+  <listeners>
+    <listener class="\Mockery\Adapter\Phpunit\TestListener" file="vendor/mockery/mockery/library/Mockery/Adapter/Phpunit/TestListener.php"></listener>
+  </listeners>
+
+
+
+
+
+
+
+
+
+
+  <testsuites>
+    <testsuite name="MCP Logger Unit Tests">
+      <directory>../tests/MCP</directory>
+    </testsuite>
+    <testsuite name="MCP Logger Integration Tests">
+      <directory>../tests/integration/MCP</directory>
+    </testsuite>
+  </testsuites>
+
+  <php>
+    <ini name="display_errors" value="On" />
+    <ini name="error_reporting" value="32767" />
+    <ini name="memory_limit" value="1G" />
+  </php>
+</phpunit>

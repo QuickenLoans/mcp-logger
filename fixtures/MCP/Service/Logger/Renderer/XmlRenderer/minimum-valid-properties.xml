@@ -1,0 +1,10 @@
+<LogEntry xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://rock/framework/logging">
+    <ApplicationId>5</ApplicationId>
+    <CreateTime>date</CreateTime>
+    <ExtendedProperties xmlns:d2p1="http://schemas.datacontract.org/2004/07/Rock.Framework.Logging"/>
+    <IsUserDisrupted>false</IsUserDisrupted>
+    <Level>Info</Level>
+    <MachineIPAddress>0.0.0.0</MachineIPAddress>
+    <MachineName>machine</MachineName>
+    <Message>message</Message>
+</LogEntry>

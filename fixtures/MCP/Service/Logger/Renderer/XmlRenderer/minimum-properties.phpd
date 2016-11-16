@@ -1,0 +1,22 @@
+array(
+    'affectedSystem' => null,
+    'applicationId' => null,
+    'categoryId' => null,
+    'createTime' => null,
+    'exceptionData' => null,
+    'extendedProperties' => null,
+    'isUserDisrupted' => null,
+    'level' => null,
+    'machineIPAddress' => null,
+    'machineName' => null,
+    'message' => null,
+    'referrer' => null,
+    'requestMethod' => null,
+    'url' => null,
+    'userAgentBrowser' => null,
+    'userCommonId' => null,
+    'userDisplayName' => null,
+    'userIPAddress' => null,
+    'userName' => null,
+    'userScreenName' => null
+)

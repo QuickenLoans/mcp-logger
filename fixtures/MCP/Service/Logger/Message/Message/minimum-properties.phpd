@@ -1,0 +1,7 @@
+array(
+    'applicationId' => '5',
+    'createTime' => Mockery::mock('MCP\DataType\Time\TimePoint'),
+    'machineIPAddress' => Mockery::mock('MCP\DataType\IPv4Address'),
+    'machineName' => 'machine',
+    'message' => 'message'
+)

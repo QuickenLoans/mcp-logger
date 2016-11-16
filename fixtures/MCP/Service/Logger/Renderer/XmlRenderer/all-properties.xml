@@ -1,0 +1,31 @@
+<LogEntry xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://rock/framework/logging">
+    <ApplicationId>10</ApplicationId>
+    <CreateTime>1977-05-25 03:00:00</CreateTime>
+    <ExtendedProperties xmlns:d2p1="http://schemas.datacontract.org/2004/07/Rock.Framework.Logging">
+        <d2p1:Entry>
+            <d2p1:Key>key</d2p1:Key>
+            <d2p1:Value>value</d2p1:Value>
+        </d2p1:Entry>
+        <d2p1:Entry>
+            <d2p1:Key>key2</d2p1:Key>
+            <d2p1:Value>value2</d2p1:Value>
+        </d2p1:Entry>
+    </ExtendedProperties>
+    <IsUserDisrupted>true</IsUserDisrupted>
+    <Level>Fatal</Level>
+    <MachineIPAddress>127.0.0.1</MachineIPAddress>
+    <MachineName>Deathstar</MachineName>
+    <Message>I used to bullseye womp rats in my T-16</Message>
+    <AffectedSystem>Empire</AffectedSystem>
+    <CategoryId>200</CategoryId>
+    <ExceptionData>beep boop</ExceptionData>
+    <Referrer>Uncle Ben</Referrer>
+    <RequestMethod>DELETE</RequestMethod>
+    <Url>Spaaaaaace</Url>
+    <UserAgentBrowser>X-Wing</UserAgentBrowser>
+    <UserCommonId>5</UserCommonId>
+    <UserDisplayName>Skywalker</UserDisplayName>
+    <UserIPAddress>192.168.0.1</UserIPAddress>
+    <UserName>Luke</UserName>
+    <UserScreenName>Red 5</UserScreenName>
+</LogEntry>
