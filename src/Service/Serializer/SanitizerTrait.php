@@ -40,7 +40,7 @@ trait SanitizerTrait
      */
     protected function sanitizeGUID(GUID $value)
     {
-        return strtolower(substr($value->asHumanReadable(), 1, -1));
+        return $value->format(GUID::HYPENATED);
     }
 
     /**

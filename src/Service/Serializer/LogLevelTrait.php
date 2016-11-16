@@ -8,7 +8,6 @@
 namespace QL\MCP\Logger\Service\Serializer;
 
 use Psr\Log\LogLevel as PSRLogLevel;
-use QL\MCP\Logger\QLLogLevel;
 
 /**
  * Utility for:
@@ -25,56 +24,75 @@ trait LogLevelTrait
      * Translate a PRS-3 log level to QL log level
      *
      * Not used:
-     *     - QLLogLevel::AUDIT
+     *     - 'audit'
      *
-     * @param string $level
+     * @param string $severity
      *
      * @return string
      */
-    public function convertLogLevelFromPSRToQL($level)
+    public function convertLogLevelFromPSRToQL($severity)
     {
         // Equal mappings
-        if ($level === PSRLogLevel::DEBUG) {
-            return QLLogLevel::DEBUG;
+        if ($severity === PSRLogLevel::DEBUG) {
+            return 'debug';
 
-        } elseif ($level === PSRLogLevel::INFO) {
-            return QLLogLevel::INFO;
+        } elseif ($severity === PSRLogLevel::INFO) {
+            return 'info';
 
-        } elseif ($level === PSRLogLevel::WARNING) {
-            return QLLogLevel::WARNING;
+        } elseif ($severity === PSRLogLevel::WARNING) {
+            return 'warn';
 
-        } elseif ($level === PSRLogLevel::ERROR) {
-            return QLLogLevel::ERROR;
+        } elseif ($severity === PSRLogLevel::ERROR) {
+            return 'error';
         }
 
         // Duplicate mappings
-        if ($level === PSRLogLevel::NOTICE) {
-            return QLLogLevel::INFO;
+        if ($severity === PSRLogLevel::NOTICE) {
+            return 'info';
 
-        } elseif ($level === PSRLogLevel::CRITICAL) {
-            return QLLogLevel::FATAL;
+        } elseif ($severity === PSRLogLevel::CRITICAL) {
+            return 'fatal';
 
-        } elseif ($level === PSRLogLevel::ALERT) {
-            return QLLogLevel::FATAL;
+        } elseif ($severity === PSRLogLevel::ALERT) {
+            return 'fatal';
 
-        } elseif ($level === PSRLogLevel::EMERGENCY) {
-            return QLLogLevel::FATAL;
+        } elseif ($severity === PSRLogLevel::EMERGENCY) {
+            return 'fatal';
         }
 
         // Default to error
-        return QLLogLevel::ERROR;
+        return 'error';
+    }
+
+    /**
+     * Is a PSR-3 log severity disruptive to users?
+     *
+     * @param string $severity
+     *
+     * @return bool
+     */
+    public function isLogLevelDisruptive($severity)
+    {
+        $disruptives = [
+            PSRLogLevel::ERROR,
+            PSRLogLevel::CRITICAL,
+            PSRLogLevel::ALERT,
+            PSRLogLevel::EMERGENCY
+        ];
+
+        return in_array($severity, $disruptives, true);
     }
 
     /**
      * Translate a PRS-3 log level to Syslog log level
      *
-     * @param string $level
+     * @param string $severity
      *
      * @return int
      */
-    public function convertLogLevelFromPSRToSyslog($level)
+    public function convertLogLevelFromPSRToSyslog($severity)
     {
-        switch ($level) {
+        switch ($severity) {
             case PSRLogLevel::DEBUG:
                 return LOG_DEBUG;
             case PSRLogLevel::INFO:

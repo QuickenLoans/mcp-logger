@@ -8,7 +8,6 @@
 namespace QL\MCP\Logger\Service\Serializer;
 
 use QL\MCP\Logger\MessageInterface;
-use QL\MCP\Logger\QLLogLevel;
 use QL\MCP\Logger\Service\SerializerInterface;
 
 /**
@@ -51,16 +50,13 @@ class JSONSerializer implements SerializerInterface
     public function __invoke(MessageInterface $message)
     {
         $severity = $this->convertLogLevelFromPSRToQL($message->severity());
-        $isDisrupted = in_array($severity, [QLLogLevel::ERROR, QLLogLevel::FATAL]);
-
-        $context = $message->context();
 
         $data = [
             'ID' => $this->sanitizeGUID($message->id()),
             'AppID' => $this->sanitizeInteger($message->applicationID()),
             'Created' => $this->sanitizeTime($message->created()),
 
-            'UserIsDisrupted' => $isDisrupted,
+            'UserIsDisrupted' => $this->isLogLevelDisruptive($message->severity()),
             'Level' => $this->sanitizeString($severity),
             'ServerIP' => $this->sanitizeIP($message->serverIP()),
             'ServerHostname' => $this->sanitizeString($message->serverHostname()),
@@ -68,7 +64,7 @@ class JSONSerializer implements SerializerInterface
         ];
 
         $optionals = [
-            'Properties' => $this->buildContext($context),
+            'Properties' => $this->buildContext($message->context()),
             'Environment' => $this->sanitizeString($message->serverEnvironment()),
             'Exception' => $this->sanitizeString($message->errorDetails()),
 

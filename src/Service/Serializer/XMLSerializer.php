@@ -8,7 +8,6 @@
 namespace QL\MCP\Logger\Service\Serializer;
 
 use QL\MCP\Logger\MessageInterface;
-use QL\MCP\Logger\QLLogLevel;
 use QL\MCP\Logger\Service\SerializerInterface;
 
 /**
@@ -45,10 +44,7 @@ class XMLSerializer implements SerializerInterface
      */
     public function __invoke(MessageInterface $message)
     {
-        $xml = $this->generator;
-
         $severity = $this->convertLogLevelFromPSRToQL($message->severity());
-        $isDisrupted = in_array($severity, [QLLogLevel::ERROR, QLLogLevel::FATAL]);
 
         $context = $message->context();
         $context['LogEntryClientID'] = $this->sanitizeGUID($message->id());
@@ -59,7 +55,7 @@ class XMLSerializer implements SerializerInterface
             'ApplicationId' => $this->sanitizeInteger($message->applicationID()),
             'CreateTime' => $this->sanitizeTime($message->created()),
             'ExtendedProperties' => $this->buildContext($context),
-            'IsUserDisrupted' => $isDisrupted,
+            'IsUserDisrupted' => $this->isLogLevelDisruptive($message->severity()),
             'Level' => $this->sanitizeString($severity),
             'MachineIPAddress' => $this->sanitizeIP($message->serverIP()),
             'MachineName' => $this->sanitizeString($message->serverHostname()),
