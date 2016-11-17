@@ -14,131 +14,88 @@ use Mockery;
 
 class FilterLoggerTest extends PHPUnit_Framework_TestCase
 {
-    public function testMessageNotSentWhenMinimumLevelSet()
-    {
-        $logger = Mockery::mock(LoggerInterface::class);
+    public $logger;
 
-        $filter = new FilterLogger($logger, LogLevel::ERROR);
+    public function setUp()
+    {
+        $this->logger = Mockery::spy(LoggerInterface::class);
+    }
+
+    public function testAllMessagesLoggedByDefault()
+    {
+        $filter = new FilterLogger($this->logger);
 
         $filter->debug('test');
+        $filter->alert('test 2');
+
+        $this->logger
+            ->shouldHaveReceived('log', ['debug', 'test', []]);
+        $this->logger
+            ->shouldHaveReceived('log', ['alert', 'test 2', []]);
     }
 
-    public function testMessageSentWhenAboveMinimum()
+    public function testMessageNotLoggedWhenBelowLowestLevel()
     {
-        $level = LogLevel::ERROR;
-        $message = 'test';
+        $filter = new FilterLogger($this->logger, LogLevel::ERROR);
 
-        $logger = Mockery::mock(LoggerInterface::class);
+        $filter->debug('test');
 
-        $logger
-            ->shouldReceive('log')
-            ->once()
-            ->with($level, $message, []);
-
-        $filter = new FilterLogger($logger, LogLevel::DEBUG);
-
-        $filter->log($level, $message);
+        $this->logger
+            ->shouldNotHaveReceived('log');
     }
 
-    public function testSetGetMinimumLevel()
+    public function testMessageLoggedWhenAtLowestLevel()
     {
-        $logger = Mockery::mock(LoggerInterface::class);
-        $filter = new FilterLogger($logger, LogLevel::DEBUG);
+        $filter = new FilterLogger($this->logger, LogLevel::ERROR);
 
-        $this->assertEquals(LogLevel::DEBUG, $filter->getLevel());
+        $filter->error('test');
 
-        $filter->setLevel(LogLevel::WARNING);
-
-        $this->assertEquals(LogLevel::WARNING, $filter->getLevel());
+        $this->logger
+            ->shouldHaveReceived('log', [LogLevel::ERROR, 'test', []]);
     }
 
-    public function testGetDefaultLevel()
+    public function testMessageLoggedWhenAboveLowest()
     {
-        $logger = Mockery::mock(LoggerInterface::class);
-        $filter = new FilterLogger($logger);
+        $filter = new FilterLogger($this->logger, LogLevel::DEBUG);
 
-        $this->assertEquals(LogLevel::DEBUG, $filter->getLevel());
+        $filter->log(LogLevel::ERROR, 'test');
+
+        $this->logger
+            ->shouldHaveReceived('log', [LogLevel::ERROR, 'test', []]);
     }
 
-    public function testSetValidLevel()
+    public function testChangingLowestLevel()
     {
-        $logger = Mockery::mock(LoggerInterface::class);
-        $filter = new FilterLogger($logger);
-        $filter->setLevel(LogLevel::WARNING);
+        $filter = new FilterLogger($this->logger, 'warning');
+        $filter->setLevel('alert');
 
-        $this->assertEquals(LogLevel::WARNING, $filter->getLevel());
+        $filter->info('test');
+        $filter->error('test 2');
+        $filter->emergency('test 3');
+
+        $this->logger
+            ->shouldNotHaveReceived('log', ['info', 'test', []]);
+        $this->logger
+            ->shouldNotHaveReceived('log', ['error', 'test 2', []]);
+
+        $this->logger
+            ->shouldHaveReceived('log', ['emergency', 'test 3', []]);
     }
 
-    public function testSetInvalidLevel()
+    public function testSetInvalidLevelThrowsException()
     {
-        $logger = Mockery::mock(LoggerInterface::class);
-        $filter = new FilterLogger($logger);
+        $this->expectException(Exception::class);
+
+        $filter = new FilterLogger($this->logger);
         $filter->setLevel('foo');
-
-        $this->assertEquals(LogLevel::DEBUG, $filter->getLevel());
     }
 
-    public function testShouldLogInvalidLevel()
+    public function testShouldNotLogInvalidLevel()
     {
-        $logger = Mockery::mock(LoggerInterface::class);
+        $filter = new FilterLogger($this->logger, LogLevel::WARNING);
+        $filter->log('foo', 'this is a message');
 
-        $level = 'foo';
-        $message = 'this is a message';
-
-        $logger
-            ->shouldReceive('log')
-            ->once()
-            ->with($level, $message, []);
-
-        $filter = new FilterLogger($logger);
-        $filter->setLevel(LogLevel::WARNING);
-
-        $filter->log($level, $message);
-    }
-
-    public function testShouldLogAboveLevel()
-    {
-        $logger = Mockery::mock(LoggerInterface::class);
-        $filter = new FilterLogger($logger);
-        $filter->setLevel(LogLevel::WARNING);
-
-        $level = LogLevel::ERROR;
-        $message = 'this is a message';
-
-        $logger
-            ->shouldReceive('log')
-            ->once()
-            ->with($level, $message, []);
-
-        $filter->log($level, $message);
-    }
-
-    public function testShouldLogAtLevel()
-    {
-        $logger = Mockery::mock(LoggerInterface::class);
-        $filter = new FilterLogger($logger);
-        $filter->setLevel(LogLevel::WARNING);
-
-        $level = LogLevel::WARNING;
-        $message = 'this is a message';
-
-        $logger
-            ->shouldReceive('log')
-            ->once()
-            ->with($level, $message, []);
-
-        $filter->log($level, $message);
-    }
-
-    public function testShouldLogBelowLevel()
-    {
-        $logger = Mockery::mock(LoggerInterface::class);
-        $filter = new FilterLogger($logger);
-        $filter->setLevel(LogLevel::WARNING);
-
-        $level = LogLevel::DEBUG;
-        $message = 'this is a message';
-
-        $filter->log($level, $message);
+        $this->logger
+            ->shouldNotHaveReceived('log');
     }
 }
