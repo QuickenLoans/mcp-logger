@@ -35,9 +35,9 @@ class XMLSerializerTest extends FixtureLoadingTestCase
 
     public function providerFixtureNames()
     {
-        return array(
-            array('minimum-properties'),
-            array('all-properties')
-        );
+        return [
+            ['minimum-properties'],
+            ['all-properties']
+        ];
     }
 }

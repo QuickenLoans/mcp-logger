@@ -1,0 +1,22 @@
+[
+    'catalog' => [
+        '@id' => 'ct1004',
+        'book' => [
+            [
+                '@id' => 'bk101',
+                '@state' => 'in-print',
+                'author' => 'Gambardella, Matthew',
+                'title' => 'XML Developer\'s Guide'
+            ],
+            [
+                '@id' => 'bk102',
+                '@state' => 'out-of-print',
+                'author' => [
+                    '@status' => 'deceased',
+                    '#text' => 'Ralls, Kim'
+                ],
+                'title' => 'Midnight Rain'
+            ]
+        ]
+    ]
+]
