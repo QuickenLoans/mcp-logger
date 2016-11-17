@@ -12,6 +12,7 @@ This package follows [semver](http://semver.org/) versioning.
 - **ErrorLogService** added to support writing logs to SAPI, OS, or a file.
 - **LineSerializer** added to easily format serialized logs to a single plaintext line.
 - Added constants to **MessageInterface** to easily allow setting properties consistently.
+- Added **BroadcastLogger** to allow broadcasting messages to multiple loggers.
 
 ### Changed
 - Changed namespace from `MCP\Logger\*` to `QL\MCP\Logger\*`.

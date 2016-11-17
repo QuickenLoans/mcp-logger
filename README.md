@@ -13,7 +13,8 @@ but we aim to keep this library small and simple and avoid unnecessary dependenc
 - [Installation](#installation)
 - [Components](#components)
 - [Usage](#usage)
-    - [Filtered Logger](#filtered-logger)
+    - [Filter Logger](#filter-logger)
+    - [Broadcast Logger](#broadcast-logger)
     - [Creating a Message](#creating-a-message)
     - [Sending a Message](#sending-a-message)
 - [Services](#services)
@@ -44,7 +45,8 @@ Additionally, several convenience classes are also available to make connecting 
 
 ## Usage
 
-- [Filtered Logger](#filtered-logger)
+- [Filter Logger](#filter-logger)
+- [Broadcast Logger](#broadcast-logger)
 - [Creating a Message](#creating-a-message)
 - [Sending a Message](#sending-a-message)
 
@@ -76,7 +78,7 @@ $loggerCustom->error('Hello Major Tom, are you receiving me?', [
 ]);
 ```
 
-### Filtered Logger
+### Filter Logger
 
 If you want to set a minimum logging severity and only log message that meet or exceed that level, you may also
 want to use the `FilterLogger` class. This wraps the main logger and provides that filtering functionality.
@@ -97,6 +99,25 @@ $logger->error('Got a big problem over here!');
 
 This is useful for changing the type of messages you want logged between environments or using runtime configuration to
 change the level of detail in your logs on the fly.
+
+### Broadcast Logger
+
+The `BroadcastLogger` class allows for broadcasting a single log message out to multiple logger services. Combined with
+the [Filter Logger](#filter-logger), this can allow for sending high priority messages to an on-call alerting service,
+and lower priority messages such as `debug` or `info` to a lower priority alerting service.
+
+```php
+use QL\MCP\Logger\BroadcastLogger;
+use QL\MCP\Logger\Logger;
+
+$logger = new BroadcastLogger([
+    new Logger,
+    new Logger
+]);
+
+// Messages sent to both loggers.
+$logger->info('Hello World!');
+```
 
 ### Creating a Message
 
