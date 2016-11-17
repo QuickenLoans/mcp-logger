@@ -32,6 +32,60 @@ Run the following commands.
 composer require ql/mcp-logger ~3.0
 ```
 
+### Usage with Symfony
+
+A `mcp-logger.yml` configuration file for symfony config/di is included with this library. This allows for
+easily including mcp logger components and using them within your app.
+
+Add the following somewhere to your symfony DI yml configuration:
+```yaml
+imports:
+    - resource: ../vendor/ql/mcp-logger/configuration/mcp-logger.yml
+```
+
+Then you can use the following services throughout your DI:
+
+- `@mcp.logger` - PSR-3 logger
+    - By default this uses the **Syslog** service.
+- `@mcp.logger.factory` - Message factory
+    - Append additional default parameters to configure the factory.
+- `@mcp.logger.service` - Service used by `mcp.logger`.
+
+See [configuration/mcp-logger.yml](configuration/mcp-logger.yml) for all the services and parameters available.
+
+#### Configure logger through the following parameters:
+
+- `%mcp.logger.default_properties%` - Default message properties
+   > Example:
+   > ```yaml
+   > parameters:
+   >     mcp.logger.syslog.options:
+   >        applicationID: 12345
+   >        serverEnvironment: staging
+   > ```
+
+- `%mcp.logger.syslog.options%` - Customize Syslog Service
+   > Example:
+   > ```yaml
+   > parameters:
+   >     mcp.logger.default_properties:
+   >        ident: mytestapp
+   >        facility: 144 # LOG_LOCAL2
+   > ```
+
+- `%mcp.logger.errorlog.options%` - Customize ErrorLog Service
+- `%mcp.logger.guzzle.options%` - Customize Guzzle Service
+
+
+#### Changing logger service
+
+To change the service used by the logger (if you do not want to use syslog) simply change the main service.
+```yaml
+services:
+    mcp.logger.service:
+        parent: 'mcp.logger.service.errorlog'
+```
+
 ## Components
 
 The MCP Logger consists of three main components:

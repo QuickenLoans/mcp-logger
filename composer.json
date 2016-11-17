@@ -38,8 +38,11 @@
     "require-dev": {
         "guzzlehttp/guzzle": "~5.0.0",
         "mockery/mockery": "~0.9",
-        "phpunit/phpunit": "~5.6"
+        "phpunit/phpunit": "~5.6",
 
+        "symfony/config": "~3.1",
+        "symfony/dependency-injection": "~3.1",
+        "symfony/yaml": "~3.1"
     },
     "suggest": {
         "guzzlehttp/guzzle": "Required when using the Guzzle logger service."
