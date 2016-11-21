@@ -1,5 +1,10 @@
 # MCP Logger
 
+[![Build Status](https://travis-ci.org/quickenloans-mcp/mcp-logger.png)](https://travis-ci.org/quickenloans-mcp/mcp-logger)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/quickenloans-mcp/mcp-logger/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/quickenloans-mcp/mcp-logger/?branch=master)
+[![Latest Stable Version](https://poser.pugx.org/ql/mcp-logger/version)](https://packagist.org/packages/ql/mcp-logger)
+[![License](https://poser.pugx.org/ql/mcp-logger/license)](https://packagist.org/packages/ql/mcp-logger)
+
 Structured logging for Quicken Loans PHP projects.
 
 We prefer structured log messages defined on top of [PSR-3 Logger Interface](http://www.php-fig.org/psr/psr-3/)
