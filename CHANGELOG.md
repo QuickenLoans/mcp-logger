@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file. See [keepac
 
 This package follows [semver](http://semver.org/) versioning.
 
-## [3.0.0] - 2016-11-20
+## [3.0.0] - 2016-11-21
 
 ### Added
 - **GuzzleService** added to support both Guzzle 5 and Guzzle 6.
