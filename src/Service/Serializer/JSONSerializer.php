@@ -100,7 +100,6 @@ class JSONSerializer implements SerializerInterface
     }
 
     /**
-     * @param array $data
      * @param mixed[] $properties
      *
      * @return void
