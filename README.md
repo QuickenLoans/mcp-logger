@@ -64,7 +64,7 @@ See [configuration/mcp-logger.yml](configuration/mcp-logger.yml) for all the ser
    > Example:
    > ```yaml
    > parameters:
-   >     mcp.logger.syslog.options:
+   >     mcp.logger.default_properties:
    >        applicationID: 12345
    >        serverEnvironment: staging
    > ```
@@ -73,7 +73,7 @@ See [configuration/mcp-logger.yml](configuration/mcp-logger.yml) for all the ser
    > Example:
    > ```yaml
    > parameters:
-   >     mcp.logger.default_properties:
+   >     mcp.logger.syslog.options:
    >        ident: mytestapp
    >        facility: 144 # LOG_LOCAL2
    > ```
