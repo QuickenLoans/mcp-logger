@@ -69,17 +69,17 @@ See [configuration/mcp-logger.yml](configuration/mcp-logger.yml) for all the ser
    >        serverEnvironment: staging
    > ```
 
-- `%mcp.logger.syslog.options%` - Customize Syslog Service
+- `%mcp.logger.service.syslog.options%` - Customize Syslog Service
    > Example:
    > ```yaml
    > parameters:
-   >     mcp.logger.syslog.options:
+   >     mcp.logger.service.syslog.options:
    >        ident: mytestapp
    >        facility: 144 # LOG_LOCAL2
    > ```
 
-- `%mcp.logger.errorlog.options%` - Customize ErrorLog Service
-- `%mcp.logger.guzzle.options%` - Customize Guzzle Service
+- `%mcp.logger.service.errorlog.options%` - Customize ErrorLog Service
+- `%mcp.logger.service.guzzle.options%` - Customize Guzzle Service
 
 
 #### Changing logger service
