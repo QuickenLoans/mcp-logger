@@ -85,6 +85,6 @@ class FixtureLoadingTestCase extends TestCase
      */
     protected static function getFixturesDir()
     {
-        return realpath(__DIR__ . '/../../testing/fixtures');
+        return realpath(__DIR__ . '/../../tests/fixtures');
     }
 }

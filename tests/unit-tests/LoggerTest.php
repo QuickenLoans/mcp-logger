@@ -8,13 +8,13 @@
 namespace QL\MCP\Logger;
 
 use Mockery;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
 use QL\MCP\Logger\Message\MessageFactory;
 use QL\MCP\Logger\Service\SyslogService;
 use ReflectionClass;
 
-class LoggerTest extends PHPUnit_Framework_TestCase
+class LoggerTest extends TestCase
 {
     public function testMessageFactoryIsCalledWhenMessageIsLogged()
     {

@@ -8,7 +8,7 @@
 namespace QL\MCP\Logger\Message;
 
 use Mockery;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
 use QL\MCP\Common\IPv4Address;
 use QL\MCP\Common\Time\Clock;
@@ -17,7 +17,7 @@ use QL\MCP\Logger\Exception;
 use QL\MCP\Logger\Testing\Stringable;
 use stdClass;
 
-class MessageFactoryTest extends PHPUnit_Framework_TestCase
+class MessageFactoryTest extends TestCase
 {
     public function testInvalidIpAddressThrowsException()
     {

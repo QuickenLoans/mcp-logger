@@ -8,10 +8,10 @@
 namespace QL\MCP\Logger\Service;
 
 use Mockery;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use QL\MCP\Logger\MessageInterface;
 
-class NullServiceTest extends PHPUnit_Framework_TestCase
+class NullServiceTest extends TestCase
 {
     public function testNothing()
     {

@@ -7,7 +7,7 @@
 
 namespace QL\MCP\Logger;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\Config\FileLocator;
@@ -20,7 +20,7 @@ use QL\MCP\Logger\Service\Serializer\JSONSerializer;
 use QL\MCP\Logger\Service\Serializer\LineSerializer;
 use QL\MCP\Logger\Service\Serializer\XMLSerializer;
 
-class SymfonyIntegrationTest extends PHPUnit_Framework_TestCase
+class SymfonyIntegrationTest extends TestCase
 {
     public function testContainerCompiles()
     {

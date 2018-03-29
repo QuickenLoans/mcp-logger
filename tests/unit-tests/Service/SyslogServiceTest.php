@@ -9,7 +9,7 @@ namespace QL\MCP\Logger\Service;
 
 use Mockery;
 use Psr\Log\LogLevel;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use QL\MCP\Common\GUID;
 use QL\MCP\Common\IPv4Address;
 use QL\MCP\Common\Time\TimePoint;
@@ -36,7 +36,7 @@ function syslog()
     return true;
 }
 
-class SyslogServiceTest extends PHPUnit_Framework_TestCase
+class SyslogServiceTest extends TestCase
 {
     public static $openlogError;
     public static $syslogError;

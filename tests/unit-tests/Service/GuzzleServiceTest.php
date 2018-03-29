@@ -12,13 +12,13 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Message\Response;
 use GuzzleHttp\Subscriber\Mock;
 use Mockery;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use QL\MCP\Logger\Exception;
 use QL\MCP\Logger\MessageInterface;
 use QL\MCP\Logger\Service\Serializer\XMLSerializer;
 use ReflectionClass;
 
-class GuzzleServiceTest extends PHPUnit_Framework_TestCase
+class GuzzleServiceTest extends TestCase
 {
     public static $logSetting;
     public $uri;
