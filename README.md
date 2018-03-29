@@ -1,9 +1,9 @@
-# MCP Logger
+[![CircleCI](https://img.shields.io/circleci/project/github/quickenloans-mcp/mcp-logger.svg?label=circleci)](https://circleci.com/gh/quickenloans-mcp/mcp-logger)
+[![Latest Stable Version](https://img.shields.io/packagist/v/ql/mcp-logger.svg?label=stable)](https://packagist.org/packages/ql/mcp-logger)
+[![GitHub License](https://img.shields.io/github/license/quickenloans-mcp/mcp-logger.svg)](https://packagist.org/packages/ql/mcp-logger)
+![GitHub Language](https://img.shields.io/github/languages/top/quickenloans-mcp/mcp-logger.svg)
 
-[![Build Status](https://travis-ci.org/quickenloans-mcp/mcp-logger.png)](https://travis-ci.org/quickenloans-mcp/mcp-logger)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/quickenloans-mcp/mcp-logger/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/quickenloans-mcp/mcp-logger/?branch=master)
-[![Latest Stable Version](https://poser.pugx.org/ql/mcp-logger/version)](https://packagist.org/packages/ql/mcp-logger)
-[![License](https://poser.pugx.org/ql/mcp-logger/license)](https://packagist.org/packages/ql/mcp-logger)
+# MCP Logger
 
 Structured logging for Quicken Loans PHP projects.
 
