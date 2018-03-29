@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file. See [keepac
 
 This package follows [semver](http://semver.org/) versioning.
 
+## [3.1.0] - 2018-03-28
+## Changed
+- This library now requires PHP 7.0 or higher.
+- Added better CI configuration and tests.
+
 ## [3.0.0] - 2016-11-21
 
 ### Added
