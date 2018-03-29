@@ -31,7 +31,7 @@
 
     <testsuites>
         <testsuite>
-            <directory>testing/tests</directory>
+            <directory>tests/unit-tests</directory>
         </testsuite>
     </testsuites>
 

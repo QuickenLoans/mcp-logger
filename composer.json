@@ -6,43 +6,31 @@
     "keywords": [ "mcp", "quickenloans" ],
     "license": "MIT",
     "authors": [
-        {
-            "name": "Steve Kluck",
-            "email": "steve@kluck.engineering"
-        },
-        {
-            "name": "Matt Colf",
-            "email": "mattcolf@quickenloans.com"
-        }
+        { "name": "Steve Kluck", "email": "steve@kluck.engineering" }
     ],
 
-    "archive": {
-        "exclude": [
-            "/phpunit.xml.dist",
-            "/testing",
-            "/docker",
-            "/docker-compose.yml"
-        ]
-    },
     "autoload": {
         "psr-4": { "QL\\MCP\\Logger\\": "src" }
     },
 
     "require": {
-        "php": "~5.6 || ~7.0",
+        "php": "~7.0",
 
         "ql/mcp-common": "^1.1.0",
-        "paragonie/random_compat": "^1.1",
-        "psr/log": "*"
+        "psr/log":       "*"
     },
     "require-dev": {
         "guzzlehttp/guzzle": "~5.3.1",
-        "mockery/mockery": "~0.9",
-        "phpunit/phpunit": "~5.6",
+        "mockery/mockery":   "~0.9",
+        "phpunit/phpunit":   "~6.2",
 
-        "symfony/config": "~3.1",
-        "symfony/dependency-injection": "~3.1",
-        "symfony/yaml": "~3.1"
+        "overtrue/phplint":          "~1.0",
+        "phpstan/phpstan":           "~0.9",
+        "squizlabs/php_codesniffer": "~3.0",
+
+        "symfony/config":               "~3.3",
+        "symfony/dependency-injection": "~3.3",
+        "symfony/yaml":                 "~3.3"
     },
     "suggest": {
         "guzzlehttp/guzzle": "Required when using the Guzzle logger service."
