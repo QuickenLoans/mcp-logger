@@ -102,7 +102,7 @@ class JSONSerializer implements SerializerInterface
     /**
      * @param mixed[] $properties
      *
-     * @return void
+     * @return array
      */
     protected function buildContext($properties)
     {

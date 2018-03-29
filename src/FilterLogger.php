@@ -99,7 +99,10 @@ class FilterLogger implements LoggerInterface
         $accepted = [];
 
         foreach (self::LEVEL_PRIORITIES as $level => $priority) {
-            if ($priority > $lowestPriority) continue;
+            if ($priority > $lowestPriority) {
+                continue;
+            }
+
             $accepted[] = $level;
         }
 

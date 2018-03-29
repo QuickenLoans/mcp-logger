@@ -45,6 +45,11 @@ class ErrorLogService implements ServiceInterface
     private $serializer;
 
     /**
+     * @var array
+     */
+    private $configuration;
+
+    /**
      * @param SerializerInterface $serializer
      * @param array $configuration
      */

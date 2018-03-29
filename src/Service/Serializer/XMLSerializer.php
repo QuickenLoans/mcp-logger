@@ -111,5 +111,4 @@ class XMLSerializer implements SerializerInterface
             'd2p1:Entry' => $items
         ];
     }
-
 }

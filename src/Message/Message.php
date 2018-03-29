@@ -106,7 +106,7 @@ class Message implements MessageInterface
     public function __construct(array $data)
     {
         // Required, will get a default value if not provided.
-        $this->id = $this->parseClass(MessageInterface::ID, $data, GUID::class, function() {
+        $this->id = $this->parseClass(MessageInterface::ID, $data, GUID::class, function () {
             return GUID::create();
         });
 

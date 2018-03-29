@@ -16,8 +16,9 @@
     "require": {
         "php": "~7.0",
 
-        "ql/mcp-common": "^1.1.0",
-        "psr/log":       "*"
+        "ql/mcp-common":    "^1.1.0",
+        "psr/log":          "*",
+        "psr/http-message": "~1.0"
     },
     "require-dev": {
         "guzzlehttp/guzzle": "~5.3.1",

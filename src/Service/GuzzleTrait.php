@@ -88,7 +88,7 @@ trait GuzzleTrait
 
         try {
             $response = $this->guzzle->send($request);
-        } catch(RuntimeException $e) {
+        } catch (RuntimeException $e) {
             return $e;
         }
 
@@ -110,7 +110,7 @@ trait GuzzleTrait
 
         try {
             $response = $this->guzzle->request($method, $uri, $options);
-        } catch(RuntimeException $e) {
+        } catch (RuntimeException $e) {
             return $e;
         }
 
