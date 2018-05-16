@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Entry>
+    <ID>9e43e37a-d36c-4f88-b142-a417670c93cf</ID>
+    <Message>hello there</Message>
+    <Level>info</Level>
+    <Created>2016-11-08T16:00:00.000000Z</Created>
+    <Properties>
+        <Entry>
+            <Key>key</Key>
+            <Value>value</Value>
+        </Entry>
+        <Entry>
+            <Key>key2</Key>
+            <Value>value2</Value>
+        </Entry>
+        <Entry>
+            <Key>key value 3</Key>
+            <Value>value3</Value>
+        </Entry>
+    </Properties>
+    <Details>beep boop</Details>
+    <AppID>10</AppID>
+    <Environment>test</Environment>
+    <ServerIP>127.0.0.1</ServerIP>
+    <ServerHostname>Deathstar</ServerHostname>
+    <Method>DELETE</Method>
+    <URL>http://localhost/spaaaaaace</URL>
+    <UserAgent>X-Wing</UserAgent>
+    <UserIP>192.168.0.100</UserIP>
+</Entry>

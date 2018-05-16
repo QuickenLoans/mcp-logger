@@ -9,6 +9,7 @@ namespace QL\MCP\Logger\Serializer;
 
 use QL\MCP\Logger\MessageInterface;
 use QL\MCP\Logger\SerializerInterface;
+use QL\MCP\Logger\Serializer\Utility\SanitizerTrait;
 
 /**
  * Serializer for formatting messages into a single line.
@@ -21,10 +22,12 @@ class LineSerializer implements SerializerInterface
     use SanitizerTrait;
 
     // Config Keys
+    const CONFIG_TOKEN = 'token';
     const CONFIG_TEMPLATE = 'template';
 
     // Config Defaults
-    const DEFAULT_TEMPLATE = '[%created%] %severity% : %message% (App ID: %app%, Server: %server.host%)';
+    const DEFAULT_TOKEN = '{{ VAR }}';
+    const DEFAULT_TEMPLATE = '[{{ created }}] {{ severity }} : {{ message }}';
 
     /**
      * @var array
@@ -36,9 +39,10 @@ class LineSerializer implements SerializerInterface
      */
     public function __construct(array $configuration = [])
     {
-        $this->configuration = array_merge([
-            self::CONFIG_TEMPLATE => self::DEFAULT_TEMPLATE
-        ], $configuration);
+        $this->configuration = $configuration + [
+            self::CONFIG_TEMPLATE => self::DEFAULT_TEMPLATE,
+            self::CONFIG_TOKEN => self::DEFAULT_TOKEN,
+        ];
     }
 
     /**
@@ -46,40 +50,37 @@ class LineSerializer implements SerializerInterface
      *
      * @return string
      */
-    public function __invoke(MessageInterface $message)
+    public function __invoke(MessageInterface $message): string
     {
         $template = $this->configuration[self::CONFIG_TEMPLATE];
 
         $context = [
             'id' => $this->sanitizeGUID($message->id()),
-            'severity' => $message->severity(),
-            'message' => $message->message(),
-            'app' => $message->applicationID(),
+            'message' => $this->sanitizeString($message->message()),
+            'severity' => $this->sanitizeString($message->severity()),
             'created' => $this->sanitizeTime($message->created()),
 
-            'server.ip' => $this->sanitizeIP($message->serverIP()),
-            'server.host' => $message->serverHostname(),
-            'server.env' => $message->serverEnvironment(),
+            'details' => $this->sanitizeString($message->details()),
 
-            'method' => $message->requestMethod(),
-            'url' => $message->requestURL(),
-            'ip' => $this->sanitizeIP($message->userIP()),
-            'user' => $message->userName(),
+            'app' => $this->sanitizeString($message->applicationID()),
+            'env' => $this->sanitizeString($message->serverEnvironment()),
+
+            'server.ip' => $this->sanitizeString($message->serverIP()),
+            'server.host' => $this->sanitizeString($message->serverHostname()),
+
+            'request.method' => $this->sanitizeString($message->requestMethod()),
+            'request.url' => $this->sanitizeString($message->requestURL()),
+
+            'user.agent' => $this->sanitizeString($message->userAgent()),
+            'user.ip' => $this->sanitizeString($message->userIP()),
         ];
 
         foreach ($message->context() as $key => $value) {
-            $context['context.' . strtolower($key)] = $value;
+            $key = preg_replace("/[^a-z0-9_]/","_", strtolower($key));
+            $context['context.' . $key] = $this->sanitizeString($value);
         }
 
         return $this->formatTemplate($template, $context);
-    }
-
-    /**
-     * @return string
-     */
-    public function contentType()
-    {
-        return 'text/plain';
     }
 
     /**
@@ -91,18 +92,16 @@ class LineSerializer implements SerializerInterface
     protected function formatTemplate($template, array $vars)
     {
         $output = $template;
+        $token = $this->buildToken();
 
         foreach ($vars as $key => $value) {
-            $token = '%' . $key . '%';
-            if (false !== strpos($output, $token)) {
-                $output = str_replace($token, $this->sanitizeNewlines($value), $output);
+            $replacement = sprintf($token, $key);
+            if (false !== strpos($output, $replacement)) {
+                $output = str_replace($replacement, $this->sanitizeNewlines($value), $output);
             }
         }
 
-        // Remove extra contexts
-        if (false !== strpos($output, '%')) {
-            $output = preg_replace('/%(?:context)\..+?%/', '', $output);
-        }
+        $output = $this->removeExtraTokens($token, $output);
 
         return $output;
     }
@@ -116,5 +115,36 @@ class LineSerializer implements SerializerInterface
     {
         $content = (string) $content;
         return str_replace(["\r\n", "\r", "\n"], ' ', trim($content));
+    }
+
+    /**
+     * @return string
+     */
+    private function buildToken()
+    {
+        $token = $this->configuration[self::CONFIG_TOKEN];
+        if (substr_count($token, 'VAR') !== 1) {
+            $token = self::DEFAULT_TOKEN;
+        }
+
+        return str_replace('VAR', '%s', $token);
+    }
+
+    /**
+     * @param string $token
+     * @param string $output
+     *
+     * @return string
+     */
+    private function removeExtraTokens($token, $output)
+    {
+        [$prefix, $suffix] = explode('%s', $token);
+
+        $prefix = preg_quote($prefix, '/');
+        $suffix = preg_quote($suffix, '/');
+
+        $output = preg_replace('/' . $prefix . '(?:context)\..+?' . $suffix . '/', '', $output);
+
+        return $output;
     }
 }

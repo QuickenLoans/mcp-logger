@@ -1,0 +1,10 @@
+[2016-11-09T08:00:00.000000Z] info : hello there
+                              - Application:  
+                              - Request:  
+                              - Server:  - 
+                              - User:  - 
+
+                              - Extra:
+                                    A: 
+                                    B: 
+                                    C: 

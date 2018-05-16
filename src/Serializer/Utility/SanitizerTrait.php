@@ -5,7 +5,7 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace QL\MCP\Logger\Serializer;
+namespace QL\MCP\Logger\Serializer\Utility;
 
 use QL\MCP\Common\GUID;
 use QL\MCP\Common\IPv4Address;
@@ -18,9 +18,9 @@ trait SanitizerTrait
      *
      * @return bool
      */
-    protected function sanitizeBoolean($value)
+    protected function sanitizeBoolean(bool $value)
     {
-        return (bool) $value;
+        return $value;
     }
 
     /**
@@ -40,21 +40,7 @@ trait SanitizerTrait
      */
     protected function sanitizeGUID(GUID $value)
     {
-        return $value->format(GUID::HYPENATED);
-    }
-
-    /**
-     * @param IPv4Address|null $value
-     *
-     * @return string|null
-     */
-    protected function sanitizeIP($value)
-    {
-        if ($value instanceof IPv4Address) {
-            return $value->asString();
-        }
-
-        return null;
+        return $value->format(GUID::HYPHENATED);
     }
 
     /**

@@ -8,33 +8,28 @@
 namespace QL\MCP\Logger\Serializer;
 
 use QL\MCP\Logger\MessageInterface;
-use QL\MCP\Logger\Service\SerializerInterface;
+use QL\MCP\Logger\SerializerInterface;
+use QL\MCP\Logger\Serializer\Utility\SanitizerTrait;
+use XMLWriter;
 
 /**
  * XML serializer for log messages.
  */
 class XMLSerializer implements SerializerInterface
 {
-    use LogLevelTrait;
     use SanitizerTrait;
 
     /**
-     * @var string
+     * @var XMLWriter
      */
-    const XMLNS_SCHEMA = 'http://www.w3.org/2001/XMLSchema-instance';
-    const XMLNS_CORELOG = 'http://rock/framework/logging';
+    private $xml;
 
     /**
-     * @var XMLGenerator
+     * @param XMLWriter|null $writer
      */
-    private $generator;
-
-    /**
-     * @param XMLGenerator|null $generator
-     */
-    public function __construct(XMLGenerator $generator = null)
+    public function __construct(XMLWriter $writer = null)
     {
-        $this->generator = $generator ?: new XMLGenerator;
+        $this->xml = $writer ?: new XMLWriter;
     }
 
     /**
@@ -42,53 +37,39 @@ class XMLSerializer implements SerializerInterface
      *
      * @return string
      */
-    public function __invoke(MessageInterface $message)
+    public function __invoke(MessageInterface $message): string
     {
-        $severity = $this->convertLogLevelFromPSRToQL($message->severity());
+        $data = [
+            'ID' => $this->sanitizeGUID($message->id()),
+            'Message' => $this->sanitizeString($message->message()),
+            'Level' => $this->sanitizeString($message->severity()),
+            'Created' => $this->sanitizeTime($message->created()),
 
-        $context = $message->context();
-        $context['LogEntryClientID'] = $this->sanitizeGUID($message->id());
-
-        $entry = [
-            '@xmlns:i' => self::XMLNS_SCHEMA,
-            '@xmlns' => self::XMLNS_CORELOG,
-            'ApplicationId' => $this->sanitizeInteger($message->applicationID()),
-            'CreateTime' => $this->sanitizeTime($message->created()),
-            'ExtendedProperties' => $this->buildContext($context),
-            'IsUserDisrupted' => $this->isLogLevelDisruptive($message->severity()),
-            'Level' => $this->sanitizeString($severity),
-            'MachineIPAddress' => $this->sanitizeIP($message->serverIP()),
-            'MachineName' => $this->sanitizeString($message->serverHostname()),
-            'Message' => $this->sanitizeString($message->message())
+            'Properties' => $this->buildContext($message->context()),
+            'Details' => $this->sanitizeString($message->details())
         ];
 
         $optionals = [
+            'AppID' => $this->sanitizeString($message->applicationID()),
             'Environment' => $this->sanitizeString($message->serverEnvironment()),
-            'ExceptionData' => $this->sanitizeString($message->errorDetails()),
 
-            'RequestMethod' => $this->sanitizeString($message->requestMethod()),
-            'Url' => $this->sanitizeString($message->requestURL()),
+            'ServerIP' => $this->sanitizeString($message->serverIP()),
+            'ServerHostname' => $this->sanitizeString($message->serverHostname()),
 
-            'UserAgentBrowser' => $this->sanitizeString($message->userAgent()),
-            'UserIPAddress' => $this->sanitizeIP($message->userIP()),
-            'UserName' => $this->sanitizeString($message->userName()),
+            'Method' => $this->sanitizeString($message->requestMethod()),
+            'URL' => $this->sanitizeString($message->requestURL()),
+
+            'UserAgent' => $this->sanitizeString($message->userAgent()),
+            'UserIP' => $this->sanitizeString($message->userIP())
         ];
 
         foreach ($optionals as $element => $value) {
-            if ($value) {
-                $entry[$element] = $value;
+            if (strlen($value) > 0) {
+                $data[$element] = $value;
             }
         }
 
-        return $this->generator->generate(['LogEntry' => $entry]);
-    }
-
-    /**
-     * @return string
-     */
-    public function contentType()
-    {
-        return 'text/xml';
+        return $this->generate(['Entry' => $data]);
     }
 
     /**
@@ -102,13 +83,94 @@ class XMLSerializer implements SerializerInterface
 
         foreach ($properties as $key => $value) {
             $items[] = [
-                'd2p1:Key' => $this->sanitizeString($key),
-                'd2p1:Value' => $this->sanitizeString($value),
+                    'Key' => $this->sanitizeString($key),
+                    'Value' => $this->sanitizeString($value),
             ];
         }
 
-        return [
-            'd2p1:Entry' => $items
-        ];
+        if (!$items) {
+            return [];
+        }
+
+        return ['Entry' => $items];
+    }
+
+
+    /**
+     * @param array $doc
+     *
+     * @return string
+     */
+    private function generate(array $doc)
+    {
+        $this->xml->openMemory();
+        $this->xml->setIndentString(str_repeat(' ', 4));
+        $this->xml->setIndent(true);
+
+        $this->xml->startDocument('1.0', 'UTF-8');
+
+        foreach ($doc as $name => $element) {
+            $this->buildElement($this->xml, $name, $element);
+        }
+
+        $this->xml->endElement();
+        return $this->xml->outputMemory();
+    }
+
+    /**
+     * @param XMLWriter $xml
+     * @param string $name
+     * @param mixed $property
+     *
+     * @return null
+     */
+    private function buildElement(XMLWriter $xml, $name, $property)
+    {
+        if (stripos($name, '@') === 0) {
+            $property = $this->boolify($property);
+            $xml->writeAttribute(substr($name, 1), $property);
+            return;
+        }
+
+        if ($name === '#text') {
+            $property = $this->boolify($property);
+            $xml->text($property);
+            return;
+        }
+
+        // Handle children of same name
+        if (is_array($property) && isset($property[0])) {
+            foreach ($property as $prop) {
+                $this->buildElement($xml, $name, $prop);
+            }
+            return;
+        }
+
+        $xml->startElement($name);
+
+        if (!is_array($property)) {
+            $property = $this->boolify($property);
+            $xml->text($property);
+        } else {
+            foreach ($property as $name => $prop) {
+                $this->buildElement($xml, $name, $prop);
+            }
+        }
+
+        $xml->endElement();
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    private function boolify($value)
+    {
+        if (is_bool($value)) {
+            $value = filter_var($value, FILTER_VALIDATE_BOOLEAN) ? 'true' : 'false';
+        }
+
+        return $value;
     }
 }

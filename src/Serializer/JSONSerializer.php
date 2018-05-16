@@ -9,21 +9,19 @@ namespace QL\MCP\Logger\Serializer;
 
 use QL\MCP\Logger\MessageInterface;
 use QL\MCP\Logger\SerializerInterface;
+use QL\MCP\Logger\Serializer\Utility\SanitizerTrait;
 
 /**
  * JSON serializer for log messages.
  */
 class JSONSerializer implements SerializerInterface
 {
-    use LogLevelTrait;
     use SanitizerTrait;
 
     // Config Keys
-    const CONFIG_BACKLOAD_LIMIT = 'backload_limit';
     const CONFIG_JSON_OPTIONS = 'json_options';
 
     // Config Defaults
-    const DEFAULT_BACKLOAD_LIMIT = 10000;
     const DEFAULT_JSON_OPTIONS = JSON_UNESCAPED_SLASHES;
 
     /**
@@ -36,10 +34,9 @@ class JSONSerializer implements SerializerInterface
      */
     public function __construct(array $config = [])
     {
-        $this->config = array_merge([
-            self::CONFIG_BACKLOAD_LIMIT => self::DEFAULT_BACKLOAD_LIMIT,
+        $this->config = $config + [
             self::CONFIG_JSON_OPTIONS => self::DEFAULT_JSON_OPTIONS
-        ], $config);
+        ];
     }
 
     /**
@@ -47,56 +44,39 @@ class JSONSerializer implements SerializerInterface
      *
      * @return string
      */
-    public function __invoke(MessageInterface $message)
+    public function __invoke(MessageInterface $message): string
     {
-        $severity = $this->convertLogLevelFromPSRToQL($message->severity());
-
         $data = [
             'ID' => $this->sanitizeGUID($message->id()),
-            'AppID' => $this->sanitizeInteger($message->applicationID()),
+            'Message' => $this->sanitizeString($message->message()),
+            'Level' => $this->sanitizeString($message->severity()),
             'Created' => $this->sanitizeTime($message->created()),
 
-            'UserIsDisrupted' => $this->isLogLevelDisruptive($message->severity()),
-            'Level' => $this->sanitizeString($severity),
-            'ServerIP' => $this->sanitizeIP($message->serverIP()),
-            'ServerHostname' => $this->sanitizeString($message->serverHostname()),
-            'Message' => $this->sanitizeString($message->message())
+            'Properties' => $this->buildContext($message->context()),
+            'Details' => $this->sanitizeString($message->details())
         ];
 
         $optionals = [
-            'Properties' => $this->buildContext($message->context()),
+            'AppID' => $this->sanitizeString($message->applicationID()),
             'Environment' => $this->sanitizeString($message->serverEnvironment()),
-            'Exception' => $this->sanitizeString($message->errorDetails()),
+
+            'ServerIP' => $this->sanitizeString($message->serverIP()),
+            'ServerHostname' => $this->sanitizeString($message->serverHostname()),
 
             'Method' => $this->sanitizeString($message->requestMethod()),
             'URL' => $this->sanitizeString($message->requestURL()),
 
             'UserAgent' => $this->sanitizeString($message->userAgent()),
-            'UserIP' => $this->sanitizeIP($message->userIP()),
-            'UserName' => $this->sanitizeString($message->userName()),
+            'UserIP' => $this->sanitizeString($message->userIP())
         ];
 
         foreach ($optionals as $element => $value) {
-            if ($value) {
+            if (strlen($value) > 0) {
                 $data[$element] = $value;
             }
         }
 
-        if (isset($data['Properties'])) {
-            $this->backloadLargeProperties($data['Properties']);
-        }
-
-        $this->backloadLargeProperties($data);
-
         return json_encode($data, $this->config[self::CONFIG_JSON_OPTIONS]);
-    }
-
-    /**
-     * @return string
-     */
-    public function contentType()
-    {
-        return 'application/json';
     }
 
     /**
@@ -116,26 +96,5 @@ class JSONSerializer implements SerializerInterface
         }
 
         return $extended;
-    }
-
-    /**
-     * Ensures that all string fields with long values are placed at the end of the document
-     *
-     * @param array $data
-     *
-     * @return void
-     */
-    private function backloadLargeProperties(array &$data)
-    {
-        $large = [];
-
-        foreach ($data as $key => $value) {
-            if (is_string($value) && strlen($value) > $this->config[self::CONFIG_BACKLOAD_LIMIT]) {
-                $large[$key] = $value;
-                unset($data[$key]);
-            }
-        }
-
-        $data = $data + $large;
     }
 }
