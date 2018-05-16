@@ -5,7 +5,7 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace QL\MCP\Logger\Service\Serializer;
+namespace QL\MCP\Logger\Serializer;
 
 use Psr\Log\LogLevel as PSRLogLevel;
 

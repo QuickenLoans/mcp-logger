@@ -5,65 +5,45 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace QL\MCP\Logger\Service\Serializer;
+namespace QL\MCP\Logger\Serializer;
 
+use DateTime;
 use QL\MCP\Logger\MessageInterface;
-use QL\MCP\Logger\Service\SerializerInterface;
 
 /**
- * Serializer for formatting messages into a single line.
+ * Helper to simplify formatting log details into a single line.
  *
  * This implements some basic functionality and ideas from MonoLog:
  * https://github.com/Seldaek/monolog/blob/master/src/Monolog/Formatter/LineFormatter.php
  */
-class LineSerializer implements SerializerInterface
+trait LineFormatterTrait
 {
-    use SanitizerTrait;
-
-    // Config Keys
-    const CONFIG_TEMPLATE = 'template';
-
-    // Config Defaults
-    const DEFAULT_TEMPLATE = '[%created%] %severity% : %message% (App ID: %app%, Server: %server.host%)';
-
-    /**
-     * @var array
-     */
-    private $configuration;
-
-    /**
-     * @param array $configuration
-     */
-    public function __construct(array $configuration = [])
-    {
-        $this->configuration = array_merge([
-            self::CONFIG_TEMPLATE => self::DEFAULT_TEMPLATE
-        ], $configuration);
-    }
-
     /**
      * @param MessageInterface $message
+     * @param string $template
      *
      * @return string
      */
-    public function __invoke(MessageInterface $message)
+    protected function formatMessage(MessageInterface $message, $template = '')
     {
-        $template = $this->configuration[self::CONFIG_TEMPLATE];
+        $template = $template ?: $this->defaultTemplate();
+
+        $created = $message->created()->format(DateTime::ATOM, 'UTC');
 
         $context = [
-            'id' => $this->sanitizeGUID($message->id()),
+            'id' => $message->id()->asHex(),
             'severity' => $message->severity(),
             'message' => $message->message(),
             'app' => $message->applicationID(),
-            'created' => $this->sanitizeTime($message->created()),
+            'created' => str_replace('+00:00', 'Z', $created),
 
-            'server.ip' => $this->sanitizeIP($message->serverIP()),
+            'server.ip' => $message->serverIP(),
             'server.host' => $message->serverHostname(),
             'server.env' => $message->serverEnvironment(),
 
             'method' => $message->requestMethod(),
             'url' => $message->requestURL(),
-            'ip' => $this->sanitizeIP($message->userIP()),
+            'ip' => $message->userIP(),
             'user' => $message->userName(),
         ];
 
@@ -72,14 +52,6 @@ class LineSerializer implements SerializerInterface
         }
 
         return $this->formatTemplate($template, $context);
-    }
-
-    /**
-     * @return string
-     */
-    public function contentType()
-    {
-        return 'text/plain';
     }
 
     /**
@@ -95,7 +67,7 @@ class LineSerializer implements SerializerInterface
         foreach ($vars as $key => $value) {
             $token = '%' . $key . '%';
             if (false !== strpos($output, $token)) {
-                $output = str_replace($token, $this->sanitizeNewlines($value), $output);
+                $output = str_replace($token, $this->sanitize($value), $output);
             }
         }
 
@@ -108,11 +80,19 @@ class LineSerializer implements SerializerInterface
     }
 
     /**
+     * @return string
+     */
+    protected function defaultTemplate()
+    {
+        return '[%created%] %severity% : %message% (App ID: %app%, Server: %server.host%)';
+    }
+
+    /**
      * @param mixed $content
      *
      * @return string
      */
-    protected function sanitizeNewlines($content)
+    protected function sanitize($content)
     {
         $content = (string) $content;
         return str_replace(["\r\n", "\r", "\n"], ' ', trim($content));

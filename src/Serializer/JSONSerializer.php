@@ -5,10 +5,10 @@
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
-namespace QL\MCP\Logger\Service\Serializer;
+namespace QL\MCP\Logger\Serializer;
 
 use QL\MCP\Logger\MessageInterface;
-use QL\MCP\Logger\Service\SerializerInterface;
+use QL\MCP\Logger\SerializerInterface;
 
 /**
  * JSON serializer for log messages.
