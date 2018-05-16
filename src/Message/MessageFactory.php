@@ -224,9 +224,9 @@ class MessageFactory implements MessageFactoryInterface
     }
 
     /**
-     * @param string $level
+     * @param mixed $value
      *
-     * @return string|null
+     * @return mixed
      */
     private function validateValue($value)
     {
@@ -254,12 +254,14 @@ class MessageFactory implements MessageFactoryInterface
     }
 
     /**
-     * @param string $value
+     * @param string|object $value
      *
      * @return string
      */
-    private function restrictValueLength(string $value)
+    private function restrictValueLength($value)
     {
+        $value = (string) $value;
+
         $max = $this->configuration[self::CONFIG_MAX_PROPERTY_SIZE];
         if (!$max) {
             return $value;

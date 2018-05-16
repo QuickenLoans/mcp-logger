@@ -91,7 +91,7 @@ class Message implements MessageInterface
     /**
      * @param mixed[] $data
      */
-    public function __construct(string $level, string $message, array $data)
+    public function __construct(string $level, string $message, array $data = [])
     {
         $this->severity = $level;
         $this->message = $message;
@@ -101,7 +101,7 @@ class Message implements MessageInterface
             return GUID::create();
         });
 
-        $this->created = $this->parseClass(MessageInterface::CREATED, $data, TimePoint::class, function() {
+        $this->created = $this->parseClass(MessageInterface::CREATED, $data, TimePoint::class, function () {
             return $this->generateCreatedTime();
         });
 

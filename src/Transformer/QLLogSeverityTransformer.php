@@ -38,7 +38,7 @@ class QLLogSeverityTransformer implements TransformerInterface
      *
      * @return string
      */
-    public function convertLogLevelFromPSRToQL($severity)
+    private function convertLogLevelFromPSRToQL($severity)
     {
         // Equal mappings
         if ($severity === LogLevel::DEBUG) {

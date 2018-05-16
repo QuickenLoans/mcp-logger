@@ -76,7 +76,7 @@ class LineSerializer implements SerializerInterface
         ];
 
         foreach ($message->context() as $key => $value) {
-            $key = preg_replace("/[^a-z0-9_]/","_", strtolower($key));
+            $key = preg_replace("/[^a-z0-9_]/", "_", strtolower($key));
             $context['context.' . $key] = $this->sanitizeString($value);
         }
 

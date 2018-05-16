@@ -122,9 +122,9 @@ class XMLSerializer implements SerializerInterface
      * @param string $name
      * @param mixed $property
      *
-     * @return null
+     * @return void
      */
-    private function buildElement(XMLWriter $xml, $name, $property)
+    private function buildElement(XMLWriter $xml, $name, $property): void
     {
         if (stripos($name, '@') === 0) {
             $property = $this->boolify($property);

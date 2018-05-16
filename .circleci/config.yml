@@ -102,6 +102,13 @@ jobs:
                 name: 'Run code formatting check'
                 command: 'vendor/bin/phpcs -n --colors src'
 
+            - run:
+                name: 'Run static analysis'
+                command: |
+                    vendor/bin/phpstan analyse \
+                    -l 5 \
+                    src
+
     unit_tests_70:
         <<: *php70_defaults
         steps:
