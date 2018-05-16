@@ -8,14 +8,10 @@
 namespace QL\MCP\Logger\Service;
 
 use QL\MCP\Logger\Exception;
-use QL\MCP\Logger\MessageInterface;
 use QL\MCP\Logger\ServiceInterface;
-use QL\MCP\Logger\Service\Serializer\LineSerializer;
 
 class ErrorLogService implements ServiceInterface
 {
-    use LineFormatterTrait;
-
     // Configuration Keys
     const CONFIG_TYPE = 'type';
     const CONFIG_FILE = 'file';
@@ -35,14 +31,15 @@ class ErrorLogService implements ServiceInterface
         self::FILE
     ];
 
+    const VALID_TYPES_TEXT = [
+        'OPERATING_SYSTEM',
+        'SAPI',
+        'FILE'
+    ];
+
     // Error Messages
     const ERR_INVALID_TYPE = 'Invalid error log type specified.';
     const ERR_INVALID_FILE = 'File destination must be provided when using FILE error log type.';
-
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
 
     /**
      * @var array
@@ -50,34 +47,35 @@ class ErrorLogService implements ServiceInterface
     private $configuration;
 
     /**
-     * @param SerializerInterface $serializer
      * @param array $configuration
      */
-    public function __construct(SerializerInterface $serializer = null, array $configuration = [])
+    public function __construct(array $configuration = [])
     {
-        $this->serializer = $serializer ?: $this->buildDefaultSerializer();
+        $type = $configuration[static::CONFIG_TYPE] ?? '';
+        if (in_array($type, self::VALID_TYPES_TEXT) && defined("static::${type}")) {
+            $configuration[static::CONFIG_TYPE] = constant("static::${type}");
+        }
 
-        $this->configuration = array_merge([
+        $this->configuration = $configuration + [
             self::CONFIG_FILE => self::DEFAULT_FILE,
             self::CONFIG_TYPE => self::DEFAULT_TYPE
-        ], $configuration);
+        ];
 
         $this->validateMessageType();
     }
 
     /**
-     * @param MessageInterface $message
+     * @param string $level
+     * @param string $formatted
      *
-     * @return null
+     * @return bool
      */
-    public function send(MessageInterface $message)
+    public function send(string $level, string $formatted): bool
     {
-        $formatted = call_user_func($this->serializer, $message);
-
         if ($this->configuration[self::CONFIG_TYPE] === self::FILE) {
-            error_log($formatted . "\n", $this->configuration[self::CONFIG_TYPE], $this->configuration[self::CONFIG_FILE]);
+            return error_log($formatted . "\n", $this->configuration[self::CONFIG_TYPE], $this->configuration[self::CONFIG_FILE]);
         } else {
-            error_log($formatted, $this->configuration[self::CONFIG_TYPE]);
+            return error_log($formatted, $this->configuration[self::CONFIG_TYPE]);
         }
     }
 
@@ -95,14 +93,5 @@ class ErrorLogService implements ServiceInterface
         if ($this->configuration[self::CONFIG_TYPE] === self::FILE && !$this->configuration[self::CONFIG_FILE]) {
             throw new Exception(self::ERR_INVALID_FILE);
         }
-    }
-
-
-    /**
-     * @return SerializerInterface
-     */
-    protected function buildDefaultSerializer()
-    {
-        return new LineSerializer;
     }
 }

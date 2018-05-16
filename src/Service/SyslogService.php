@@ -1,16 +1,13 @@
 <?php
 /**
- * @copyright (c) 2016 Quicken Loans Inc.
+ * @copyright (c) 2018 Quicken Loans Inc.
  *
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
 namespace QL\MCP\Logger\Service;
 
-use QL\MCP\Logger\Exception;
-use QL\MCP\Logger\MessageInterface;
-use QL\MCP\Logger\Service\Serializer\JSONSerializer;
-use QL\MCP\Logger\Service\Serializer\LogLevelTrait;
+use Psr\Log\LogLevel;
 use QL\MCP\Logger\ServiceInterface;
 
 /**
@@ -18,28 +15,15 @@ use QL\MCP\Logger\ServiceInterface;
  */
 class SyslogService implements ServiceInterface
 {
-    use LogLevelTrait;
-
     // Configuration Keys
-    const CONFIG_SILENT = 'silent';
     const CONFIG_IDENT = 'ident';
     const CONFIG_FACILITY = 'facility';
     const CONFIG_OPTIONS = 'options';
 
     // Configuration Defaults
-    const DEFAULT_SILENT = true;
     const DEFAULT_IDENT = '';
     const DEFAULT_FACILITY = LOG_USER;
     const DEFAULT_OPTIONS = LOG_ODELAY | LOG_CONS;
-
-    // Error Messages
-    const ERR_OPEN = 'Unable to open syslog connection.';
-    const ERR_SEND = 'Unable to send message to syslog connection. %s';
-
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
 
     /**
      * @var array
@@ -52,40 +36,38 @@ class SyslogService implements ServiceInterface
     private $status;
 
     /**
-     * @param SerializerInterface|null $serializer
      * @param array $configuration
      */
-    public function __construct(SerializerInterface $serializer = null, array $configuration = [])
+    public function __construct(array $configuration = [])
     {
         $this->configuration = array_merge([
-            self::CONFIG_SILENT => self::DEFAULT_SILENT,
             self::CONFIG_IDENT => self::DEFAULT_IDENT,
             self::CONFIG_FACILITY => self::DEFAULT_FACILITY,
             self::CONFIG_OPTIONS =>  self::DEFAULT_OPTIONS
         ], $configuration);
 
-        $this->serializer = $serializer ?: $this->buildDefaultSerializer();
         $this->status = false;
     }
 
     /**
-     * @param MessageInterface $message
+     * @param string $level
+     * @param string $formatted
      *
-     * @return void
+     * @return bool
      */
-    public function send(MessageInterface $message)
+    public function send(string $level, string $formatted): bool
     {
         if ($this->status === false) {
             $this->connect();
+            if ($this->status === false) {
+                return false;
+            }
         }
 
-        $data = call_user_func($this->serializer, $message);
-        $priority = $this->convertLogLevelFromPSRToSyslog($message->severity());
-        $this->status = syslog($priority, $data);
+        $priority = $this->convertLogLevelFromPSRToSyslog($level);
+        $this->status = syslog($priority, $formatted);
 
-        if ($this->status === false) {
-            $this->error(sprintf(self::ERR_SEND, $message->message()));
-        }
+        return !($this->status === false);
     }
 
     /**
@@ -100,35 +82,36 @@ class SyslogService implements ServiceInterface
             $this->configuration[self::CONFIG_OPTIONS],
             $this->configuration[self::CONFIG_FACILITY]
         );
-
-        if ($this->status === false) {
-            return $this->error(self::ERR_OPEN);
-        }
     }
 
     /**
-     * Handle an error
+     * Translate a PRS-3 log level to Syslog log level
      *
-     * @param string $message
+     * @param string $severity
      *
-     * @throws Exception
-     *
-     * @return bool
+     * @return int
      */
-    private function error($message)
+    private function convertLogLevelFromPSRToSyslog($severity)
     {
-        if ($this->configuration[self::CONFIG_SILENT]) {
-            return error_log($message);
+        switch ($severity) {
+            case LogLevel::DEBUG:
+                return LOG_DEBUG;
+            case LogLevel::INFO:
+                return LOG_INFO;
+            case LogLevel::NOTICE:
+                return LOG_NOTICE;
+            case LogLevel::WARNING:
+                return LOG_WARNING;
+            case LogLevel::ERROR:
+                return LOG_ERR;
+            case LogLevel::CRITICAL:
+                return LOG_CRIT;
+            case LogLevel::ALERT:
+                return LOG_ALERT;
+            case LogLevel::EMERGENCY:
+                return LOG_EMERG;
+            default:
+                return LOG_ERR;
         }
-
-        throw new Exception($message);
-    }
-
-    /**
-     * @return SerializerInterface
-     */
-    protected function buildDefaultSerializer()
-    {
-        return new JSONSerializer;
     }
 }

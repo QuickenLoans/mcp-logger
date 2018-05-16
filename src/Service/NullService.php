@@ -1,13 +1,12 @@
 <?php
 /**
- * @copyright (c) 2016 Quicken Loans Inc.
+ * @copyright (c) 2018 Quicken Loans Inc.
  *
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
 namespace QL\MCP\Logger\Service;
 
-use QL\MCP\Logger\MessageInterface;
 use QL\MCP\Logger\ServiceInterface;
 
 /**
@@ -16,12 +15,13 @@ use QL\MCP\Logger\ServiceInterface;
 class NullService implements ServiceInterface
 {
     /**
-     * @param MessageInterface $message
+     * @param string $level
+     * @param string $formatted
      *
-     * @return null
+     * @return bool
      */
-    public function send(MessageInterface $message)
+    public function send(string $level, string $formatted): bool
     {
-        // ignore all log messages
+        return true;
     }
 }
