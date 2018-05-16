@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright (c) 2016 Quicken Loans Inc.
+ * @copyright (c) 2018 Quicken Loans Inc.
  *
  * For full license information, please view the LICENSE distributed with this source code.
  */
@@ -8,7 +8,6 @@
 namespace QL\MCP\Logger;
 
 use QL\MCP\Common\GUID;
-use QL\MCP\Common\IPv4Address;
 use QL\MCP\Common\Time\TimePoint;
 
 /**
@@ -19,9 +18,10 @@ interface MessageInterface
     const ID = 'id';
     const MESSAGE = 'message';
     const SEVERITY = 'severity';
-    const CONTEXT = 'context';
-    const ERROR_DETAILS = 'errorDetails';
     const CREATED = 'created';
+
+    const CONTEXT = 'context';
+    const DETAILS = 'details';
 
     const APPLICATION_ID = 'applicationID';
 
@@ -34,110 +34,79 @@ interface MessageInterface
 
     const USER_AGENT = 'userAgent';
     const USER_IP = 'userIP';
-    const USER_NAME = 'userName';
+
+    /**
+     * Get all data for this message.
+     */
+    public function all(): array;
 
     /**
      * Message details - Random unique identifier for this message.
-     *
-     * @return GUID
      */
-    public function id();
+    public function id(): GUID;
 
     /**
-     * Message details - Human readable log message.
-     *
-     * @return string
+     * Message details - A brief human readable log message.
      */
-    public function message();
+    public function message(): string;
 
     /**
      * Message details - Severity or "log level" of message.
-     *
-     * @return string
      */
-    public function severity();
-
-    /**
-     * Message details - Application-specific or additional properties attached to the message.
-     *
-     * @return array
-     */
-    public function context();
-
-    /**
-     * Message details - Error-specific or additional information for the error.
-     *
-     * @return string|null
-     */
-    public function errorDetails();
+    public function severity(): string;
 
     /**
      * Message details - The time the message was created.
-     *
-     * @return TimePoint
      */
-    public function created();
+    public function created(): TimePoint;
+
+    /**
+     * Message details - Application-specific or additional properties attached to the message.
+     */
+    public function context(): array;
+
+    /**
+     * Message details - Additional information for the message (May contain newlines or large amounts of text)
+     */
+    public function details(): string;
 
     /**
      * Application details - Unique identifier for this application.
-     *
-     * @return string
      */
-    public function applicationID();
+    public function applicationID(): ?string;
 
     /**
      * Server details - Environment the server is deployed within.
-     *
-     * @return string|null
      */
-    public function serverEnvironment();
+    public function serverEnvironment(): ?string;
 
     /**
      * Server details - IP address of machine.
-     *
-     * @return IPv4Address
      */
-    public function serverIP();
+    public function serverIP(): ?string;
 
     /**
      * Server details - Human readable hostname of machine.
-     *
-     * @return string
      */
-    public function serverHostname();
+    public function serverHostname(): ?string;
 
     /**
      * Request details - HTTP Method of endpoint.
-     *
-     * @return string|null
      */
-    public function requestMethod();
+    public function requestMethod(): ?string;
 
     /**
      * Request details - Full URL of endpoint.
-     *
-     * @return string|null
      */
-    public function requestURL();
+    public function requestURL(): ?string;
 
     /**
      * User details - User agent of client.
-     *
-     * @return string|null
      */
-    public function userAgent();
+    public function userAgent(): ?string;
 
     /**
      * User details - IP of client.
-     *
-     * @return IPv4Address|null
      */
-    public function userIP();
-
-    /**
-     * User details - Username, display name, or some other identifier for client.
-     *
-     * @return string|null
-     */
-    public function userName();
+    public function userIP(): ?string;
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright (c) 2015 Quicken Loans Inc.
+ * @copyright (c) 2018 Quicken Loans Inc.
  *
  * For full license information, please view the LICENSE distributed with this source code.
  */
@@ -39,7 +39,7 @@ class MessageFactoryTest extends TestCase
         $factory->setDefaultProperty('userAgent', new stdClass);
     }
 
-    public function testInvalidContextIsNotValidated()
+    public function testInvalidContextIsRemoved()
     {
         $time = Mockery::mock(TimePoint::class);
         $clock = Mockery::mock(Clock::class);
@@ -48,18 +48,20 @@ class MessageFactoryTest extends TestCase
             ->once()
             ->andReturn($time);
 
-        $defaults = array(
+        $defaults = [
             'applicationID' => 10,
-            'serverIP' => Mockery::mock(IPv4Address::class),
+            'serverIP' => IPv4Address::create('127.0.0.1'),
             'serverHostname' => 'Test'
-        );
+        ];
 
-        $badContext = array('userAgent' => new stdClass);
+        $badContext = [
+            'userAgent' => new stdClass
+        ];
 
         $factory = new MessageFactory($clock, $defaults);
         $actual = $factory->buildMessage('', 'message', $badContext);
 
-        $this->assertSame($badContext['userAgent'], $actual->userAgent());
+        $this->assertSame(null, $actual->userAgent());
     }
 
     public function testBuildingAMessageWithBareMinimumPropertiesThroughSetter()
@@ -72,11 +74,11 @@ class MessageFactoryTest extends TestCase
             ->andReturn($time);
 
         $expectedMessage = 'hello';
-        $expectedDefaults = array(
-            'applicationID' => 1,
-            'serverIP' => Mockery::mock(IPv4Address::class),
+        $expectedDefaults = [
+            'applicationID' => '1',
+            'serverIP' => IPv4Address::create('127.0.0.1'),
             'serverHostname' => 'Hank'
-        );
+        ];
 
         $factory = new MessageFactory($clock);
         foreach ($expectedDefaults as $property => $value) {
@@ -85,9 +87,9 @@ class MessageFactoryTest extends TestCase
         $actual = $factory->buildMessage('', $expectedMessage);
 
         // Assertions on actual message
-        foreach ($expectedDefaults as $accessor => $expectedValue) {
-            $this->assertSame($expectedValue, $actual->$accessor());
-        }
+        $this->assertSame('1', $actual->applicationID());
+        $this->assertSame('127.0.0.1', $actual->serverIP());
+        $this->assertSame('Hank', $actual->serverHostname());
 
         $this->assertSame($time, $actual->created());
         $this->assertSame(LogLevel::ERROR, $actual->severity());
@@ -104,19 +106,19 @@ class MessageFactoryTest extends TestCase
             ->andReturn($time);
 
         $expectedMessage = 'there';
-        $expectedDefaults = array(
-            'applicationID' => 2,
-            'serverIP' => Mockery::mock(IPv4Address::class),
+        $expectedDefaults = [
+            'applicationID' => 'ABC2',
+            'serverIP' => IPv4Address::create('127.0.0.1'),
             'serverHostname' => 'Walt'
-        );
+        ];
 
         $factory = new MessageFactory($clock, $expectedDefaults);
         $actual = $factory->buildMessage('', $expectedMessage);
 
         // Assertions on actual message
-        foreach ($expectedDefaults as $accessor => $expectedValue) {
-            $this->assertSame($expectedValue, $actual->$accessor());
-        }
+        $this->assertSame('ABC2', $actual->applicationID());
+        $this->assertSame('127.0.0.1', $actual->serverIP());
+        $this->assertSame('Walt', $actual->serverHostname());
 
         $this->assertSame($time, $actual->created());
         $this->assertSame(LogLevel::ERROR, $actual->severity());
@@ -132,11 +134,11 @@ class MessageFactoryTest extends TestCase
             ->once()
             ->andReturn($time);
 
-        $expectedDefaults = array(
+        $expectedDefaults = [
             'applicationID' => 10,
-            'serverIP' => Mockery::mock(IPv4Address::class),
+            'serverIP' => IPv4Address::create('127.0.0.1'),
             'serverHostname' => 'TestMachine'
-        );
+        ];
         $expectedUnknownProperty = ['unknown' => new Stringable];
 
         $factory = new MessageFactory($clock, array_merge($expectedDefaults, $expectedUnknownProperty));

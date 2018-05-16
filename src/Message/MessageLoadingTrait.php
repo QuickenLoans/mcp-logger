@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright (c) 2016 Quicken Loans Inc.
+ * @copyright (c) 2018 Quicken Loans Inc.
  *
  * For full license information, please view the LICENSE distributed with this source code.
  */
@@ -8,55 +8,25 @@
 namespace QL\MCP\Logger\Message;
 
 use JsonSerializable;
-use Psr\Log\LogLevel;
+use QL\MCP\Common\Time\Clock;
 use QL\MCP\Logger\Exception;
 
 trait MessageLoadingTrait
 {
     /**
-     * @param string $name
-     * @param array $input
-     * @param mixed $default
-     *
-     * @throws Exception
-     *
-     * @return mixed
+     * @var Clock
      */
-    private function parseLevel($name, array $input, $default = null)
-    {
-        if (isset($input[$name])) {
-            $level = strtolower($input[$name]);
-            if ($this->isValidLevel($level)) {
-                return $level;
-            }
-
-            throw new Exception(sprintf("'%s' is not a valid log message severity.", $input[$name]));
-        }
-
-        return $this->isValidLevel($default) ? $default : LogLevel::ERROR;
-    }
+    private static $createdTimeGenerator;
 
     /**
-     * @param string $level
-     *
-     * @return bool
+     * @return TimePoint
      */
-    private function isValidLevel($level)
+    private function generateCreatedTime()
     {
-        return in_array(
-            $level,
-            [
-                LogLevel::EMERGENCY,
-                LogLevel::ALERT,
-                LogLevel::CRITICAL,
-                LogLevel::ERROR,
-                LogLevel::WARNING,
-                LogLevel::NOTICE,
-                LogLevel::INFO,
-                LogLevel::DEBUG
-            ],
-            true
-        );
+        if (!self::$createdTimeGenerator) {
+            self::$createdTimeGenerator = new Clock;
+        }
+        return self::$createdTimeGenerator->read();
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright (c) 2016 Quicken Loans Inc.
+ * @copyright (c) 2018 Quicken Loans Inc.
  *
  * For full license information, please view the LICENSE distributed with this source code.
  */
@@ -14,10 +14,8 @@ interface MessageFactoryInterface
      *
      * @param string $name
      * @param mixed $value
-     *
-     * @return void
      */
-    public function setDefaultProperty($name, $value);
+    public function setDefaultProperty(string $name, $value): void;
 
     /**
      * Sanitize and instantiate a Message
@@ -25,8 +23,6 @@ interface MessageFactoryInterface
      * @param mixed $level
      * @param string $message
      * @param array $context
-     *
-     * @return MessageInterface
      */
-    public function buildMessage($level, $message, array $context = []);
+    public function buildMessage($level, string $message, array $context = []): MessageInterface;
 }

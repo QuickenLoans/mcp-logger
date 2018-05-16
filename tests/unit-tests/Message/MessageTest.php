@@ -1,45 +1,30 @@
 <?php
 /**
- * @copyright (c) 2015 Quicken Loans Inc.
+ * @copyright (c) 2018 Quicken Loans Inc.
  *
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
 namespace QL\MCP\Logger\Message;
 
+use PHPUnit\Framework\TestCase;
 use QL\MCP\Logger\Exception;
-use QL\MCP\Logger\Testing\FixtureLoadingTestCase;
 use stdClass;
 
 /**
  * @covers QL\MCP\Logger\Message\Message
  * @covers QL\MCP\Logger\Message\MessageLoadingTrait
  */
-class MessageTest extends FixtureLoadingTestCase
+class MessageTest extends TestCase
 {
-    /**
-     * @dataProvider providerMissingRequiredFields
-     */
-    public function testMissingParameterThrowsException($missingField, $expectedError)
-    {
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage($expectedError);
-
-        $fixture = $this->loadPhpFixture('minimum-properties.phpd');
-        $fixture[$missingField] = null;
-
-        $message = new Message($fixture);
-    }
-
     public function testInvalidClassThrowsException()
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage("'serverIP' must be an instance of 'QL\MCP\Common\IPv4Address'");
+        $this->expectExceptionMessage("'id' must be an instance of 'QL\MCP\Common\GUID'");
 
-        $fixture = $this->loadPhpFixture('minimum-properties.phpd');
-        $fixture['serverIP'] = 'tacos';
-
-        $message = new Message($fixture);
+        $message = new Message('info', 'hello', [
+            'id' => 'xxx'
+        ]);
     }
 
     public function testInvalidExtendedPropertiesThrowsException()
@@ -47,88 +32,85 @@ class MessageTest extends FixtureLoadingTestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage("'context' must be an instance of 'array'");
 
-        $fixture = $this->loadPhpFixture('minimum-properties.phpd');
+        $fixturePath = __DIR__ . "/.fixtures/minimum-properties.php";
+        $fixture = include $fixturePath;
         $fixture['context'] = 'tacos';
 
-        $message = new Message($fixture);
+        $message = new Message('info', 'hello', $fixture);
     }
 
     public function testIndexedContextIsSkipped()
     {
-        $fixture = $this->loadPhpFixture('minimum-properties.phpd');
+        $fixturePath = __DIR__ . "/.fixtures/minimum-properties.php";
+        $fixture = include $fixturePath;
         $fixture['context'] = array('tacos');
 
-        $message = new Message($fixture);
+        $message = new Message('info', 'hello', $fixture);
         $this->assertSame([], $message->context());
     }
 
     public function testNestedArrayInExtendedPropertiesIsJsonified()
     {
-        $fixture = $this->loadPhpFixture('minimum-properties.phpd');
+        $fixturePath = __DIR__ . "/.fixtures/minimum-properties.php";
+        $fixture = include $fixturePath;
         $fixture['context'] = ['key' => ['tacos']];
 
-        $expected = <<<'JSON'
+        $expected = <<<'JSONTEXT'
 [
     "tacos"
 ]
-JSON;
+JSONTEXT;
 
-        $message = new Message($fixture);
+        $message = new Message('info', 'hello', $fixture);
         $this->assertSame(['key' => $expected], $message->context());
     }
 
     public function testNonAssociativeArrayValuesAreSkipped()
     {
-        $fixture = $this->loadPhpFixture('minimum-properties.phpd');
+        $fixturePath = __DIR__ . "/.fixtures/minimum-properties.php";
+        $fixture = include $fixturePath;
         $fixture['context'] = ['this', 'that'];
 
-        $message = new Message($fixture);
+        $message = new Message('info', 'hello', $fixture);
         $this->assertSame([], $message->context());
     }
 
     public function testUnstringableObjectIsTypeChecked()
     {
-        $fixture = $this->loadPhpFixture('minimum-properties.phpd');
+        $fixturePath = __DIR__ . "/.fixtures/minimum-properties.php";
+        $fixture = include $fixturePath;
         $fixture['context'] = ['key' => new stdClass];
 
-        $message = new Message($fixture);
+        $message = new Message('info', 'hello', $fixture);
         $this->assertSame(['key' => '[object] stdClass'], $message->context());
     }
 
     public function testResourcePropertyIsHandled()
     {
-        $fixture = $this->loadPhpFixture('minimum-properties.phpd');
+        $fixturePath = __DIR__ . "/.fixtures/minimum-properties.php";
+        $fixture = include $fixturePath;
         $fixture['context'] = ['key' => fopen('php://stdout', 'r')];
 
-        $message = new Message($fixture);
+        $message = new Message('info', 'hello', $fixture);
         $this->assertSame(['key' => '[resource]'], $message->context());
     }
 
     public function testBooleanIsHandled()
     {
-        $fixture = $this->loadPhpFixture('minimum-properties.phpd');
+        $fixturePath = __DIR__ . "/.fixtures/minimum-properties.php";
+        $fixture = include $fixturePath;
         $fixture['context'] = ['key' => false];
 
-        $message = new Message($fixture);
+        $message = new Message('info', 'hello', $fixture);
         $this->assertSame(['key' => 'false'], $message->context());
-    }
-
-    public function testInvalidLevelThrowsException()
-    {
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage("'doritos locos' is not a valid log message severity.");
-
-        $fixture = $this->loadPhpFixture('minimum-properties.phpd');
-        $fixture['severity'] = 'doritos locos';
-
-        $message = new Message($fixture);
     }
 
     public function testAccessorsForMinimumProperties()
     {
-        $fixture = $this->loadPhpFixture('minimum-properties.phpd');
+        $fixturePath = __DIR__ . "/.fixtures/minimum-properties.php";
+        $fixture = include $fixturePath;
 
-        $message = new Message($fixture);
+        $message = new Message('info', 'hello', $fixture);
         foreach ($fixture as $accessor => $expected) {
             $this->assertSame($expected, $message->$accessor(), $accessor);
         }
@@ -136,10 +118,13 @@ JSON;
 
     public function testAccessorsForDefaultProperties()
     {
-        $fixture = $this->loadPhpFixture('minimum-properties.phpd');
-        $fixtureOut = $this->loadPhpFixture('default-properties.phpd');
+        $fixturePath = __DIR__ . "/.fixtures/minimum-properties.php";
+        $fixture = include $fixturePath;
 
-        $message = new Message($fixture);
+        $fixturePath = __DIR__ . "/.fixtures/minimum-properties-out.php";
+        $fixtureOut = include $fixturePath;
+
+        $message = new Message('info', 'hello', $fixture);
         foreach ($fixtureOut as $accessor => $expected) {
             $this->assertEquals($expected, $message->$accessor(), $accessor);
         }
@@ -147,22 +132,12 @@ JSON;
 
     public function testAccessorsForAllProperties()
     {
-        $fixture = $this->loadPhpFixture('all-properties.phpd');
+        $fixturePath = __DIR__ . "/.fixtures/all-properties.php";
+        $fixture = include $fixturePath;
 
-        $message = new Message($fixture);
+        $message = new Message('info', 'hello', $fixture);
         foreach ($fixture as $accessor => $expected) {
             $this->assertSame($expected, $message->$accessor(), $accessor);
         }
-    }
-
-    public function providerMissingRequiredFields()
-    {
-        return [
-            ['message',         "'message' is required."],
-            ['created',         "'created' must be an instance of 'QL\MCP\Common\Time\TimePoint'."],
-            ['applicationID',   "'applicationID' is required."],
-            ['serverIP',        "'serverIP' must be an instance of 'QL\MCP\Common\IPv4Address'."],
-            ['serverHostname',  "'serverHostname' is required."]
-        ];
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright (c) 2016 Quicken Loans Inc.
+ * @copyright (c) 2018 Quicken Loans Inc.
  *
  * For full license information, please view the LICENSE distributed with this source code.
  */
@@ -8,8 +8,10 @@
 namespace QL\MCP\Logger\Message;
 
 use Psr\Log\LogLevel;
-use QL\MCP\Common\Time\Clock;
+use QL\MCP\Common\GUID;
 use QL\MCP\Common\IPv4Address;
+use QL\MCP\Common\Time\Clock;
+use QL\MCP\Common\Time\TimePoint;
 use QL\MCP\Logger\Exception;
 use QL\MCP\Logger\MessageFactoryInterface;
 use QL\MCP\Logger\MessageInterface;
@@ -44,12 +46,8 @@ class MessageFactory implements MessageFactoryInterface
     const ERR_UNRENDERABLE = 'Invalid property: "%s". Log properties must be scalars or objects that implement __toString.';
     const ERR_INVALID_IP = "'%s' must be an instance of IPv4Address.";
 
-    /**
-     * @var string
-     */
-    const DEFAULT_APPLICATION_ID = '200001';
-    const DEFAULT_SERVER_IP = '0.0.0.0';
-    const DEFAULT_SERVER_NAME = 'unknown';
+    // Config Keys
+    const CONFIG_MAX_PROPERTY_SIZE = 'max_size_kb';
 
     /**
      * @var Clock
@@ -60,6 +58,11 @@ class MessageFactory implements MessageFactoryInterface
      * @var string[]
      */
     private $logProperties;
+
+    /**
+     * @var array
+     */
+    private $configuration;
 
     /**
      * @var string[]
@@ -74,20 +77,29 @@ class MessageFactory implements MessageFactoryInterface
     {
         $this->clock = $clock ?: new Clock('now', 'UTC');
 
-        $this->logProperties = [];
-        $this->addDefaultDefaultProperties();
+        $properties = $defaultLogProperties + [
+            MessageInterface::APPLICATION_ID => 'APP123',
+            MessageInterface::SERVER_IP => IPv4Address::create('0.0.0.0'),
+            MessageInterface::SERVER_HOSTNAME => gethostname(),
+        ];
 
-        foreach ($defaultLogProperties as $property => $value) {
+        $this->logProperties = [];
+        foreach ($properties as $property => $value) {
             $this->setDefaultProperty($property, $value);
         }
+
+        $this->configuration = [
+            self::CONFIG_MAX_PROPERTY_SIZE => 100 // default to max 100kb text size of each property
+        ];
 
         $this->knownProperties = [
             MessageInterface::ID,
             MessageInterface::MESSAGE,
             MessageInterface::SEVERITY,
-            MessageInterface::CONTEXT,
-            MessageInterface::ERROR_DETAILS,
             MessageInterface::CREATED,
+
+            MessageInterface::CONTEXT,
+            MessageInterface::DETAILS,
 
             MessageInterface::APPLICATION_ID,
 
@@ -99,9 +111,19 @@ class MessageFactory implements MessageFactoryInterface
             MessageInterface::REQUEST_URL,
 
             MessageInterface::USER_AGENT,
-            MessageInterface::USER_IP,
-            MessageInterface::USER_NAME
+            MessageInterface::USER_IP
         ];
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return void
+     */
+    public function configure($name, $value)
+    {
+        $this->configuration[$name] = $value;
     }
 
     /**
@@ -112,7 +134,7 @@ class MessageFactory implements MessageFactoryInterface
      *
      * @return void
      */
-    public function setDefaultProperty($name, $value)
+    public function setDefaultProperty(string $name, $value): void
     {
         $this->validateProperty($name, $value);
 
@@ -157,13 +179,12 @@ class MessageFactory implements MessageFactoryInterface
      *
      * @return Message
      */
-    public function buildMessage($level, $message, array $context = [])
+    public function buildMessage($level, string $message, array $context = []): MessageInterface
     {
+        $level = $this->validateSeverity($level);
         $data = [
             MessageInterface::CREATED => $this->clock->read(),
-            MessageInterface::SEVERITY => $this->validateSeverity($level),
-            MessageInterface::CONTEXT => [],
-            MessageInterface::MESSAGE => (string) $message
+            MessageInterface::CONTEXT => []
         ];
 
         // Append message defaults to this payload
@@ -172,17 +193,7 @@ class MessageFactory implements MessageFactoryInterface
         // Append message context to this payload
         $data = $this->consume($data, $context);
 
-        return new Message($data);
-    }
-
-    /**
-     * @return void
-     */
-    protected function addDefaultDefaultProperties()
-    {
-        $this->setDefaultProperty(MessageInterface::APPLICATION_ID, static::DEFAULT_APPLICATION_ID);
-        $this->setDefaultProperty(MessageInterface::SERVER_IP, IPv4Address::create(static::DEFAULT_SERVER_IP));
-        $this->setDefaultProperty(MessageInterface::SERVER_HOSTNAME, static::DEFAULT_SERVER_NAME);
+        return new Message($level, $message, $data);
     }
 
     /**
@@ -196,15 +207,67 @@ class MessageFactory implements MessageFactoryInterface
     private function consume(array $data, array $context)
     {
         foreach ($context as $property => $value) {
+            $sanitized = $this->validateValue($value);
+            if ($sanitized === null) {
+                continue;
+            }
+
             if (in_array($property, $this->knownProperties, true)) {
-                $data[$property] = $value;
+                $data[$property] = $sanitized;
 
             } else {
-                $data[MessageInterface::CONTEXT][$property] = $value;
+                $data[MessageInterface::CONTEXT][$property] = $sanitized;
             }
         }
 
         return $data;
+    }
+
+    /**
+     * @param string $level
+     *
+     * @return string|null
+     */
+    private function validateValue($value)
+    {
+        if (is_null($value)) {
+            return null;
+        }
+
+        if ($value instanceof GUID || $value instanceof TimePoint) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            return $this->restrictValueLength($value);
+        }
+
+        if (is_object($value) && is_callable([$value, '__toString'])) {
+            return $this->restrictValueLength($value);
+        }
+
+        if (is_scalar($value)) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return string
+     */
+    private function restrictValueLength(string $value)
+    {
+        $max = $this->configuration[self::CONFIG_MAX_PROPERTY_SIZE];
+        if (!$max) {
+            return $value;
+        }
+
+        $max = $max * 1000;
+
+        return substr($value, 0, $max);
     }
 
     /**

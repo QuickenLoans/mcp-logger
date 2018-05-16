@@ -1,44 +1,41 @@
 <?php
 /**
- * @copyright (c) 2016 Quicken Loans Inc.
+ * @copyright (c) 2018 Quicken Loans Inc.
  *
  * For full license information, please view the LICENSE distributed with this source code.
  */
 
 namespace QL\MCP\Logger\Message;
 
-use Psr\Log\LogLevel;
 use QL\MCP\Common\GUID;
-use QL\MCP\Common\IPv4Address;
 use QL\MCP\Common\Time\TimePoint;
 use QL\MCP\Logger\MessageInterface;
 
 /**
  * This class represents a basic structured log message.
  *
+ * The following properties are required:
+ *
+ * - severity
+ * - message
+ *
  * The following properties are required, but will be populated with defaults if missing:
  *
  * - id             : Random GUID
- * - severity       : info
+ * - created        : TimePoint
  * - context        : []
- *
- * The following properties are required:
- *
- * - message
- * - created        : TimePoint (from MessageFactory)
- * - applicationID  : (from MessageFactory)
- * - serverIP       : IPv4Address (from MessageFactory)
- * - serverHostname : (from MessageFactory)
+ * - details        : ''
  *
  * The following properties are not required:
  *
- * - errorDetails
+ * - applicationID  : (from MessageFactory)
+ * - serverIP       : (from MessageFactory)
+ * - serverHostname : (from MessageFactory)
  * - serverEnvironment
  * - requestMethod
  * - requestURL
  * - userAgent
  * - userIP
- * - userName
  */
 
 class Message implements MessageInterface
@@ -55,12 +52,7 @@ class Message implements MessageInterface
      */
     private $message;
     private $severity;
-    private $errorDetails;
-
-    /**
-     * @var array
-     */
-    private $context;
+    private $details;
 
     /**
      * @var TimePoint
@@ -68,19 +60,20 @@ class Message implements MessageInterface
     private $created;
 
     /**
-     * @var string
+     * @var array
+     */
+    private $context;
+
+    /**
+     * @var string|null
      */
     private $applicationID;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $serverEnvironment;
     private $serverHostname;
-
-    /**
-     * @var IPv4Address|null
-     */
     private $serverIP;
 
     /**
@@ -93,37 +86,33 @@ class Message implements MessageInterface
      * @var string|null
      */
     private $userAgent;
-    private $userName;
-
-    /**
-     * @var IPv4Address|null
-     */
     private $userIP;
 
     /**
      * @param mixed[] $data
      */
-    public function __construct(array $data)
+    public function __construct(string $level, string $message, array $data)
     {
+        $this->severity = $level;
+        $this->message = $message;
+
         // Required, will get a default value if not provided.
         $this->id = $this->parseClass(MessageInterface::ID, $data, GUID::class, function () {
             return GUID::create();
         });
 
-        $this->severity = $this->parseLevel(MessageInterface::SEVERITY, $data, LogLevel::INFO);
+        $this->created = $this->parseClass(MessageInterface::CREATED, $data, TimePoint::class, function() {
+            return $this->generateCreatedTime();
+        });
+
         $this->context = $this->parseContext(MessageInterface::CONTEXT, $data, []);
+        $this->details = $this->parseValue(MessageInterface::DETAILS, $data, '');
 
-        // Required, no default provided
-        $this->message = $this->parseRequiredValue(MessageInterface::MESSAGE, $data);
-        $this->created = $this->parseRequiredClass(MessageInterface::CREATED, $data, TimePoint::class);
+        // Optional values
+        $this->applicationID = $this->parseValue(MessageInterface::APPLICATION_ID, $data);
 
-        $this->applicationID = $this->parseRequiredValue(MessageInterface::APPLICATION_ID, $data);
-
-        $this->serverIP = $this->parseRequiredClass(MessageInterface::SERVER_IP, $data, IPv4Address::class);
-        $this->serverHostname = $this->parseRequiredValue(MessageInterface::SERVER_HOSTNAME, $data);
-
-        // Not required
-        $this->errorDetails = $this->parseValue(MessageInterface::ERROR_DETAILS, $data);
+        $this->serverIP = $this->parseValue(MessageInterface::SERVER_IP, $data);
+        $this->serverHostname = $this->parseValue(MessageInterface::SERVER_HOSTNAME, $data);
 
         $this->serverEnvironment = $this->parseValue(MessageInterface::SERVER_ENVIRONMENT, $data);
 
@@ -131,14 +120,42 @@ class Message implements MessageInterface
         $this->requestURL = $this->parseValue(MessageInterface::REQUEST_URL, $data);
 
         $this->userAgent = $this->parseValue(MessageInterface::USER_AGENT, $data);
-        $this->userName = $this->parseValue(MessageInterface::USER_NAME, $data);
-        $this->userIP = $this->parseClass(MessageInterface::USER_IP, $data, IPv4Address::class);
+        $this->userIP = $this->parseValue(MessageInterface::USER_IP, $data);
+    }
+
+    /**
+     * @return array
+     */
+    public function all(): array
+    {
+        return [
+            MessageInterface::SEVERITY => $this->severity(),
+            MessageInterface::MESSAGE => $this->message(),
+
+            MessageInterface::ID => $this->id(),
+            MessageInterface::CREATED => $this->created(),
+
+            MessageInterface::CONTEXT => $this->context(),
+            MessageInterface::DETAILS => $this->details(),
+
+            MessageInterface::APPLICATION_ID => $this->applicationID(),
+
+            MessageInterface::SERVER_ENVIRONMENT => $this->serverEnvironment(),
+            MessageInterface::SERVER_IP => $this->serverIP(),
+            MessageInterface::SERVER_HOSTNAME => $this->serverHostname(),
+
+            MessageInterface::REQUEST_METHOD => $this->requestMethod(),
+            MessageInterface::REQUEST_URL => $this->requestURL(),
+
+            MessageInterface::USER_AGENT => $this->userAgent(),
+            MessageInterface::USER_IP => $this->userIP(),
+        ];
     }
 
     /**
      * @return GUID
      */
-    public function id()
+    public function id(): GUID
     {
         return $this->id;
     }
@@ -146,7 +163,7 @@ class Message implements MessageInterface
     /**
      * @return string
      */
-    public function message()
+    public function message(): string
     {
         return $this->message;
     }
@@ -154,39 +171,39 @@ class Message implements MessageInterface
     /**
      * @return string
      */
-    public function severity()
+    public function severity(): string
     {
         return $this->severity;
     }
 
     /**
-     * @return array
-     */
-    public function context()
-    {
-        return $this->context;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function errorDetails()
-    {
-        return $this->errorDetails;
-    }
-
-    /**
      * @return TimePoint
      */
-    public function created()
+    public function created(): TimePoint
     {
         return $this->created;
     }
 
     /**
+     * @return array
+     */
+    public function context(): array
+    {
+        return $this->context;
+    }
+
+    /**
      * @return string
      */
-    public function applicationID()
+    public function details(): string
+    {
+        return $this->details;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function applicationID(): ?string
     {
         return $this->applicationID;
     }
@@ -194,23 +211,23 @@ class Message implements MessageInterface
     /**
      * @return string|null
      */
-    public function serverEnvironment()
+    public function serverEnvironment(): ?string
     {
         return $this->serverEnvironment;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function serverHostname()
+    public function serverHostname(): ?string
     {
         return $this->serverHostname;
     }
 
     /**
-     * @return IPv4Address
+     * @return string|null
      */
-    public function serverIP()
+    public function serverIP(): ?string
     {
         return $this->serverIP;
     }
@@ -218,7 +235,7 @@ class Message implements MessageInterface
     /**
      * @return string|null
      */
-    public function requestMethod()
+    public function requestMethod(): ?string
     {
         return $this->requestMethod;
     }
@@ -226,7 +243,7 @@ class Message implements MessageInterface
     /**
      * @return string|null
      */
-    public function requestURL()
+    public function requestURL(): ?string
     {
         return $this->requestURL;
     }
@@ -234,24 +251,16 @@ class Message implements MessageInterface
     /**
      * @return string|null
      */
-    public function userAgent()
+    public function userAgent(): ?string
     {
         return $this->userAgent;
     }
 
     /**
-     * @return IPv4Address|null
-     */
-    public function userIP()
-    {
-        return $this->userIP;
-    }
-
-    /**
      * @return string|null
      */
-    public function userName()
+    public function userIP(): ?string
     {
-        return $this->userName;
+        return $this->userIP;
     }
 }
