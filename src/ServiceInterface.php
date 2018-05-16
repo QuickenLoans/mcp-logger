@@ -11,10 +11,5 @@ use QL\MCP\Logger\MessageInterface;
 
 interface ServiceInterface
 {
-    /**
-     * @param MessageInterface $message
-     *
-     * @return void
-     */
-    public function send(MessageInterface $message);
+    public function send(string $level, string $formatted): bool;
 }
