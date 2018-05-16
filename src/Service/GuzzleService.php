@@ -7,23 +7,20 @@
 
 namespace QL\MCP\Logger\Service;
 
-use Exception as BaseException;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Message\ResponseInterface as Guzzle5ResponseInterface;
-use QL\MCP\Logger\Exception;
 use QL\MCP\Logger\MessageInterface;
 use QL\MCP\Logger\ServiceInterface;
-use QL\MCP\Logger\Service\Serializer\XMLSerializer;
+use QL\MCP\Logger\SerializerInterface;
+use QL\MCP\Logger\Serializer\XMLSerializer;
 use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 
 /**
- * HTTP endpoint service for Guzzle 5 and 6.
+ * HTTP endpoint service for Guzzle 6.
  */
 class GuzzleService implements ServiceInterface
 {
-    use GuzzleTrait;
-
     // Configuration Keys
     const CONFIG_SILENT = 'silent';
     const CONFIG_TIMEOUT = 'timeout';
@@ -31,14 +28,17 @@ class GuzzleService implements ServiceInterface
     const CONFIG_ENDPOINT = 'endpoint';
 
     // Configuration Defaults
-    const DEFAULT_SILENT = true;
     const DEFAULT_TIMEOUT = 2;
     const DEFAULT_CONNECT_TIMEOUT = 1;
     const DEFAULT_ENDPOINT = '';
 
     // Error Messages
     const ERR_INVALID_ENDPOINT = 'Invalid logger endpoint provided. Please provide a complete HTTP or HTTPS URL endpoint.';
-    const ERR_BACKUP_TEMPLATE = 'MCP HTTP Logger failed : %s (%s)';
+
+    /**
+     * @var ClientInterface
+     */
+    private $guzzle;
 
     /**
      * @var SerializerInterface
@@ -64,18 +64,16 @@ class GuzzleService implements ServiceInterface
         SerializerInterface $serializer = null,
         array $configuration = []
     ) {
-        $this->setGuzzleClient($guzzle ?: $this->buildDefaultGuzzle());
+        $this->guzzle = $guzzle ?: $this->buildDefaultGuzzle());
         $this->serializer = $serializer ?: $this->buildDefaultSerializer();
 
         $this->configuration = array_merge([
-            self::CONFIG_SILENT => self::DEFAULT_SILENT,
             self::CONFIG_TIMEOUT => self::DEFAULT_TIMEOUT,
             self::CONFIG_CONNECT_TIMEOUT => self::DEFAULT_CONNECT_TIMEOUT,
             self::CONFIG_ENDPOINT => $endpoint
         ], $configuration);
 
         $this->validateEndpoint($this->configuration[self::CONFIG_ENDPOINT]);
-        $this->validateVersion();
     }
 
     /**
@@ -90,22 +88,11 @@ class GuzzleService implements ServiceInterface
 
         $response = $this->request($body, $headers);
 
-        if (!$response instanceof BaseException) {
-            return;
+        if ($response instanceof RuntimeException) {
+            return false;
         }
 
-        $error = $response->getMessage();
-        $sanitized = strstr($message->message(), "\n", true) ?: $message->message();
-        $msg = sprintf(self::ERR_BACKUP_TEMPLATE, $sanitized, $error);
-
-        // quiet error
-        if ($this->configuration[self::CONFIG_SILENT]) {
-            error_log($msg, 0);
-            return;
-        }
-
-        // noisy error
-        throw new Exception($msg);
+        return true;
     }
 
     /**
@@ -133,7 +120,7 @@ class GuzzleService implements ServiceInterface
      * @param string $body
      * @param array $headers
      *
-     * @return Guzzle5ResponseInterface|ResponseInterface|BaseException
+     * @return ResponseInterface|RuntimeException
      */
     private function request($body, array $headers)
     {
@@ -143,10 +130,17 @@ class GuzzleService implements ServiceInterface
             'body' => $body,
             'headers' => $headers,
             'timeout' => $this->configuration[self::CONFIG_TIMEOUT],
-            'connect_timeout' => $this->configuration[self::CONFIG_CONNECT_TIMEOUT]
+            'connect_timeout' => $this->configuration[self::CONFIG_CONNECT_TIMEOUT],
+            'http_errors' => true
         ];
 
-        return $this->requestGuzzle($method, $uri, $options);
+        try {
+            $response = $this->guzzle->request($method, $uri, $options);
+        } catch (RuntimeException $e) {
+            return $e;
+        }
+
+        return $response;
     }
 
     /**
