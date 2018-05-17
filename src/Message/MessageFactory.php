@@ -72,13 +72,13 @@ class MessageFactory implements MessageFactoryInterface
 
     /**
      * @param Clock|null $clock
-     * @param mixed[] $defaultLogProperties
+     * @param mixed[] $defaults
      */
-    public function __construct(Clock $clock = null, array $defaultLogProperties = [])
+    public function __construct(Clock $clock = null, array $defaults = [])
     {
         $this->clock = $clock ?: new Clock('now', 'UTC');
 
-        $properties = $defaultLogProperties + [
+        $properties = $defaults + [
             MessageInterface::APPLICATION_ID => 'APP123',
             MessageInterface::SERVER_IP => IPv4Address::create('0.0.0.0'),
             MessageInterface::SERVER_HOSTNAME => gethostname(),

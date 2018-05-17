@@ -70,14 +70,14 @@ class LineSerializer implements SerializerInterface
     /**
      * @var array
      */
-    private $configuration;
+    private $config;
 
     /**
-     * @param array $configuration
+     * @param array $config
      */
-    public function __construct(array $configuration = [])
+    public function __construct(array $config = [])
     {
-        $this->configuration = $configuration + [
+        $this->config = $config + [
             self::CONFIG_TEMPLATE => self::DEFAULT_TEMPLATE,
             self::CONFIG_TOKEN => self::DEFAULT_TOKEN,
         ];
@@ -90,7 +90,7 @@ class LineSerializer implements SerializerInterface
      */
     public function __invoke(MessageInterface $message): string
     {
-        $template = $this->configuration[self::CONFIG_TEMPLATE];
+        $template = $this->config[self::CONFIG_TEMPLATE];
 
         $context = [
             'id' => $this->sanitizeGUID($message->id()),
@@ -173,7 +173,7 @@ class LineSerializer implements SerializerInterface
      */
     private function buildToken()
     {
-        $token = $this->configuration[self::CONFIG_TOKEN];
+        $token = $this->config[self::CONFIG_TOKEN];
         if (substr_count($token, 'VAR') !== 1) {
             $token = self::DEFAULT_TOKEN;
         }

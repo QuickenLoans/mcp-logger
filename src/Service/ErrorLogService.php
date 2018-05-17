@@ -44,19 +44,19 @@ class ErrorLogService implements ServiceInterface
     /**
      * @var array
      */
-    private $configuration;
+    private $config;
 
     /**
-     * @param array $configuration
+     * @param array $config
      */
-    public function __construct(array $configuration = [])
+    public function __construct(array $config = [])
     {
-        $type = $configuration[static::CONFIG_TYPE] ?? '';
+        $type = $config[static::CONFIG_TYPE] ?? '';
         if (in_array($type, self::VALID_TYPES_TEXT) && defined("static::${type}")) {
-            $configuration[static::CONFIG_TYPE] = constant("static::${type}");
+            $config[static::CONFIG_TYPE] = constant("static::${type}");
         }
 
-        $this->configuration = $configuration + [
+        $this->config = $config + [
             self::CONFIG_FILE => self::DEFAULT_FILE,
             self::CONFIG_TYPE => self::DEFAULT_TYPE
         ];
@@ -72,10 +72,10 @@ class ErrorLogService implements ServiceInterface
      */
     public function send(string $level, string $formatted): bool
     {
-        if ($this->configuration[self::CONFIG_TYPE] === self::FILE) {
-            return error_log($formatted . "\n", $this->configuration[self::CONFIG_TYPE], $this->configuration[self::CONFIG_FILE]);
+        if ($this->config[self::CONFIG_TYPE] === self::FILE) {
+            return error_log($formatted . "\n", $this->config[self::CONFIG_TYPE], $this->config[self::CONFIG_FILE]);
         } else {
-            return error_log($formatted, $this->configuration[self::CONFIG_TYPE]);
+            return error_log($formatted, $this->config[self::CONFIG_TYPE]);
         }
     }
 
@@ -86,11 +86,11 @@ class ErrorLogService implements ServiceInterface
      */
     private function validateMessageType()
     {
-        if (!in_array($this->configuration[self::CONFIG_TYPE], self::VALID_TYPES, true)) {
+        if (!in_array($this->config[self::CONFIG_TYPE], self::VALID_TYPES, true)) {
             throw new Exception(self::ERR_INVALID_TYPE);
         }
 
-        if ($this->configuration[self::CONFIG_TYPE] === self::FILE && !$this->configuration[self::CONFIG_FILE]) {
+        if ($this->config[self::CONFIG_TYPE] === self::FILE && !$this->config[self::CONFIG_FILE]) {
             throw new Exception(self::ERR_INVALID_FILE);
         }
     }

@@ -2,11 +2,6 @@
 # https://circleci.com/docs/2.0/circleci-images/
 version: 2
 
-php70_defaults: &php70_defaults
-    working_directory: '~/project'
-    docker:
-        - image: 'circleci/php:7.0'
-
 php71_defaults: &php71_defaults
     working_directory: '~/project'
     docker:
@@ -15,7 +10,7 @@ php71_defaults: &php71_defaults
 php72_defaults: &php72_defaults
     working_directory: '~/project'
     docker:
-        - image: 'circleci/php:7.1'
+        - image: 'circleci/php:7.2'
 
 attach_workspace: &attach_workspace
     attach_workspace:
@@ -41,9 +36,6 @@ workflows:
             - linting:
                 requires: [ install_php_dependencies ]
 
-            - unit_tests_70:
-                requires: [ linting ]
-
             - unit_tests_71:
                 requires: [ linting ]
 
@@ -63,7 +55,7 @@ jobs:
             - *attach_workspace
 
             - restore_cache:
-                keys: [ 'v1-php-deps-{{ checksum "composer.lock" }}', 'v1-php-deps' ]
+                keys: [ 'v1-php-deps-{{ checksum "composer.json" }}', 'v1-php-deps' ]
 
             - run:
                 name: 'Install PHP dependencies'
@@ -72,7 +64,7 @@ jobs:
                     composer show
 
             - save_cache:
-                key: 'v1-php-deps-{{ checksum "composer.lock" }}'
+                key: 'v1-php-deps-{{ checksum "composer.json" }}'
                 paths: [ 'vendor' ]
 
             - *persist_workspace
@@ -108,14 +100,6 @@ jobs:
                     vendor/bin/phpstan analyse \
                     -l 5 \
                     src
-
-    unit_tests_70:
-        <<: *php70_defaults
-        steps:
-            - *attach_workspace
-            - run:
-                name: 'Run unit tests'
-                command: 'phpdbg -qrr vendor/bin/phpunit'
 
     unit_tests_71:
         <<: *php71_defaults

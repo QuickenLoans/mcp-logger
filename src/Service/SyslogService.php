@@ -28,7 +28,7 @@ class SyslogService implements ServiceInterface
     /**
      * @var array
      */
-    private $configuration;
+    private $config;
 
     /**
      * @var bool
@@ -36,15 +36,15 @@ class SyslogService implements ServiceInterface
     private $status;
 
     /**
-     * @param array $configuration
+     * @param array $config
      */
-    public function __construct(array $configuration = [])
+    public function __construct(array $config = [])
     {
-        $this->configuration = array_merge([
+        $this->config = array_merge([
             self::CONFIG_IDENT => self::DEFAULT_IDENT,
             self::CONFIG_FACILITY => self::DEFAULT_FACILITY,
             self::CONFIG_OPTIONS =>  self::DEFAULT_OPTIONS
-        ], $configuration);
+        ], $config);
 
         $this->status = false;
     }
@@ -78,9 +78,9 @@ class SyslogService implements ServiceInterface
     private function connect()
     {
         $this->status = openlog(
-            $this->configuration[self::CONFIG_IDENT],
-            $this->configuration[self::CONFIG_OPTIONS],
-            $this->configuration[self::CONFIG_FACILITY]
+            $this->config[self::CONFIG_IDENT],
+            $this->config[self::CONFIG_OPTIONS],
+            $this->config[self::CONFIG_FACILITY]
         );
     }
 
