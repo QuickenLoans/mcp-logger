@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file. See [keepac
 
 This package follows [semver](http://semver.org/) versioning.
 
+## [4.0.0] - 2018-05-16
+## Changed
+- This library now requires PHP 7.1 or higher.
+- Simplified much code!
+- The default method is now `ErrorLog` (It used to be syslog).
+    - ErrorLog can be used to easily send your logs to files: [php.net](http://php.net/manual/en/function.error-log.php).
+- Switched to Symfony PHP fluent config for included DI
+    - Available at [config/config.php](config/config.php).
+    - Most options now configurable through environment variables.
+- **LineSerializer** template now uses twig notation (such as `{{ var }}`) instead of `%var%`.
+- `Serializers` are now passed to the Logger instead of services.
+
+### Added
+- Add **Transformers** which are attached to the `Logger` and can modify the message before it is rendered.
+    - Useful for attaching more properties, or transforming the message.
+    - Currently only transform available is: [QLLogSeverityTransformer](src/Transformer/QLLogSeverityTransformer.php)
+- See the integration tests for working examples of how to configure this library.
+    - [DefaultLoggerTest](tests/integration-tests/DefaultLoggerTest.php)
+    - [MultiLineFileLoggerTest](tests/integration-tests/MultiLineFileLoggerTest.php)
+    - [StructuredLoggerTest](tests/integration-tests/StructuredLoggerTest.php)
+
+### Removed
+- Guzzle 5 no longer supported.
+- PHP 7.0 no longer supported.
+
 ## [3.1.0] - 2018-03-28
 ## Changed
 - This library now requires PHP 7.0 or higher.

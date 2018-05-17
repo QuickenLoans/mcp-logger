@@ -67,7 +67,7 @@ return function (ContainerConfigurator $container) {
         ])
 
         // factory
-        ->set('env(MCP_LOGGER_MAX_SIZE_KB)', 100)
+        ->set('env(MCP_LOGGER_MAX_SIZE_KB)', '100')
 
         // line serializer
         ->set('env(MCP_LOGGER_LINE_SERIALIZER_TEMPLATE)', '[{{ created }}] {{ severity }} : {{ message }}')
@@ -79,7 +79,7 @@ return function (ContainerConfigurator $container) {
 
         // syslog service
         ->set('env(MCP_LOGGER_SYSLOG_IDENT)', 'mcplogger')
-        ->set('env(MCP_LOGGER_SYSLOG_FACILITY)', LOG_USER)
+        ->set('env(MCP_LOGGER_SYSLOG_FACILITY)', 'LOG_USER')
         ->set('env(MCP_LOGGER_SYSLOG_OPTIONS)', LOG_ODELAY | LOG_CONS)
 
         // guzzle service
@@ -97,8 +97,8 @@ return function (ContainerConfigurator $container) {
 
         ->set('mcp_logger.syslog.options', [
             'ident' => '%env(MCP_LOGGER_SYSLOG_IDENT)%',
-            'facility' => '%env(MCP_LOGGER_SYSLOG_FACILITY)%',
-            'options' => '%env(MCP_LOGGER_SYSLOG_OPTIONS)%'
+            'facility' => '%env(const:MCP_LOGGER_SYSLOG_FACILITY)%',
+            'options' => '%env(int:MCP_LOGGER_SYSLOG_OPTIONS)%'
         ])
     ;
 
@@ -165,4 +165,5 @@ return function (ContainerConfigurator $container) {
     ;
 
     $s->alias('mcp_logger', Logger::class)->public();
+    $s->alias('mcp_logger_factory', MessageFactory::class)->public();
 };

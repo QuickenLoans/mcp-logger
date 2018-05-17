@@ -71,6 +71,7 @@ class SymfonyDITest extends TestCase
         $container = $this->getContainer();
         putenv("MCP_LOGGER_SERVICE=${env}");
         $container->compile(true);
+        putenv('MCP_LOGGER_SERVICE');
 
         $logger = $container->get('mcp_logger');
         $this->assertInstanceOf(Logger::class, $logger);
@@ -90,6 +91,7 @@ class SymfonyDITest extends TestCase
         $container = $this->getContainer();
         putenv("MCP_LOGGER_SERIALIZER=${env}");
         $container->compile(true);
+        putenv('MCP_LOGGER_SERVICE');
 
         $logger = $container->get('mcp_logger');
         $this->assertInstanceOf(Logger::class, $logger);
