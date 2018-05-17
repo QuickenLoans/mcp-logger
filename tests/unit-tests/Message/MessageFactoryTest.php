@@ -7,7 +7,6 @@
 
 namespace QL\MCP\Logger\Message;
 
-use Mockery;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
 use QL\MCP\Common\IPv4Address;
@@ -19,13 +18,18 @@ use stdClass;
 
 class MessageFactoryTest extends TestCase
 {
+    public function setUp()
+    {
+        $this->clock = new Clock('2019-05-10 12:15:45', 'UTC');
+
+    }
+
     public function testInvalidIpAddressThrowsException()
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage("'serverIP' must be an instance of IPv4Address");
 
-        $clock = Mockery::mock(Clock::class);
-        $factory = new MessageFactory($clock);
+        $factory = new MessageFactory($this->clock);
         $factory->setDefaultProperty('serverIP', new stdClass);
     }
 
@@ -34,20 +38,12 @@ class MessageFactoryTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Invalid property: "userAgent". Log properties must be scalars or objects that implement __toString');
 
-        $clock = Mockery::mock(Clock::class);
-        $factory = new MessageFactory($clock);
+        $factory = new MessageFactory($this->clock);
         $factory->setDefaultProperty('userAgent', new stdClass);
     }
 
     public function testInvalidContextIsRemoved()
     {
-        $time = Mockery::mock(TimePoint::class);
-        $clock = Mockery::mock(Clock::class);
-        $clock
-            ->shouldReceive('read')
-            ->once()
-            ->andReturn($time);
-
         $defaults = [
             'applicationID' => 10,
             'serverIP' => IPv4Address::create('127.0.0.1'),
@@ -58,7 +54,7 @@ class MessageFactoryTest extends TestCase
             'userAgent' => new stdClass
         ];
 
-        $factory = new MessageFactory($clock, $defaults);
+        $factory = new MessageFactory($this->clock, $defaults);
         $actual = $factory->buildMessage('', 'message', $badContext);
 
         $this->assertSame(null, $actual->userAgent());
@@ -66,13 +62,6 @@ class MessageFactoryTest extends TestCase
 
     public function testBuildingAMessageWithBareMinimumPropertiesThroughSetter()
     {
-        $time = Mockery::mock(TimePoint::class);
-        $clock = Mockery::mock(Clock::class);
-        $clock
-            ->shouldReceive('read')
-            ->once()
-            ->andReturn($time);
-
         $expectedMessage = 'hello';
         $expectedDefaults = [
             'applicationID' => '1',
@@ -80,7 +69,7 @@ class MessageFactoryTest extends TestCase
             'serverHostname' => 'Hank'
         ];
 
-        $factory = new MessageFactory($clock);
+        $factory = new MessageFactory($this->clock);
         foreach ($expectedDefaults as $property => $value) {
             $factory->setDefaultProperty($property, $value);
         }
@@ -91,20 +80,13 @@ class MessageFactoryTest extends TestCase
         $this->assertSame('127.0.0.1', $actual->serverIP());
         $this->assertSame('Hank', $actual->serverHostname());
 
-        $this->assertSame($time, $actual->created());
+        $this->assertSame('2019-05-10', $actual->created()->format('Y-m-d', 'UTC'));
         $this->assertSame(LogLevel::ERROR, $actual->severity());
         $this->assertSame($expectedMessage, $actual->message());
     }
 
     public function testBuildingAMessageWithBareMinimumPropertiesThroughConstructor()
     {
-        $time = Mockery::mock(TimePoint::class);
-        $clock = Mockery::mock(Clock::class);
-        $clock
-            ->shouldReceive('read')
-            ->once()
-            ->andReturn($time);
-
         $expectedMessage = 'there';
         $expectedDefaults = [
             'applicationID' => 'ABC2',
@@ -112,7 +94,7 @@ class MessageFactoryTest extends TestCase
             'serverHostname' => 'Walt'
         ];
 
-        $factory = new MessageFactory($clock, $expectedDefaults);
+        $factory = new MessageFactory($this->clock, $expectedDefaults);
         $actual = $factory->buildMessage('', $expectedMessage);
 
         // Assertions on actual message
@@ -120,20 +102,13 @@ class MessageFactoryTest extends TestCase
         $this->assertSame('127.0.0.1', $actual->serverIP());
         $this->assertSame('Walt', $actual->serverHostname());
 
-        $this->assertSame($time, $actual->created());
+        $this->assertSame('2019-05-10', $actual->created()->format('Y-m-d', 'UTC'));
         $this->assertSame(LogLevel::ERROR, $actual->severity());
         $this->assertSame($expectedMessage, $actual->message());
     }
 
     public function testUnknownPropertiesAddedToExtendedProperties()
     {
-        $time = Mockery::mock(TimePoint::class);
-        $clock = Mockery::mock(Clock::class);
-        $clock
-            ->shouldReceive('read')
-            ->once()
-            ->andReturn($time);
-
         $expectedDefaults = [
             'applicationID' => 10,
             'serverIP' => IPv4Address::create('127.0.0.1'),
@@ -141,7 +116,7 @@ class MessageFactoryTest extends TestCase
         ];
         $expectedUnknownProperty = ['unknown' => new Stringable];
 
-        $factory = new MessageFactory($clock, array_merge($expectedDefaults, $expectedUnknownProperty));
+        $factory = new MessageFactory($this->clock, array_merge($expectedDefaults, $expectedUnknownProperty));
         $actual = $factory->buildMessage('', 'message');
 
         $this->assertSame(['unknown' => ''], $actual->context());

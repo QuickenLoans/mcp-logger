@@ -7,13 +7,16 @@
 
 namespace QL\MCP\Logger;
 
+use Mockery;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Mockery;
 
 class FilterLoggerTest extends TestCase
 {
+    use MockeryPHPUnitIntegration;
+
     public $logger;
 
     public function setUp()

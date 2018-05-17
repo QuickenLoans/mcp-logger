@@ -45,6 +45,7 @@ class MessageFactory implements MessageFactoryInterface
      */
     const ERR_UNRENDERABLE = 'Invalid property: "%s". Log properties must be scalars or objects that implement __toString.';
     const ERR_INVALID_IP = "'%s' must be an instance of IPv4Address.";
+    const ERR_INVALID_TIME = "'%s' must be an instance of TimePoint.";
 
     // Config Keys
     const CONFIG_MAX_PROPERTY_SIZE = 'max_size_kb';
@@ -159,6 +160,14 @@ class MessageFactory implements MessageFactoryInterface
             throw new Exception(sprintf(self::ERR_INVALID_IP, $name));
         }
 
+        if (in_array($name, [MessageInterface::CREATED], true)) {
+            if (is_null($value) || $value instanceof TimePoint) {
+                return;
+            }
+
+            throw new Exception(sprintf(self::ERR_INVALID_TIME, $name));
+        }
+
         if (is_scalar($value) || is_null($value)) {
             return;
         }
@@ -183,7 +192,6 @@ class MessageFactory implements MessageFactoryInterface
     {
         $level = $this->validateSeverity($level);
         $data = [
-            MessageInterface::CREATED => $this->clock->read(),
             MessageInterface::CONTEXT => []
         ];
 

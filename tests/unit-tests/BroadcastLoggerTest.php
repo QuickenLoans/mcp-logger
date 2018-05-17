@@ -7,13 +7,16 @@
 
 namespace QL\MCP\Logger;
 
+use Mockery;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Mockery;
 
 class BroadcastLoggerTest extends TestCase
 {
+    use MockeryPHPUnitIntegration;
+
     public $logger1;
     public $logger2;
 

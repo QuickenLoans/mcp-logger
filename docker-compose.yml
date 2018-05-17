@@ -1,6 +1,0 @@
-web:
-  build: ./docker/web
-  ports:
-    - "8080:80"
-  volumes:
-    - .:/var/www

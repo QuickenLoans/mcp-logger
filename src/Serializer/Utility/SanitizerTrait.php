@@ -55,15 +55,12 @@ trait SanitizerTrait
 
     /**
      * @param TimePoint|null $value
+     * @param string $format
      *
      * @return string|null
      */
-    protected function sanitizeTime($value)
+    protected function sanitizeTime($value, $format = 'Y-m-d\TH:i:s\.u\Z')
     {
-        if ($value instanceof TimePoint) {
-            return $value->format('Y-m-d\TH:i:s\.u\Z', 'UTC');
-        }
-
-        return null;
+        return $value->format($format, 'UTC');
     }
 }

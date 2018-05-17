@@ -12,10 +12,15 @@ use Psr\Log\LoggerTrait;
 use QL\MCP\Logger\Message\MessageFactory;
 use QL\MCP\Logger\Serializer\LineSerializer;
 use QL\MCP\Logger\Service\ErrorLogService;
+use QL\MCP\Logger\Utility\OptionTrait;
 
 class Logger implements LoggerInterface
 {
     use LoggerTrait;
+    use OptionTrait;
+
+    // Flags
+    const SPLIT_ON_NEWLINES = 1;
 
     /**
      * @var ServiceInterface
@@ -82,7 +87,15 @@ class Logger implements LoggerInterface
 
         $formatted = ($this->serializer)($message);
 
-        $this->service->send($level, $formatted);
+        if (!$this->isFlagEnabled(self::SPLIT_ON_NEWLINES)) {
+            $this->service->send($level, $formatted);
+            return;
+        }
+
+        $lines = preg_split('/(\r\n|\n|\r)/', $formatted);
+        foreach ($lines as $line) {
+            $this->service->send($level, $line);
+        }
     }
 
     /**

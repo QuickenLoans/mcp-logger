@@ -10,16 +10,54 @@ namespace QL\MCP\Logger\Serializer;
 use QL\MCP\Logger\MessageInterface;
 use QL\MCP\Logger\SerializerInterface;
 use QL\MCP\Logger\Serializer\Utility\SanitizerTrait;
+use QL\MCP\Logger\Utility\OptionTrait;
 
 /**
  * Serializer for formatting messages into a single line.
  *
  * This implements some basic functionality and ideas from MonoLog:
  * https://github.com/Seldaek/monolog/blob/master/src/Monolog/Formatter/LineFormatter.php
+ *
+ * You can provide a template (using standard twig {{ var }} notation).
+ *
+ * The following variables are available for your template:
+ * - id
+ * - message
+ * - severity
+ * - created
+ * - details
+ *
+ * - app
+ * - env
+ *
+ * - server.ip
+ * - server.host
+ *
+ * - request.method
+ * - request.ul
+ * - user.agent
+ * - user.ip
+ *
+ * Extra variables are available under this variable:
+ * - context.*** (where *** is replaced with a normalized name)
+ *
+ * Examples:
+ * - context.my_var  (from $context['My Var'])
+ * - context.thisvar (from $context['ThisVar'])
+ *
+ * Convenience methods:
+ * - date        ('created' formatted to YYYY-MM-DD [UTC])
+ * - time        ('created' formatted to HH:MM:SS [UTC])
+ * - datetime    ('created' formatted to YYYY-MM-DD HH:MM:SS [UTC])
+ * - shortid     ('id' formatted to 8 characters - first section of the guid)
  */
 class LineSerializer implements SerializerInterface
 {
+    use OptionTrait;
     use SanitizerTrait;
+
+    // Flags
+    const ALLOW_NEWLINES = 1;
 
     // Config Keys
     const CONFIG_TOKEN = 'token';
@@ -75,6 +113,14 @@ class LineSerializer implements SerializerInterface
             'user.ip' => $this->sanitizeString($message->userIP()),
         ];
 
+        // Extra convenience properties
+        $context += [
+            'shortid' => substr($context['id'], 0, 8),
+            'date' => $this->sanitizeTime($message->created(), 'Y-m-d'),
+            'time' => $this->sanitizeTime($message->created()), 'H:i:s',
+            'datetime' => $this->sanitizeTime($message->created(), 'Y-m-d H:i:s'),
+        ];
+
         foreach ($message->context() as $key => $value) {
             $key = preg_replace("/[^a-z0-9_]/", "_", strtolower($key));
             $context['context.' . $key] = $this->sanitizeString($value);
@@ -96,8 +142,13 @@ class LineSerializer implements SerializerInterface
 
         foreach ($vars as $key => $value) {
             $replacement = sprintf($token, $key);
+
+            if (!$this->isFlagEnabled(self::ALLOW_NEWLINES)) {
+                $value = $this->sanitizeNewlines($value);
+            }
+
             if (false !== strpos($output, $replacement)) {
-                $output = str_replace($replacement, $this->sanitizeNewlines($value), $output);
+                $output = str_replace($replacement, $value, $output);
             }
         }
 

@@ -8,6 +8,7 @@
 namespace QL\MCP\Logger;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
 use QL\MCP\Logger\Message\MessageFactory;
@@ -18,6 +19,8 @@ use ReflectionClass;
 
 class LoggerTest extends TestCase
 {
+    use MockeryPHPUnitIntegration;
+
     public $message;
     public $factory;
     public $serializer;
