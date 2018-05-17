@@ -51,11 +51,6 @@ class MessageFactory implements MessageFactoryInterface
     const CONFIG_MAX_PROPERTY_SIZE = 'max_size_kb';
 
     /**
-     * @var Clock
-     */
-    private $clock;
-
-    /**
      * @var string[]
      */
     private $logProperties;
@@ -63,7 +58,7 @@ class MessageFactory implements MessageFactoryInterface
     /**
      * @var array
      */
-    private $configuration;
+    private $config;
 
     /**
      * @var string[]
@@ -71,13 +66,10 @@ class MessageFactory implements MessageFactoryInterface
     private $knownProperties;
 
     /**
-     * @param Clock|null $clock
      * @param mixed[] $defaults
      */
-    public function __construct(Clock $clock = null, array $defaults = [])
+    public function __construct(array $defaults = [], array $config = [])
     {
-        $this->clock = $clock ?: new Clock('now', 'UTC');
-
         $properties = $defaults + [
             MessageInterface::APPLICATION_ID => 'APP123',
             MessageInterface::SERVER_IP => IPv4Address::create('0.0.0.0'),
@@ -89,7 +81,7 @@ class MessageFactory implements MessageFactoryInterface
             $this->setDefaultProperty($property, $value);
         }
 
-        $this->configuration = [
+        $this->config = $config + [
             self::CONFIG_MAX_PROPERTY_SIZE => 100 // default to max 100kb text size of each property
         ];
 
@@ -114,17 +106,6 @@ class MessageFactory implements MessageFactoryInterface
             MessageInterface::USER_AGENT,
             MessageInterface::USER_IP
         ];
-    }
-
-    /**
-     * @param string $name
-     * @param mixed $value
-     *
-     * @return void
-     */
-    public function configure($name, $value)
-    {
-        $this->configuration[$name] = $value;
     }
 
     /**
@@ -270,7 +251,7 @@ class MessageFactory implements MessageFactoryInterface
     {
         $value = (string) $value;
 
-        $max = $this->configuration[self::CONFIG_MAX_PROPERTY_SIZE];
+        $max = $this->config[self::CONFIG_MAX_PROPERTY_SIZE];
         if (!$max) {
             return $value;
         }

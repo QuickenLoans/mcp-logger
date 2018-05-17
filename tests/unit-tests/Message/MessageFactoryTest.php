@@ -21,7 +21,6 @@ class MessageFactoryTest extends TestCase
     public function setUp()
     {
         $this->clock = new Clock('2019-05-10 12:15:45', 'UTC');
-
     }
 
     public function testInvalidIpAddressThrowsException()
@@ -29,7 +28,7 @@ class MessageFactoryTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage("'serverIP' must be an instance of IPv4Address");
 
-        $factory = new MessageFactory($this->clock);
+        $factory = new MessageFactory;
         $factory->setDefaultProperty('serverIP', new stdClass);
     }
 
@@ -38,7 +37,7 @@ class MessageFactoryTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Invalid property: "userAgent". Log properties must be scalars or objects that implement __toString');
 
-        $factory = new MessageFactory($this->clock);
+        $factory = new MessageFactory;
         $factory->setDefaultProperty('userAgent', new stdClass);
     }
 
@@ -54,7 +53,7 @@ class MessageFactoryTest extends TestCase
             'userAgent' => new stdClass
         ];
 
-        $factory = new MessageFactory($this->clock, $defaults);
+        $factory = new MessageFactory($defaults);
         $actual = $factory->buildMessage('', 'message', $badContext);
 
         $this->assertSame(null, $actual->userAgent());
@@ -66,10 +65,11 @@ class MessageFactoryTest extends TestCase
         $expectedDefaults = [
             'applicationID' => '1',
             'serverIP' => IPv4Address::create('127.0.0.1'),
-            'serverHostname' => 'Hank'
+            'serverHostname' => 'Hank',
+            'created' => $this->clock->read()
         ];
 
-        $factory = new MessageFactory($this->clock);
+        $factory = new MessageFactory;
         foreach ($expectedDefaults as $property => $value) {
             $factory->setDefaultProperty($property, $value);
         }
@@ -91,10 +91,11 @@ class MessageFactoryTest extends TestCase
         $expectedDefaults = [
             'applicationID' => 'ABC2',
             'serverIP' => IPv4Address::create('127.0.0.1'),
-            'serverHostname' => 'Walt'
+            'serverHostname' => 'Walt',
+            'created' => $this->clock->read()
         ];
 
-        $factory = new MessageFactory($this->clock, $expectedDefaults);
+        $factory = new MessageFactory($expectedDefaults);
         $actual = $factory->buildMessage('', $expectedMessage);
 
         // Assertions on actual message
@@ -116,7 +117,7 @@ class MessageFactoryTest extends TestCase
         ];
         $expectedUnknownProperty = ['unknown' => new Stringable];
 
-        $factory = new MessageFactory($this->clock, array_merge($expectedDefaults, $expectedUnknownProperty));
+        $factory = new MessageFactory($expectedDefaults + $expectedUnknownProperty);
         $actual = $factory->buildMessage('', 'message');
 
         $this->assertSame(['unknown' => ''], $actual->context());

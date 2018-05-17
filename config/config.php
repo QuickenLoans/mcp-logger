@@ -62,6 +62,12 @@ return function (ContainerConfigurator $container) {
         ->set('env(MCP_LOGGER_NEWLINES_ENABLED)', '') # SPLIT_ON_NEWLINES
 
         ->set('mcp_logger.default_properties', [])
+        ->set('mcp_logger.factory.options', [
+            'max_size_kb' => '%env(int:MCP_LOGGER_MAX_SIZE_KB)%'
+        ])
+
+        // factory
+        ->set('env(MCP_LOGGER_MAX_SIZE_KB)', 100)
 
         // line serializer
         ->set('env(MCP_LOGGER_LINE_SERIALIZER_TEMPLATE)', '[{{ created }}] {{ severity }} : {{ message }}')
@@ -109,8 +115,8 @@ return function (ContainerConfigurator $container) {
 
         ->set(MessageFactory::class)
             ->public()
-            ->arg('$clock', null)
             ->arg('$defaults', '%mcp_logger.default_properties%')
+            ->arg('$config', '%mcp_logger.factory.options%')
 
         ->set('mcp_logger.service')
             ->class(ServiceInterface::class)
