@@ -34,6 +34,7 @@ class LoggerTest extends TestCase
         $this->serializer = Mockery::mock(SerializerInterface::class);
         $this->service = Mockery::mock(ServiceInterface::class);
     }
+
     public function testMessageFactoryIsCalledWhenMessageIsLogged()
     {
         $this->factory

@@ -19,6 +19,7 @@ This package follows [semver](http://semver.org/) versioning.
 - Add **Transformers** which are attached to the `Logger` and can modify the message before it is rendered.
     - Useful for attaching more properties, or transforming the message.
     - Currently only transform available is: [QLLogSeverityTransformer](src/Transformer/QLLogSeverityTransformer.php)
+- Add `MemoryLogger` for keeping messages in memory instead of sending to a service.
 - See the integration tests for working examples of how to configure this library.
     - [DefaultLoggerTest](tests/integration-tests/DefaultLoggerTest.php)
     - [MultiLineFileLoggerTest](tests/integration-tests/MultiLineFileLoggerTest.php)

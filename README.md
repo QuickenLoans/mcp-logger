@@ -16,8 +16,10 @@ This library shares some features with the popular PHP logging library **Monolog
 - [Installation](#installation)
 - [Components](#components)
 - [Usage](#usage)
+    - [Logger](#logger)
     - [Filter Logger](#filter-logger)
     - [Broadcast Logger](#broadcast-logger)
+    - [Memory Logger](#memory-logger)
     - [Creating a Message](#creating-a-message)
     - [Sending a Message](#sending-a-message)
 - [Services](#services)
@@ -112,12 +114,13 @@ To put things simply, a `Serializer` serializes a `Message` that is sent by a `S
 - [Logger](#logger)
 - [Filter Logger](#filter-logger)
 - [Broadcast Logger](#broadcast-logger)
+- [Memory Logger](#memory-logger)
 - [Creating a Message](#creating-a-message)
 - [Sending a Message](#sending-a-message)
 
 ```php
 use QL\MCP\Logger\Message\MessageFactory;
-use QL\MCP\Logger\Service\Serializer\JSONSerializer;
+use QL\MCP\Logger\Serializer\JSONSerializer;
 use QL\MCP\Logger\Service\SyslogService;
 use QL\MCP\Logger\Logger;
 
@@ -181,6 +184,29 @@ $logger = new BroadcastLogger([
 
 // Messages sent to both loggers.
 $logger->info('Hello World!');
+```
+
+### Memory Logger
+
+Sometimes it can be useful to keep messages in memory, for example attaching them to the response in `debug` modes and rendering them onto the page (such as when using symfony profiler).
+
+```php
+use QL\MCP\Logger\MemoryLogger;
+use QL\MCP\Logger\Logger;
+use QL\MCP\Logger\Serializer\LineSerializer;
+
+$serializer = new LineSerializer;
+$logger = new MemoryLogger($serializer);
+
+// Messages sent to both loggers.
+$logger->info('Hello World!');
+$logger->emergency('Hello World!');
+
+$messages = $logger->getMessages();
+# [
+#   "serialized message",
+#   "serialized message",
+# ]
 ```
 
 ### Creating a Message

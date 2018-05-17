@@ -11,21 +11,10 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
 use QL\MCP\Logger\Message\MessageFactory;
 use QL\MCP\Logger\Serializer\LineSerializer;
-use QL\MCP\Logger\Service\ErrorLogService;
-use QL\MCP\Logger\Utility\OptionTrait;
 
-class Logger implements LoggerInterface
+class MemoryLogger implements LoggerInterface
 {
     use LoggerTrait;
-    use OptionTrait;
-
-    // Flags
-    const SPLIT_ON_NEWLINES = 1;
-
-    /**
-     * @var ServiceInterface
-     */
-    private $service;
 
     /**
      * @var SerializerInterface
@@ -43,20 +32,23 @@ class Logger implements LoggerInterface
     private $transformers;
 
     /**
-     * @param ServiceInterface $service
+     * @var array
+     */
+    private $messages;
+
+    /**
      * @param SerializerInterface $serializer
      * @param MessageFactoryInterface $factory
      */
     public function __construct(
-        ServiceInterface $service = null,
         SerializerInterface $serializer = null,
         MessageFactoryInterface $factory = null
     ) {
-        $this->service = $service ?: $this->buildDefaultService();
         $this->serializer = $serializer ?: $this->buildDefaultSerializer();
         $this->factory = $factory ?: $this->buildDefaultFactory();
 
         $this->transformers = [];
+        $this->messages = [];
     }
 
     /**
@@ -67,6 +59,14 @@ class Logger implements LoggerInterface
     public function addTransformer(TransformerInterface $transformer): void
     {
         $this->transformers[] = $transformer;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMessages(): array
+    {
+        return $this->messages;
     }
 
     /**
@@ -88,23 +88,7 @@ class Logger implements LoggerInterface
 
         $formatted = ($this->serializer)($message);
 
-        if (!$this->isFlagEnabled(self::SPLIT_ON_NEWLINES)) {
-            $this->service->send($level, $formatted);
-            return;
-        }
-
-        $lines = preg_split('/(\r\n|\n|\r)/', $formatted);
-        foreach ($lines as $line) {
-            $this->service->send($level, $line);
-        }
-    }
-
-    /**
-     * @return ServiceInterface
-     */
-    protected function buildDefaultService()
-    {
-        return new ErrorLogService;
+        $this->messages[] = $formatted;
     }
 
     /**
