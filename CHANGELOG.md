@@ -3,10 +3,17 @@ All notable changes to this project will be documented in this file. See [keepac
 
 This package follows [semver](http://semver.org/) versioning.
 
-## [4.0.0] - 2018-05-16
+## [4.0.0] - 2018-05-18
 ## Changed
 - This library now requires PHP 7.1 or higher.
 - Simplified much code!
+- Changes to `Message`:
+    - `$message->userName()` was removed.
+    - `$message->errorDetails()` was changed to `$message->details()`.
+    - `$message->applicationID()` is now optional.
+    - `$message->serverIP()` is now optional.
+    - `$message->serverHostname()` is now optional.
+- `XMLSerializer` now uses the same property names as `JSONSerializer` and the format of the document changed.
 - The default method is now `ErrorLog` (It used to be syslog).
     - ErrorLog can be used to easily send your logs to files: [php.net](http://php.net/manual/en/function.error-log.php).
 - Switched to Symfony PHP fluent config for included DI

@@ -14,6 +14,8 @@ This library shares some features with the popular PHP logging library **Monolog
 ## Contents
 
 - [Installation](#installation)
+    - [Changing Log Service](#changing-log-service)
+    - [Changing Log Serializer](#changing-log-serializer)
 - [Components](#components)
 - [Usage](#usage)
     - [Logger](#logger)
@@ -89,14 +91,46 @@ All other parameters can be specified through environment variables. If you are 
 - Configuring **Guzzle**
     - `MCP_LOGGER_GUZZLE_ENDPOINT` - HTTP endpoint to POST messages to.
 
-#### Changing logger service
+#### Changing log service
 
-To change the service or serializer used by the logger (if you do not want to use the default) simply change the variable in your `.env` file.
+To change the service used by the logger (if you do not want to use the default) simply change the variable in your `.env` file.
+
 ```bash
+# ErrorLogService, This is the default
+MCP_LOGGER_SERVICE="error_log"
+MCP_LOGGER_ERRORLOG_TYPE="OPERATING_SYSTEM"
+MCP_LOGGER_ERRORLOG_FILE=""
+
+# GuzzleService
 MCP_LOGGER_SERVICE="guzzle"
+MCP_LOGGER_GUZZLE_ENDPOINT="https://logs.example.com/endpoint"
+
+# SyslogService
+MCP_LOGGER_SERVICE="syslog"
+MCP_LOGGER_SYSLOG_IDENT="mcplogger"
+MCP_LOGGER_SYSLOG_FACILITY="LOG_USER"
+MCP_LOGGER_SYSLOG_OPTIONS="6" # LOG_ODELAY | LOG_CONS
+
+# NullService
+MCP_LOGGER_SERVICE="null"
+```
+
+#### Changing log serializer
+
+To change the serializer used by the logger (if you do not want to use the default) simply change the variable in your `.env` file.
+
+```bash
+# LineSerializer, This is the default
+MCP_LOGGER_SERIALIZER="line"
+MCP_LOGGER_NEWLINES_ENABLED="SPLIT_ON_NEWLINES"
+MCP_LOGGER_LINE_SERIALIZER_NEWLINES_ENABLED="ALLOW_NEWLINES"
+MCP_LOGGER_LINE_SERIALIZER_TEMPLATE="[{{ created }}] {{ severity }} : {{ message }}"
+
+# JSONSerializer
 MCP_LOGGER_SERIALIZER="json"
 
-MCP_LOGGER_GUZZLE_ENDPOINT="https://logs.example.com/endpoint"
+# XMLSerializer
+MCP_LOGGER_SERIALIZER="xml"
 ```
 
 ## Components

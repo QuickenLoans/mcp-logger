@@ -121,12 +121,12 @@ return function (ContainerConfigurator $container) {
         ->set('mcp_logger.service')
             ->class(ServiceInterface::class)
             ->factory([ref('service_container'), 'get'])
-            ->arg('$id', 'mcp_logger.service.%env(MCP_LOGGER_SERVICE)%')
+            ->arg('$id', 'mcp_logger.service.%env(string:MCP_LOGGER_SERVICE)%')
 
         ->set('mcp_logger.serializer')
             ->class(SerializerInterface::class)
             ->factory([ref('service_container'), 'get'])
-            ->arg('$id', 'mcp_logger.serializer.%env(MCP_LOGGER_SERIALIZER)%')
+            ->arg('$id', 'mcp_logger.serializer.%env(string:MCP_LOGGER_SERIALIZER)%')
 
         // Service types
         ->set('mcp_logger.service.error_log')
