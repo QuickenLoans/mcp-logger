@@ -8,7 +8,7 @@
 namespace QL\MCP\Logger\Message;
 
 use JsonSerializable;
-use QL\MCP\Common\Time\Clock;
+use QL\MCP\Common\Clock;
 use QL\MCP\Logger\Exception;
 
 trait MessageLoadingTrait

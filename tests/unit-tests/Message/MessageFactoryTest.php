@@ -9,8 +9,7 @@ namespace QL\MCP\Logger\Message;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
-use QL\MCP\Common\IPv4Address;
-use QL\MCP\Common\Time\Clock;
+use QL\MCP\Common\Clock;
 use QL\MCP\Common\Time\TimePoint;
 use QL\MCP\Logger\Exception;
 use QL\MCP\Logger\Testing\Stringable;
@@ -21,15 +20,6 @@ class MessageFactoryTest extends TestCase
     public function setUp()
     {
         $this->clock = new Clock('2019-05-10 12:15:45', 'UTC');
-    }
-
-    public function testInvalidIpAddressThrowsException()
-    {
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage("'serverIP' must be an instance of IPv4Address");
-
-        $factory = new MessageFactory;
-        $factory->setDefaultProperty('serverIP', new stdClass);
     }
 
     public function testInvalidPropertyThrowsException()
@@ -45,7 +35,7 @@ class MessageFactoryTest extends TestCase
     {
         $defaults = [
             'applicationID' => 10,
-            'serverIP' => IPv4Address::create('127.0.0.1'),
+            'serverIP' => '127.0.0.1',
             'serverHostname' => 'Test'
         ];
 
@@ -64,7 +54,7 @@ class MessageFactoryTest extends TestCase
         $expectedMessage = 'hello';
         $expectedDefaults = [
             'applicationID' => '1',
-            'serverIP' => IPv4Address::create('127.0.0.1'),
+            'serverIP' => '127.0.0.1',
             'serverHostname' => 'Hank',
             'created' => $this->clock->read()
         ];
@@ -90,7 +80,7 @@ class MessageFactoryTest extends TestCase
         $expectedMessage = 'there';
         $expectedDefaults = [
             'applicationID' => 'ABC2',
-            'serverIP' => IPv4Address::create('127.0.0.1'),
+            'serverIP' => '255.255.255.255',
             'serverHostname' => 'Walt',
             'created' => $this->clock->read()
         ];
@@ -100,7 +90,7 @@ class MessageFactoryTest extends TestCase
 
         // Assertions on actual message
         $this->assertSame('ABC2', $actual->applicationID());
-        $this->assertSame('127.0.0.1', $actual->serverIP());
+        $this->assertSame('255.255.255.255', $actual->serverIP());
         $this->assertSame('Walt', $actual->serverHostname());
 
         $this->assertSame('2019-05-10', $actual->created()->format('Y-m-d', 'UTC'));
@@ -112,7 +102,7 @@ class MessageFactoryTest extends TestCase
     {
         $expectedDefaults = [
             'applicationID' => 10,
-            'serverIP' => IPv4Address::create('127.0.0.1'),
+            'serverIP' => '2001:0db8:85a3:0000:0000:8a2e:0370:7334',
             'serverHostname' => 'TestMachine'
         ];
         $expectedUnknownProperty = ['unknown' => new Stringable];
@@ -121,5 +111,6 @@ class MessageFactoryTest extends TestCase
         $actual = $factory->buildMessage('', 'message');
 
         $this->assertSame(['unknown' => ''], $actual->context());
+        $this->assertSame('2001:0db8:85a3:0000:0000:8a2e:0370:7334', $actual->serverIP());
     }
 }

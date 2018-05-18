@@ -7,10 +7,10 @@
 
 namespace QL\MCP\Logger\Message;
 
+use Darsyn\IP\IP;
+use Darsyn\IP\InvalidIpAddressException;
 use Psr\Log\LogLevel;
 use QL\MCP\Common\GUID;
-use QL\MCP\Common\IPv4Address;
-use QL\MCP\Common\Time\Clock;
 use QL\MCP\Common\Time\TimePoint;
 use QL\MCP\Logger\Exception;
 use QL\MCP\Logger\MessageFactoryInterface;
@@ -44,7 +44,6 @@ class MessageFactory implements MessageFactoryInterface
      * @var string
      */
     const ERR_UNRENDERABLE = 'Invalid property: "%s". Log properties must be scalars or objects that implement __toString.';
-    const ERR_INVALID_IP = "'%s' must be an instance of IPv4Address.";
     const ERR_INVALID_TIME = "'%s' must be an instance of TimePoint.";
 
     // Config Keys
@@ -72,7 +71,7 @@ class MessageFactory implements MessageFactoryInterface
     {
         $properties = $defaults + [
             MessageInterface::APPLICATION_ID => 'APP123',
-            MessageInterface::SERVER_IP => IPv4Address::create('0.0.0.0'),
+            MessageInterface::SERVER_IP => '0.0.0.0',
             MessageInterface::SERVER_HOSTNAME => gethostname(),
         ];
 
@@ -133,14 +132,6 @@ class MessageFactory implements MessageFactoryInterface
      */
     private function validateProperty($name, $value)
     {
-        if (in_array($name, [MessageInterface::SERVER_IP, MessageInterface::USER_IP], true)) {
-            if (is_null($value) || $value instanceof IPv4Address) {
-                return;
-            }
-
-            throw new Exception(sprintf(self::ERR_INVALID_IP, $name));
-        }
-
         if (in_array($name, [MessageInterface::CREATED], true)) {
             if (is_null($value) || $value instanceof TimePoint) {
                 return;
@@ -199,6 +190,15 @@ class MessageFactory implements MessageFactoryInterface
             $sanitized = $this->validateValue($value);
             if ($sanitized === null) {
                 continue;
+            }
+
+            if (in_array($property, [MessageInterface::SERVER_IP, MessageInterface::USER_IP], true)) {
+                try {
+                    $ip = new IP($value);
+                    $value = $ip->getShortAddress();
+                } catch (InvalidIpAddressException $e) {
+                    $value = '0.0.0.0';
+                }
             }
 
             if (in_array($property, $this->knownProperties, true)) {

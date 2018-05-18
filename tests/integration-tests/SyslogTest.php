@@ -8,9 +8,8 @@
 namespace QL\MCP\Logger;
 
 use PHPUnit\Framework\TestCase;
+use QL\MCP\Common\Clock;
 use QL\MCP\Common\GUID;
-use QL\MCP\Common\IPv4Address;
-use QL\MCP\Common\Time\Clock;
 use QL\MCP\Logger\Message\MessageFactory;
 use QL\MCP\Logger\Serializer\LineSerializer;
 use QL\MCP\Logger\Service\SyslogService;
@@ -28,7 +27,7 @@ class StructuredLoggerTest extends TestCase
         $factory = new MessageFactory;
         $factory->setDefaultProperty('applicationID', '200001');
         $factory->setDefaultProperty('serverEnvironment', 'prod');
-        $factory->setDefaultProperty('serverIP', IPv4Address::create('127.0.0.1'));
+        $factory->setDefaultProperty('serverIP', '127.0.0.1');
         $factory->setDefaultProperty('serverHostname', 'prod.example.com');
         $factory->setDefaultProperty('created', (new Clock('2019-02-05 12:15:45', 'UTC'))->read());
 

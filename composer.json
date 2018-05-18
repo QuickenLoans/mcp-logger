@@ -16,7 +16,8 @@
     "require": {
         "php": "~7.1",
 
-        "ql/mcp-common":    "^1.1.0",
+        "darsyn/ip":        "~3.3",
+        "ql/mcp-common":    "~2.0",
         "psr/log":          "*"
     },
     "require-dev": {

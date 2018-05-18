@@ -8,7 +8,6 @@
 namespace QL\MCP\Logger\Serializer\Utility;
 
 use QL\MCP\Common\GUID;
-use QL\MCP\Common\IPv4Address;
 use QL\MCP\Common\Time\TimePoint;
 
 trait SanitizerTrait
