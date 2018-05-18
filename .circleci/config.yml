@@ -21,6 +21,15 @@ persist_workspace: &persist_workspace
         root: '.'
         paths: [ '.' ]
 
+run_tests_steps: &run_tests_steps
+    steps:
+        - *attach_workspace
+        - run:
+            name: 'Run unit tests'
+            command: 'phpdbg -qrr vendor/bin/phpunit'
+        - store_test_results:
+            path: '.phpunit/report'
+
 workflows:
 
     version: 2
@@ -103,18 +112,8 @@ jobs:
 
     unit_tests_71:
         <<: *php71_defaults
-        steps:
-            - *attach_workspace
-            - run:
-                name: 'Run unit tests'
-                command: 'phpdbg -qrr vendor/bin/phpunit'
+        <<: *run_tests_steps
 
     unit_tests_72:
         <<: *php72_defaults
-        steps:
-            - *attach_workspace
-            - run:
-                name: 'Run unit tests'
-                command: 'phpdbg -qrr vendor/bin/phpunit'
-            - store_test_results:
-                path: '.phpunit/report'
+        <<: *run_tests_steps
