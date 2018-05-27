@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 use QL\MCP\Common\GUID;
 use QL\MCP\Logger\Serializer\LineSerializer;
 
-class DefaultLoggerTest extends TestCase
+class MultiLineFileLoggerTest extends TestCase
 {
     public static $logSetting;
 
