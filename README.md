@@ -1,4 +1,4 @@
-[![CircleCI](https://img.shields.io/circleci/project/github/quickenloans-mcp/mcp-logger.svg?label=circleci)](https://circleci.com/gh/quickenloans-mcp/mcp-logger)
+[![CircleCI](https://circleci.com/gh/QuickenLoans/mcp-logger.svg?style=shield)](https://circleci.com/gh/QuickenLoans/mcp-logger)
 [![Latest Stable Version](https://img.shields.io/packagist/v/ql/mcp-logger.svg?label=stable)](https://packagist.org/packages/ql/mcp-logger)
 [![GitHub License](https://img.shields.io/github/license/quickenloans-mcp/mcp-logger.svg)](https://packagist.org/packages/ql/mcp-logger)
 ![GitHub Language](https://img.shields.io/github/languages/top/quickenloans-mcp/mcp-logger.svg)
