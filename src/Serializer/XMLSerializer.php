@@ -163,7 +163,7 @@ class XMLSerializer implements SerializerInterface
     /**
      * @param mixed $value
      *
-     * @return bool
+     * @return string
      */
     private function boolify($value)
     {

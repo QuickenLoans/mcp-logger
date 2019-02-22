@@ -9,6 +9,7 @@ namespace QL\MCP\Logger\Message;
 
 use JsonSerializable;
 use QL\MCP\Common\Clock;
+use QL\MCP\Common\Time\TimePoint;
 use QL\MCP\Logger\Exception;
 
 trait MessageLoadingTrait
@@ -16,16 +17,17 @@ trait MessageLoadingTrait
     /**
      * @var Clock
      */
-    private static $createdTimeGenerator;
+    private static $createdTimeGenerator = null;
 
     /**
      * @return TimePoint
      */
     private function generateCreatedTime()
     {
-        if (!self::$createdTimeGenerator) {
+        if (self::$createdTimeGenerator === null) {
             self::$createdTimeGenerator = new Clock;
         }
+
         return self::$createdTimeGenerator->read();
     }
 
