@@ -17,16 +17,17 @@ trait MessageLoadingTrait
     /**
      * @var Clock
      */
-    private static $createdTimeGenerator;
+    private static $createdTimeGenerator = null;
 
     /**
      * @return TimePoint
      */
     private function generateCreatedTime()
     {
-        if (!self::$createdTimeGenerator) {
+        if (self::$createdTimeGenerator === null) {
             self::$createdTimeGenerator = new Clock;
         }
+
         return self::$createdTimeGenerator->read();
     }
 
