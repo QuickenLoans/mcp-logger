@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file. See [keepac
 
 This package follows [semver](http://semver.org/) versioning.
 
+## [3.0.1] - 2019-05-01
+### Fixed
+- Removed use of deprecated constants `FILTER_FLAG_SCHEME_REQUIRED` and `FILTER_FLAG_HOST_REQUIRED` when using
+  **GuzzleService** to send logs over http.
+  - This enables PHP 7.3 compatibility.
+
 ## [3.0.0] - 2016-11-20
 
 ### Added

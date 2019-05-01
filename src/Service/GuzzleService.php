@@ -117,7 +117,7 @@ class GuzzleService implements ServiceInterface
      */
     private function validateEndpoint($endpoint)
     {
-        $isValid = filter_var($endpoint, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED);
+        $isValid = filter_var($endpoint, FILTER_VALIDATE_URL);
 
         if ($isValid) {
             $scheme = strtolower(parse_url($endpoint, PHP_URL_SCHEME));
