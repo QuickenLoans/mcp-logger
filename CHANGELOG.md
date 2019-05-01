@@ -47,6 +47,12 @@ This package follows [semver](http://semver.org/) versioning.
 - This library now requires PHP 7.0 or higher.
 - Added better CI configuration and tests.
 
+## [3.0.1] - 2019-05-01
+### Fixed
+- Removed use of deprecated constants `FILTER_FLAG_SCHEME_REQUIRED` and `FILTER_FLAG_HOST_REQUIRED` when using
+  **GuzzleService** to send logs over http.
+  - This enables PHP 7.3 compatibility.
+
 ## [3.0.0] - 2016-11-21
 
 ### Added
