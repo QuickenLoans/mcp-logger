@@ -3,8 +3,15 @@ All notable changes to this project will be documented in this file. See [keepac
 
 This package follows [semver](http://semver.org/) versioning.
 
+## [4.0.1] - 2019-05-01
+### Fixed
+- Removed use of deprecated constants `FILTER_FLAG_SCHEME_REQUIRED` and `FILTER_FLAG_HOST_REQUIRED` when using
+  **GuzzleService** to send logs over http.
+  - This enables PHP 7.3 compatibility.
+
+
 ## [4.0.0] - 2018-05-18
-## Changed
+### Changed
 - This library now requires PHP 7.1 or higher.
 - Simplified much code!
 - Changes to `Message`:
@@ -37,7 +44,7 @@ This package follows [semver](http://semver.org/) versioning.
 - PHP 7.0 no longer supported.
 
 ## [3.1.0] - 2018-03-28
-## Changed
+### Changed
 - This library now requires PHP 7.0 or higher.
 - Added better CI configuration and tests.
 
