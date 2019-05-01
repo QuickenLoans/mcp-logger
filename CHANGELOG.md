@@ -9,7 +9,6 @@ This package follows [semver](http://semver.org/) versioning.
   **GuzzleService** to send logs over http.
   - This enables PHP 7.3 compatibility.
 
-
 ## [4.0.0] - 2018-05-18
 ### Changed
 - This library now requires PHP 7.1 or higher.
