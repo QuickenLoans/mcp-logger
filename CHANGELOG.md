@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file. See [keepac
 
 This package follows [semver](http://semver.org/) versioning.
 
+## [4.1.0] - 2019-09-03
+
+### Changed
+- Update `darsyn/ip` to v4.0 to handle IP address validation as `v3.x` was deprecated.
+
 ## [4.0.1] - 2019-05-01
 ### Fixed
 - Removed use of deprecated constants `FILTER_FLAG_SCHEME_REQUIRED` and `FILTER_FLAG_HOST_REQUIRED` when using

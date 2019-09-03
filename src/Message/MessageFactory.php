@@ -7,8 +7,8 @@
 
 namespace QL\MCP\Logger\Message;
 
-use Darsyn\IP\IP;
-use Darsyn\IP\InvalidIpAddressException;
+use Darsyn\IP\Exception\InvalidIpAddressException;
+use Darsyn\IP\Version\Multi as MultiIP;
 use Psr\Log\LogLevel;
 use QL\MCP\Common\GUID;
 use QL\MCP\Common\Time\TimePoint;
@@ -194,8 +194,8 @@ class MessageFactory implements MessageFactoryInterface
 
             if (in_array($property, [MessageInterface::SERVER_IP, MessageInterface::USER_IP], true)) {
                 try {
-                    $ip = new IP($value);
-                    $value = $ip->getShortAddress();
+                    $ip = MultiIP::factory($value);
+                    $value = $ip->getProtocolAppropriateAddress();
                 } catch (InvalidIpAddressException $e) {
                     $value = '0.0.0.0';
                 }
