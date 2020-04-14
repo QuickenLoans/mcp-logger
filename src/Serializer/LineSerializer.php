@@ -117,7 +117,7 @@ class LineSerializer implements SerializerInterface
         $context += [
             'shortid' => substr($context['id'], 0, 8),
             'date' => $this->sanitizeTime($message->created(), 'Y-m-d'),
-            'time' => $this->sanitizeTime($message->created()), 'H:i:s',
+            'time' => $this->sanitizeTime($message->created(), 'H:i:s'),
             'datetime' => $this->sanitizeTime($message->created(), 'Y-m-d H:i:s'),
         ];
 

@@ -30,6 +30,23 @@ class LineSerializerTest extends TestCase
         $this->assertSame($expected, $actual);
     }
 
+    public function testExtraConvenienceVariables()
+    {
+        $fixturePath = __DIR__ . "/.fixtures/all-properties.php";
+        $input = include $fixturePath;
+
+        $message = new Message('info', 'hello there', $input);
+
+        $serializer = new LineSerializer([
+            'template' => '[{{ severity }}] {{ shortid }} - {{ date }} --- {{ time }} --- {{ datetime }}'
+        ]);
+
+        $expected = '[info] 9e43e37a - 2016-11-08 --- 16:00:00 --- 2016-11-08 16:00:00';
+
+        $actual = $serializer($message);
+        $this->assertSame($expected, $actual);
+    }
+
     /**
      * @dataProvider providerFixtureNames
      */

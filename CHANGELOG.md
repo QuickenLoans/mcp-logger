@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file. See [keepac
 
 This package follows [semver](http://semver.org/) versioning.
 
+## [4.1.1] - 2020-04-14
+### Fixed
+- Fix incorrect value for `{{ time }}` when using `LineSerializer`.
+
 ## [4.1.0] - 2019-09-03
 
 ### Changed
