@@ -43,7 +43,7 @@ class SyslogService implements ServiceInterface
         $this->config = array_merge([
             self::CONFIG_IDENT => self::DEFAULT_IDENT,
             self::CONFIG_FACILITY => self::DEFAULT_FACILITY,
-            self::CONFIG_OPTIONS =>  self::DEFAULT_OPTIONS
+            self::CONFIG_OPTIONS =>  self::DEFAULT_OPTIONS,
         ], $config);
 
         $this->status = false;

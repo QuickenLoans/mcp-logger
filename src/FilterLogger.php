@@ -7,9 +7,9 @@
 
 namespace QL\MCP\Logger;
 
-use Psr\Log\LogLevel;
-use Psr\Log\LoggerTrait;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerTrait;
+use Psr\Log\LogLevel;
 
 /**
  * A logger that allows for setting a lowest priority logging level.
@@ -55,7 +55,7 @@ class FilterLogger implements LoggerInterface
         LogLevel::WARNING => 4,
         LogLevel::NOTICE => 5,
         LogLevel::INFO => 6,
-        LogLevel::DEBUG => 7
+        LogLevel::DEBUG => 7,
     ];
 
     /**

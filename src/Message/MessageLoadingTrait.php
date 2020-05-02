@@ -129,7 +129,7 @@ trait MessageLoadingTrait
                     continue;
                 }
 
-                if (null === $value || is_bool($value)) {
+                if ($value === null || is_bool($value)) {
                     $value = var_export($value, true);
                 }
 

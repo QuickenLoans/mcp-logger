@@ -7,8 +7,8 @@
 
 namespace QL\MCP\Logger;
 
-use Psr\Log\LoggerTrait;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerTrait;
 
 /**
  * A logger that allows for broadcasting a log message to multiple other loggers.
