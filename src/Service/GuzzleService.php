@@ -58,7 +58,7 @@ class GuzzleService implements ServiceInterface
     {
         $options = [
             'body' => $formatted,
-            'http_errors' => true
+            'http_errors' => true,
         ];
 
         try {
@@ -98,7 +98,7 @@ class GuzzleService implements ServiceInterface
     {
         return new Client([
             'timeout' => self::DEFAULT_TIMEOUT,
-            'connect_timeout' => self::DEFAULT_TIMEOUT
+            'connect_timeout' => self::DEFAULT_TIMEOUT,
         ]);
     }
 }

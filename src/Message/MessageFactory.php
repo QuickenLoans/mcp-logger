@@ -81,7 +81,7 @@ class MessageFactory implements MessageFactoryInterface
         }
 
         $this->config = $config + [
-            self::CONFIG_MAX_PROPERTY_SIZE => 100 // default to max 100kb text size of each property
+            self::CONFIG_MAX_PROPERTY_SIZE => 100, // default to max 100kb text size of each property
         ];
 
         $this->knownProperties = [
@@ -103,7 +103,7 @@ class MessageFactory implements MessageFactoryInterface
             MessageInterface::REQUEST_URL,
 
             MessageInterface::USER_AGENT,
-            MessageInterface::USER_IP
+            MessageInterface::USER_IP,
         ];
     }
 
@@ -164,7 +164,7 @@ class MessageFactory implements MessageFactoryInterface
     {
         $level = $this->validateSeverity($level);
         $data = [
-            MessageInterface::CONTEXT => []
+            MessageInterface::CONTEXT => [],
         ];
 
         // Append message defaults to this payload
@@ -276,7 +276,7 @@ class MessageFactory implements MessageFactoryInterface
             LogLevel::WARNING,
             LogLevel::NOTICE,
             LogLevel::INFO,
-            LogLevel::DEBUG
+            LogLevel::DEBUG,
         ];
 
         return in_array($level, $validLevels, true) ? $level : LogLevel::ERROR;

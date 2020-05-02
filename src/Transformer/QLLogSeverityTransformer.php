@@ -8,8 +8,8 @@
 namespace QL\MCP\Logger\Transformer;
 
 use Psr\Log\LogLevel;
-use QL\MCP\Logger\MessageInterface;
 use QL\MCP\Logger\Message\Message;
+use QL\MCP\Logger\MessageInterface;
 use QL\MCP\Logger\TransformerInterface;
 
 class QLLogSeverityTransformer implements TransformerInterface

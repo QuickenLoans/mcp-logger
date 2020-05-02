@@ -28,13 +28,13 @@ class ErrorLogService implements ServiceInterface
     const VALID_TYPES = [
         self::OPERATING_SYSTEM,
         self::SAPI,
-        self::FILE
+        self::FILE,
     ];
 
     const VALID_TYPES_TEXT = [
         'OPERATING_SYSTEM',
         'SAPI',
-        'FILE'
+        'FILE',
     ];
 
     // Error Messages
@@ -58,7 +58,7 @@ class ErrorLogService implements ServiceInterface
 
         $this->config = $config + [
             self::CONFIG_FILE => self::DEFAULT_FILE,
-            self::CONFIG_TYPE => self::DEFAULT_TYPE
+            self::CONFIG_TYPE => self::DEFAULT_TYPE,
         ];
 
         $this->validateMessageType();

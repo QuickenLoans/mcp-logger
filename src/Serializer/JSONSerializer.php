@@ -8,8 +8,8 @@
 namespace QL\MCP\Logger\Serializer;
 
 use QL\MCP\Logger\MessageInterface;
-use QL\MCP\Logger\SerializerInterface;
 use QL\MCP\Logger\Serializer\Utility\SanitizerTrait;
+use QL\MCP\Logger\SerializerInterface;
 
 /**
  * JSON serializer for log messages.
@@ -35,7 +35,7 @@ class JSONSerializer implements SerializerInterface
     public function __construct(array $config = [])
     {
         $this->config = $config + [
-            self::CONFIG_JSON_OPTIONS => self::DEFAULT_JSON_OPTIONS
+            self::CONFIG_JSON_OPTIONS => self::DEFAULT_JSON_OPTIONS,
         ];
     }
 
@@ -53,7 +53,7 @@ class JSONSerializer implements SerializerInterface
             'Created' => $this->sanitizeTime($message->created()),
 
             'Properties' => $this->buildContext($message->context()),
-            'Details' => $this->sanitizeString($message->details())
+            'Details' => $this->sanitizeString($message->details()),
         ];
 
         $optionals = [
@@ -67,7 +67,7 @@ class JSONSerializer implements SerializerInterface
             'URL' => $this->sanitizeString($message->requestURL()),
 
             'UserAgent' => $this->sanitizeString($message->userAgent()),
-            'UserIP' => $this->sanitizeString($message->userIP())
+            'UserIP' => $this->sanitizeString($message->userIP()),
         ];
 
         foreach ($optionals as $element => $value) {

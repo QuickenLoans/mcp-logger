@@ -7,8 +7,6 @@
 
 namespace QL\MCP\Logger;
 
-use QL\MCP\Logger\MessageInterface;
-
 interface SerializerInterface
 {
     public function __invoke(MessageInterface $message): string;

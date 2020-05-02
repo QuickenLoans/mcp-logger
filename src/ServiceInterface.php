@@ -7,8 +7,6 @@
 
 namespace QL\MCP\Logger;
 
-use QL\MCP\Logger\MessageInterface;
-
 interface ServiceInterface
 {
     public function send(string $level, string $formatted): bool;

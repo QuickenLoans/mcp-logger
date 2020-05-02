@@ -8,8 +8,8 @@
 namespace QL\MCP\Logger\Serializer;
 
 use QL\MCP\Logger\MessageInterface;
-use QL\MCP\Logger\SerializerInterface;
 use QL\MCP\Logger\Serializer\Utility\SanitizerTrait;
+use QL\MCP\Logger\SerializerInterface;
 use QL\MCP\Logger\Utility\OptionTrait;
 
 /**
@@ -147,7 +147,7 @@ class LineSerializer implements SerializerInterface
                 $value = $this->sanitizeNewlines($value);
             }
 
-            if (false !== strpos($output, $replacement)) {
+            if (strpos($output, $replacement) !== false) {
                 $output = str_replace($replacement, $value, $output);
             }
         }

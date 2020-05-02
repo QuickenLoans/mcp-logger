@@ -8,8 +8,8 @@
 namespace QL\MCP\Logger\Serializer;
 
 use QL\MCP\Logger\MessageInterface;
-use QL\MCP\Logger\SerializerInterface;
 use QL\MCP\Logger\Serializer\Utility\SanitizerTrait;
+use QL\MCP\Logger\SerializerInterface;
 use XMLWriter;
 
 /**
@@ -46,7 +46,7 @@ class XMLSerializer implements SerializerInterface
             'Created' => $this->sanitizeTime($message->created()),
 
             'Properties' => $this->buildContext($message->context()),
-            'Details' => $this->sanitizeString($message->details())
+            'Details' => $this->sanitizeString($message->details()),
         ];
 
         $optionals = [
@@ -60,7 +60,7 @@ class XMLSerializer implements SerializerInterface
             'URL' => $this->sanitizeString($message->requestURL()),
 
             'UserAgent' => $this->sanitizeString($message->userAgent()),
-            'UserIP' => $this->sanitizeString($message->userIP())
+            'UserIP' => $this->sanitizeString($message->userIP()),
         ];
 
         foreach ($optionals as $element => $value) {
