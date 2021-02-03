@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file. See [keepac
 
 This package follows [semver](http://semver.org/) versioning.
 
+## [4.2.1] - 2021-02-03
+
+### Changed
+- Relax `guzzlehttp/guzzle` requirements to allow `~6.5 || ~7.0` (Previously only 6.x was allowed).
+
 ## [4.2.0] - 2021-02-03
 
 ### Changed

@@ -21,7 +21,7 @@
         "psr/log":          "*"
     },
     "require-dev": {
-        "guzzlehttp/guzzle": "~6.3",
+        "guzzlehttp/guzzle": "~6.5 || ~7.0",
         "mockery/mockery":   "~1.0",
         "phpunit/phpunit":   "~9.0",
 
