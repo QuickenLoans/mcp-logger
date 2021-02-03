@@ -14,18 +14,18 @@ class ErrorLogServiceTest extends TestCase
 {
     public static $logSetting;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::$logSetting = ini_get('error_log');
         ini_set('error_log', __DIR__ . '/errlog');
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         ini_set('error_log', self::$logSetting);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         @unlink(__DIR__ . '/errlog');
     }
@@ -39,7 +39,7 @@ class ErrorLogServiceTest extends TestCase
  hello test
 LOG;
 
-        $this->assertContains($expected, file_get_contents(__DIR__ . '/errlog'));
+        $this->assertStringContainsString($expected, file_get_contents(__DIR__ . '/errlog'));
     }
 
     public function testInvalidTypeThrowsException()

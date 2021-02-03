@@ -20,7 +20,7 @@ class BroadcastLoggerTest extends TestCase
     public $logger1;
     public $logger2;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->logger1 = Mockery::spy(LoggerInterface::class);
         $this->logger2 = Mockery::spy(LoggerInterface::class);

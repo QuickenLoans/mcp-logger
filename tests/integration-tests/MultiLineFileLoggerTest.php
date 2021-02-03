@@ -30,18 +30,18 @@ Stack trace:
 #2 /project/vendor/phpunit/phpunit/src/Framework/TestCase.php(940): PHPUnit\Framework\TestCase->runTest()
 TEXT_TEMPLATE;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::$logSetting = ini_get('error_log');
         ini_set('error_log', __DIR__ . '/errlog');
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         ini_set('error_log', self::$logSetting);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         @unlink(__DIR__ . '/errlog');
     }

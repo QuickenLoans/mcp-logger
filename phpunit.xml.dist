@@ -1,14 +1,16 @@
 <?xml version="1.0"?>
 <phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+
     backupGlobals="false"
     backupStaticAttributes="false"
-    cacheTokens="false"
+    cacheResultFile=".phpunit/.phpunit.result.cache"
     colors="true"
     convertErrorsToExceptions="true"
     convertNoticesToExceptions="true"
     convertWarningsToExceptions="true"
     forceCoversAnnotation="false"
-    printerClass="PHPUnit\TextUI\ResultPrinter"
     processIsolation="false"
 
     stopOnError="false"
@@ -18,21 +20,20 @@
 
     beStrictAboutTestsThatDoNotTestAnything="false"
     beStrictAboutOutputDuringTests="true"
-    beStrictAboutCoversAnnotation="true"
 
     timeoutForSmallTests="2"
     verbose="true">
 
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory>src/</directory>
-        </whitelist>
-    </filter>
-
-    <logging>
-        <log type="coverage-html" target=".phpunit/coverage" lowUpperBound="70" highLowerBound="90"/>
-        <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
-    </logging>
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory>src</directory>
+        </include>
+        <report>
+            <clover outputFile=".phpunit/clover.xml"/>
+            <html outputDirectory=".phpunit/coverage"/>
+            <text outputFile="php://stdout" showUncoveredFiles="false" showOnlySummary="false"/>
+        </report>
+    </coverage>
 
     <php>
         <ini name="display_errors" value="On" />

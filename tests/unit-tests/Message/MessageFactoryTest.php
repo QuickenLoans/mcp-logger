@@ -17,7 +17,7 @@ use stdClass;
 
 class MessageFactoryTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->clock = new Clock('2019-05-10 12:15:45', 'UTC');
     }

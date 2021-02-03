@@ -1,16 +1,6 @@
 version: 2.1
 
 executors:
-    php71:
-        working_directory: '~/project'
-        docker:
-          - image: 'circleci/php:7.1'
-
-    php72:
-        working_directory: '~/project'
-        docker:
-          - image: 'circleci/php:7.2'
-
     php73:
         working_directory: '~/project'
         docker:
@@ -20,6 +10,11 @@ executors:
         working_directory: '~/project'
         docker:
           - image: 'circleci/php:7.4'
+
+    php80:
+        working_directory: '~/project'
+        docker:
+          - image: 'circleci/php:8.0'
 
 commands:
     php--run-unit-tests:
@@ -51,24 +46,6 @@ workflows:
             - fetch_code
 
             - php--install-dependencies:
-                name: 'php71_install'
-                executor_version: 'php71'
-                requires: [ fetch_code ]
-            - php--testing:
-                name: 'php71_testing'
-                executor_version: 'php71'
-                requires: [ php71_install ]
-
-            - php--install-dependencies:
-                name: 'php72_install'
-                executor_version: 'php72'
-                requires: [ fetch_code ]
-            - php--testing:
-                name: 'php72_testing'
-                executor_version: 'php72'
-                requires: [ php72_install ]
-
-            - php--install-dependencies:
                 name: 'php73_install'
                 executor_version: 'php73'
                 requires: [ fetch_code ]
@@ -86,12 +63,20 @@ workflows:
                 executor_version: 'php74'
                 requires: [ php74_install ]
 
+            - php--install-dependencies:
+                name: 'php80_install'
+                executor_version: 'php80'
+                requires: [ fetch_code ]
+            - php--testing:
+                name: 'php80_testing'
+                executor_version: 'php80'
+                requires: [ php80_install ]
+
             - fan_in:
                 requires:
-                    - 'php71_testing'
-                    - 'php72_testing'
                     - 'php73_testing'
                     - 'php74_testing'
+                    - 'php80_testing'
 
 jobs:
     php--install-dependencies:
@@ -137,11 +122,11 @@ jobs:
             - php--run-unit-tests
 
     fan_in:
-        executor: 'php71'
+        executor: 'php73'
         steps: [ { run: 'whoami' } ]
 
     fetch_code:
-        executor: 'php71'
+        executor: 'php73'
         steps:
             - checkout
             - persist_to_workspace: { root: '.', paths: [ '.' ] }

@@ -17,7 +17,7 @@ class SyslogServiceTest extends TestCase
     public static $syslogError;
     public static $logs;
 
-    public function setUp()
+    public function setUp(): void
     {
         self::$openlogError = self::$syslogError = false;
         self::$logs = [];

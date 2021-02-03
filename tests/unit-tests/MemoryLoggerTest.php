@@ -29,7 +29,7 @@ TEXT;
 
         $messages = $logger->getMessages();
 
-        $this->assertContains($expected1, $messages[0]);
-        $this->assertContains($expected2, $messages[1]);
+        $this->assertStringContainsString($expected1, $messages[0]);
+        $this->assertStringContainsString($expected2, $messages[1]);
     }
 }

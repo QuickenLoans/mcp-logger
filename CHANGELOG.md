@@ -3,6 +3,13 @@ All notable changes to this project will be documented in this file. See [keepac
 
 This package follows [semver](http://semver.org/) versioning.
 
+## [4.2.0] - 2021-02-03
+
+### Changed
+- Added support for PHP 8.
+- Updated unit tests to PHP Unit 9.
+- Removed support for PHP 7.1 and PHP 7.2.
+
 ## [4.1.1] - 2020-04-14
 ### Fixed
 - Fix incorrect value for `{{ time }}` when using `LineSerializer`.

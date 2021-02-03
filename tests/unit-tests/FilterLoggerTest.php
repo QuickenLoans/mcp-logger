@@ -19,7 +19,7 @@ class FilterLoggerTest extends TestCase
 
     public $logger;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->logger = Mockery::spy(LoggerInterface::class);
     }

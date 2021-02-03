@@ -26,7 +26,7 @@ class LoggerTest extends TestCase
     public $serializer;
     public $service;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->message = Mockery::mock(MessageInterface::class);
 
